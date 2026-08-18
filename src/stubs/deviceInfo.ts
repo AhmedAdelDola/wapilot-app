@@ -1,0 +1,16 @@
+export default {
+  getVersion: () => '1.0.0',
+  getBuildNumber: () => '1',
+  getBundleId: () => 'com.wapilot.app',
+  getSystemName: () => 'Android',
+  getSystemVersion: () => '14',
+  getDeviceId: () => 'unknown',
+  getModel: () => 'unknown',
+  getBrand: () => 'unknown',
+  getManufacturer: () => 'unknown',
+  isTablet: () => false,
+  isEmulator: () => false,
+  isLandscape: () => false,
+  hasNotch: () => false,
+  getApiLevel: () => 34,
+};
