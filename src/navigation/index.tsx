@@ -115,17 +115,21 @@ export const AppNavigationContainer = () => {
         return url;
       }
 
-      const message = await messaging().getInitialNotification();
-      if (message) {
-        const notification = findNotificationFromFCM({ message });
-        const camelCaseNotification = transformNotification(notification);
-        const conversationLink = findConversationLinkFromPush({
-          notification: camelCaseNotification,
-          installationUrl,
-        });
-        if (conversationLink) {
-          return conversationLink;
+      try {
+        const message = await messaging().getInitialNotification();
+        if (message) {
+          const notification = findNotificationFromFCM({ message });
+          const camelCaseNotification = transformNotification(notification);
+          const conversationLink = findConversationLinkFromPush({
+            notification: camelCaseNotification,
+            installationUrl,
+          });
+          if (conversationLink) {
+            return conversationLink;
+          }
         }
+      } catch (error) {
+        console.warn('Failed to get initial FCM notification:', error);
       }
       return undefined;
     },
@@ -141,22 +145,27 @@ export const AppNavigationContainer = () => {
 
       const subscription = Linking.addEventListener('url', onReceiveURL);
 
-      const unsubscribeNotification = messaging().onNotificationOpenedApp(
-        (message: { messageId?: string; data?: Record<string, string> }) => {
-          if (message) {
-            const notification = findNotificationFromFCM({ message });
-            const camelCaseNotification = transformNotification(notification);
+      let unsubscribeNotification = () => {};
+      try {
+        unsubscribeNotification = messaging().onNotificationOpenedApp(
+          (message: { messageId?: string; data?: Record<string, string> }) => {
+            if (message) {
+              const notification = findNotificationFromFCM({ message });
+              const camelCaseNotification = transformNotification(notification);
 
-            const conversationLink = findConversationLinkFromPush({
-              notification: camelCaseNotification,
-              installationUrl,
-            });
-            if (conversationLink) {
-              listener(conversationLink);
+              const conversationLink = findConversationLinkFromPush({
+                notification: camelCaseNotification,
+                installationUrl,
+              });
+              if (conversationLink) {
+                listener(conversationLink);
+              }
             }
-          }
-        },
-      );
+          },
+        );
+      } catch (error) {
+        console.warn('Failed to subscribe to FCM notification open app events:', error);
+      }
 
       return () => {
         subscription.remove();
