@@ -6,7 +6,7 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import { FlashList } from '@shopify/flash-list';
+import { FlashList, FlashListRef } from '@shopify/flash-list';
 import { useAppKeyboardAnimation } from '@/utils';
 import { tailwind } from '@/theme';
 import { Message } from '@/types';
@@ -62,9 +62,7 @@ export const MessagesList = ({
 }: MessagesListPresentationProps) => {
   const { progress, height } = useAppKeyboardAnimation();
   const { messageListRef } = useRefsContext();
-  const typedMessageListRef = messageListRef as React.RefObject<
-    FlashList<Message | { date: string }>
-  >;
+  const typedMessageListRef = messageListRef as React.RefObject<FlashListRef<Message | { date: string }>>;
 
   const handleRender = ({ item, index }: { item: Message | { date: string }; index: number }) => {
     if ('date' in item) {
@@ -101,25 +99,22 @@ export const MessagesList = ({
       <AnimatedFlashlist
         layout={LinearTransition.springify().damping(38).stiffness(240)}
         onLayout={() => {
-          // For search navigation, mark ready on layout since there's no user scroll
           if (targetMessageId && !isFlashListReady) {
             setFlashListReady(true);
           }
         }}
         onScroll={() => {
-          // For normal chat, mark ready on first scroll (preserves existing behavior)
           if (!targetMessageId && !isFlashListReady) {
             setFlashListReady(true);
           }
         }}
         ref={typedMessageListRef}
-        inverted
         estimatedItemSize={100}
         {...(initialScrollIndex !== undefined ? { initialScrollIndex } : {})}
         showsVerticalScrollIndicator={false}
         renderItem={handleRender}
-        onEndReached={onEndReached}
-        onEndReachedThreshold={0.1}
+        onStartReached={onEndReached}
+        onStartReachedThreshold={0.5}
         data={messages}
         contentContainerStyle={tailwind.style('px-3')}
         keyboardShouldPersistTaps="handled"

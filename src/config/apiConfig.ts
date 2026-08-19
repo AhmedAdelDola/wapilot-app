@@ -1,14 +1,14 @@
 import { config } from '@/config';
 
 /**
- * Wapilot App API Configuration
+ * Message Pro App API Configuration
  *
  * Based on the Chatwoot Mobile Agent API Postman Collection
- * Base URL: https://omni.wapilot.net
- * WebSocket URL: wss://omni.wapilot.net
+ * Base URL: https://omni.message-pro.com
+ * WebSocket URL: wss://omni.message-pro.com
  *
  * Authentication: Devise Token Auth (access-token, client, uid)
- * Realtime: ActionCable at wss://omni.wapilot.net/cable
+ * Realtime: ActionCable at wss://omni.message-pro.com/cable
  */
 
 export const API_CONFIG = {

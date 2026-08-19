@@ -310,7 +310,9 @@ export const MessagesListContainer = () => {
           initialScrollIndex={
             targetMessageIndex !== undefined && targetMessageIndex >= 0
               ? targetMessageIndex
-              : undefined
+              : messagesWithGrouping.length > 0
+                ? messagesWithGrouping.length - 1
+                : undefined
           }
           isListPositioned={isListVisible}
         />

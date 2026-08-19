@@ -10,4 +10,11 @@ export class SsoUtils {
   static handleSsoCallback(params: any, dispatch: any) {
     console.log('[SSO] Callback:', params);
   }
+
+  static async loginWithSSO(
+    installationUrl: string,
+  ): Promise<{ type: 'success' | 'error'; url: string | null }> {
+    console.log('[SSO] Login requested for', installationUrl);
+    return { type: 'error', url: null };
+  }
 }

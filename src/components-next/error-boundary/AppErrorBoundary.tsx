@@ -46,7 +46,10 @@ type AppErrorBoundaryProps = {
  * one screen does not require the user to relaunch.
  */
 export const AppErrorBoundary = ({ children }: AppErrorBoundaryProps) => (
-  <ErrorBoundary fallback={({ resetError }) => <Fallback resetError={resetError} />}>
+  <ErrorBoundary
+    fallback={({ resetError }: { resetError: () => void }) => (
+      <Fallback resetError={resetError} />
+    )}>
     {children}
   </ErrorBoundary>
 );

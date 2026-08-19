@@ -1,4 +1,4 @@
-export const getUserPermissions = (user: any, accountId: number): string[] => {
+export const getUserPermissions = (user: any, accountId?: number | null): string[] => {
   if (!user?.accounts) return [];
   const account = user.accounts.find((a: any) => a.id === accountId);
   return account?.permissions || [];

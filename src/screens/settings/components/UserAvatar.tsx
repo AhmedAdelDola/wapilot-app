@@ -50,11 +50,15 @@ const AvatarImage = ({
   src,
   handleFallback,
 }: {
-  src: ImageSourcePropType;
+  src: ImageSourcePropType | string;
   handleFallback: () => void;
 }) => {
   return (
-    <Image source={src} style={tailwind.style('rounded-full h-24 w-24')} onError={handleFallback} />
+    <Image
+      source={typeof src === 'string' ? { uri: src } : src}
+      style={tailwind.style('rounded-full h-24 w-24')}
+      onError={handleFallback}
+    />
   );
 };
 

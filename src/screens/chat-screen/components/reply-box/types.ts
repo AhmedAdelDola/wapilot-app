@@ -6,7 +6,7 @@ export type SendMessageButtonProps = PressableProps & {
 };
 
 export type AddCommandButtonProps = PressableProps & {
-  derivedAddMenuOptionStateValue: SharedValue<number>;
+  derivedAddMenuOptionStateValue: SharedValue<number> | SharedValue<0 | 1>;
 };
 
 export type PhotosCommandButtonProps = PressableProps & {};

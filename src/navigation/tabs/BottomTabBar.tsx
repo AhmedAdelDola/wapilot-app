@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from 'react';
-import { Platform, Pressable } from 'react-native';
+import { Platform, Pressable, Text, View } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -10,6 +10,7 @@ import { BlurView, BlurViewProps } from '@react-native-community/blur';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { RouteProp } from '@react-navigation/native';
 import { selectCurrentState } from '@/store/conversation/conversationHeaderSlice';
+import { selectUnreadConversationCount } from '@/store/conversation/conversationSelectors';
 
 import {
   ConversationIconFilled,
@@ -83,6 +84,7 @@ const TabBarBackground = (props: TabBarBackgroundProps) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const TabItem = (props: any) => {
   const { handlers, animatedStyle } = useScaleAnimation();
+  const unreadCount = useAppSelector(selectUnreadConversationCount);
 
   const { onPress, onLongPress, isFocused, options, route } = props;
 
@@ -107,6 +109,16 @@ const TabItem = (props: any) => {
         onPress={onPress}
         onLongPress={onLongPress}>
         <TabBarIcons focused={isFocused} route={route} />
+        {route.name === 'Conversations' && unreadCount > 0 && (
+          <View
+            style={tailwind.style(
+              'absolute -top-0.5 right-1/2 ml-3.5 h-[18px] min-w-[18px] flex justify-center items-center rounded-full bg-red-500 px-1',
+            )}>
+            <Text style={tailwind.style('text-[10px] font-inter-semibold-20 text-white text-center')}>
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </Text>
+          </View>
+        )}
       </Pressable>
     </Animated.View>
   );

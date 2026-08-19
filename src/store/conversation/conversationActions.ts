@@ -93,18 +93,9 @@ export const conversationActions = {
         });
         const payload = buildCreatePayload(pendingMessage);
         const { file } = sendMessagePayload;
-        const contentType =
-          Platform.OS === 'ios' && file
-            ? file.type
-            : Platform.OS === 'android' && file
-              ? 'multipart/form-data'
-              : 'application/json';
 
-        const response = await ConversationService.sendMessage(conversationId, payload, {
-          headers: {
-            'Content-Type': contentType,
-          },
-        });
+        // Do NOT set Content-Type manually for FormData — Axios adds the boundary automatically
+        const response = await ConversationService.sendMessage(conversationId, payload, {});
 
         const camelCaseMessage = transformMessage(response);
 

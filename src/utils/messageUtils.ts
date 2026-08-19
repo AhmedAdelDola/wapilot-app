@@ -1,6 +1,38 @@
 import { MESSAGE_TYPES, MESSAGE_STATUS } from '@/constants';
 import { SendMessagePayload } from '@/store/conversation/conversationTypes';
 import type { PendingMessage, MessageBuilderPayload } from '@/store/conversation/conversationTypes';
+import type { Conversation, Message } from '@/types';
+import { formatDate } from './dateTimeUtils';
+
+export const getLastMessage = (conversation: Conversation): Message | null => {
+  if (!conversation) return null;
+  if (conversation.lastNonActivityMessage) {
+    return conversation.lastNonActivityMessage;
+  }
+  const messages = conversation.messages;
+  if (messages && messages.length > 0) {
+    return messages[messages.length - 1];
+  }
+  return null;
+};
+
+export const getGroupedMessages = (
+  messages: Message[],
+): { date: string; data: Message[] }[] => {
+  if (!messages || messages.length === 0) return [];
+  const sorted = [...messages].sort((a, b) => a.createdAt - b.createdAt);
+  const groups: { date: string; data: Message[] }[] = [];
+  sorted.forEach(message => {
+    const dateLabel = formatDate(message.createdAt);
+    const lastGroup = groups[groups.length - 1];
+    if (lastGroup && lastGroup.date === dateLabel) {
+      lastGroup.data.push(message);
+    } else {
+      groups.push({ date: dateLabel, data: [message] });
+    }
+  });
+  return groups;
+};
 
 export const getUuid = () =>
   'xxxxxxxx4xxx'.replace(/[xy]/g, c => {
@@ -49,12 +81,13 @@ export const buildCreatePayload = (data: PendingMessage): MessageBuilderPayload 
     if (message) {
       payload.append('content', message);
     }
+    payload.append('message_type', 'outgoing');
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     payload.append('attachments[]', {
       uri: file.uri,
-      name: file.fileName,
-      type: file.type,
+      name: file.fileName || 'attachment.jpg',
+      type: file.type?.includes('/') ? file.type : 'image/jpeg',
     });
     payload.append('private', isPrivate.toString());
     payload.append('echo_id', echoId);

@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 import { EMAIL_REGEX } from '@/constants';
-import { EyeIcon, EyeSlash, LockIcon } from '@/svg-icons';
+import { EyeIcon, EyeSlash, LockIcon, TranslateIcon } from '@/svg-icons';
 import { tailwind } from '@/theme';
 import i18n from '@/i18n';
 import { resetAuth } from '@/store/auth/authSlice';
@@ -105,18 +105,15 @@ const LoginScreen = () => {
   };
 
   // TODO: Change this condition based on EE check
-  // Show SSO login button only if installation URL contains app.chatwoot.com
-  const showSsoLogin = installationUrl.includes('app.chatwoot.com');
+  // Show SSO login button only if installation URL contains omni.message-pro.com
+  const showSsoLogin = installationUrl.includes('omni.message-pro.com');
 
   const openResetPassword = () => {
     navigation.navigate('ResetPassword' as never);
   };
 
-  const openConfigInstallationURL = () => {
-    navigation.navigate('ConfigureURL' as never);
-  };
-
   const onChangeLanguage = (locale: string) => {
+    i18n.locale = locale;
     dispatch(setLocale(locale));
   };
 
@@ -286,16 +283,13 @@ const LoginScreen = () => {
           />
 
           <Pressable
-            style={tailwind.style('flex-row justify-center items-center mt-6')}
-            onPress={openConfigInstallationURL}>
-            <Animated.Text style={tailwind.style('text-sm text-gray-900')}>
-              {i18n.t('LOGIN.CHANGE_URL')}
-            </Animated.Text>
-          </Pressable>
-          <Pressable
-            style={tailwind.style('flex-row justify-center items-center mt-4')}
+            style={tailwind.style(
+              'flex-row justify-center items-center mt-6 py-3 px-4 rounded-xl border border-gray-200',
+            )}
             onPress={() => languagesModalSheetRef.current?.present()}>
-            <Animated.Text style={tailwind.style('text-sm text-gray-900')}>
+            <Icon size={18} icon={<TranslateIcon stroke="#6b7280" />} />
+            <Animated.Text
+              style={tailwind.style('text-sm text-gray-600 ml-2 font-inter-normal-20')}>
               {i18n.t('LOGIN.CHANGE_LANGUAGE')}
             </Animated.Text>
           </Pressable>

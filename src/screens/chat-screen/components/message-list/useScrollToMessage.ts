@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { FlashList } from '@shopify/flash-list';
+import { FlashListRef } from '@shopify/flash-list';
 import { Message } from '@/types';
 
 type MessageOrDate = Message | { date: string };
@@ -7,7 +7,7 @@ type MessageOrDate = Message | { date: string };
 interface UseScrollToMessageParams {
   messageId?: number;
   messages: MessageOrDate[];
-  messageListRef: React.RefObject<FlashList<MessageOrDate>>;
+  messageListRef: React.RefObject<FlashListRef<MessageOrDate> | null>;
   isFlashListReady: boolean;
   isLoadingMessages: boolean;
   onPositioned: () => void;
@@ -23,9 +23,7 @@ const TARGET_MESSAGE_TIMEOUT_MS = 5000;
  * item size inaccuracy (items near the target get measured progressively).
  *
  * viewPosition: 0.5 centers the target in the viewport, which provides
- * tolerance for estimation errors in both directions. This is especially
- * important because the list is inverted (viewPosition coordinates are
- * flipped relative to the visual layout).
+ * tolerance for estimation errors in both directions.
  */
 export function useScrollToMessage({
   messageId,

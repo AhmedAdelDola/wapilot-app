@@ -64,7 +64,7 @@ export const store = configureStore({
         ],
       },
       immutableCheck: { warnAfter: 256 },
-    }).concat(middlewares) as any,
+    }).concat(middlewares),
 });
 
 // TODO: Please get rid of this

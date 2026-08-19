@@ -3,6 +3,7 @@ export default {
   createChannel: async () => '',
   displayNotification: async () => '',
   cancelAllNotifications: async () => {},
+  setBadgeCount: async () => {},
   getInitialNotification: async () => null,
   onNotificationOpenedApp: (h: any) => () => {},
   onForegroundEvent: (h: any) => () => {},

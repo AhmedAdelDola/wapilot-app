@@ -8,15 +8,15 @@
 export const config = {
   // Chatwoot Server
   chatwoot: {
-    baseUrl: process.env.EXPO_PUBLIC_CHATWOOT_BASE_URL || 'https://omni.wapilot.net',
-    websocketUrl: process.env.EXPO_PUBLIC_CHATWOOT_WEBSOCKET_URL || 'wss://omni.wapilot.net',
+    baseUrl: process.env.EXPO_PUBLIC_CHATWOOT_BASE_URL || 'https://omni.message-pro.com',
+    websocketUrl: process.env.EXPO_PUBLIC_CHATWOOT_WEBSOCKET_URL || 'wss://omni.message-pro.com',
     minimumVersion: process.env.EXPO_PUBLIC_MINIMUM_CHATWOOT_VERSION || '4.1.0',
   },
 
   // App Info
   app: {
-    name: process.env.EXPO_PUBLIC_APP_NAME || 'Wapilot',
-    slug: process.env.EXPO_PUBLIC_APP_SLUG || 'wapilot',
+    name: process.env.EXPO_PUBLIC_APP_NAME || 'Message Pro',
+    slug: process.env.EXPO_PUBLIC_APP_SLUG || 'message-pro',
   },
 
   // Sentry (Error Tracking)

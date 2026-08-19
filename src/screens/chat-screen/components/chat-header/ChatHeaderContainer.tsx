@@ -37,7 +37,7 @@ export const ChatHeaderContainer = (props: ChatScreenHeaderProps) => {
 
   const [slaStatus, setSlaStatus] = useState<SLAStatus | null>(null);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const conversationStatus = conversation?.status;
   const isResolved = conversationStatus === CONVERSATION_STATUS.RESOLVED;

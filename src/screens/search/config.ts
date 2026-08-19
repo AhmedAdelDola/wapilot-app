@@ -1,5 +1,4 @@
 import type { ComponentType } from 'react';
-import type { NavigationProp } from '@react-navigation/native';
 
 import type { Contact } from '@/types/Contact';
 import type { Conversation } from '@/types/Conversation';
@@ -17,7 +16,7 @@ import {
 } from './utils/handlers';
 import type { AppDispatch } from '@/store';
 import type { SearchItem, SearchSectionType } from '@/store/search/searchTypes';
-import type { ParamListBase } from '@react-navigation/native';
+import type { SearchNavigation } from './utils/handlers';
 
 export interface SearchSectionConfig {
   id: SearchSectionType;
@@ -29,7 +28,7 @@ export interface SearchSectionConfig {
   getId: (item: SearchItem) => string | number;
   getItemId: (item: SearchItem) => string | number;
   onPress: (
-    navigation: NavigationProp<ParamListBase>,
+    navigation: SearchNavigation,
     item: SearchItem,
     dispatch?: AppDispatch,
     additionalData?: Record<string, unknown>,

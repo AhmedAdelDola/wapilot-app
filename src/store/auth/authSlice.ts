@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { authActions } from './authActions';
 import { User } from '@/types/User';
 import { AuthHeaders } from './authTypes';
+import { apiService } from '@/services/APIService';
 export interface AuthState {
   user: User | null;
   accessToken: string | null;
@@ -115,6 +116,7 @@ export const authSlice = createSlice({
           state.uiFlags.isLoggingIn = false;
           state.error = null;
           state.mfaToken = null;
+          apiService.setAccountId(action.payload.user.account_id);
         }
       })
       .addCase(authActions.getProfile.fulfilled, (state, action) => {
@@ -154,6 +156,7 @@ export const authSlice = createSlice({
         state.uiFlags.isVerifyingMfa = false;
         state.error = null;
         state.mfaToken = null;
+        apiService.setAccountId(action.payload.user.account_id);
       })
       .addCase(authActions.verifyMfa.rejected, (state, action) => {
         state.uiFlags.isVerifyingMfa = false;
@@ -169,6 +172,7 @@ export const authSlice = createSlice({
         state.uiFlags.isLoggingIn = false;
         state.error = null;
         state.mfaToken = null;
+        apiService.setAccountId(action.payload.user.account_id);
       })
       .addCase(authActions.loginWithSso.rejected, (state, action) => {
         state.uiFlags.isLoggingIn = false;

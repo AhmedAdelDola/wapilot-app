@@ -28,7 +28,7 @@ import Inter50024 from '@/assets/fonts/Inter-500-24.ttf';
 import Inter58024 from '@/assets/fonts/Inter-580-24.ttf';
 import Inter60020 from '@/assets/fonts/Inter-600-20.ttf';
 
-messaging().setBackgroundMessageHandler(async remoteMessage => {
+messaging().setBackgroundMessageHandler(async (remoteMessage: { messageId?: string; data?: Record<string, string> }) => {
   console.log('Message handled in the background!', remoteMessage);
 });
 
@@ -137,20 +137,22 @@ export const AppNavigationContainer = () => {
 
       const subscription = Linking.addEventListener('url', onReceiveURL);
 
-      const unsubscribeNotification = messaging().onNotificationOpenedApp(message => {
-        if (message) {
-          const notification = findNotificationFromFCM({ message });
-          const camelCaseNotification = transformNotification(notification);
+      const unsubscribeNotification = messaging().onNotificationOpenedApp(
+        (message: { messageId?: string; data?: Record<string, string> }) => {
+          if (message) {
+            const notification = findNotificationFromFCM({ message });
+            const camelCaseNotification = transformNotification(notification);
 
-          const conversationLink = findConversationLinkFromPush({
-            notification: camelCaseNotification,
-            installationUrl,
-          });
-          if (conversationLink) {
-            listener(conversationLink);
+            const conversationLink = findConversationLinkFromPush({
+              notification: camelCaseNotification,
+              installationUrl,
+            });
+            if (conversationLink) {
+              listener(conversationLink);
+            }
           }
-        }
-      });
+        },
+      );
 
       return () => {
         subscription.remove();

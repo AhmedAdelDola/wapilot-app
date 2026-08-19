@@ -6,8 +6,10 @@ import axios, {
 } from 'axios';
 import { Platform } from 'react-native';
 import { API_CONFIG } from '@/config/apiConfig';
+import { getStore } from '@/store/storeAccessor';
+import { logout } from '@/store/auth/authSlice';
 
-const CLIENT_NAME = 'Wapilot Mobile';
+const CLIENT_NAME = 'Message Pro Mobile';
 const CLIENT_VERSION = '1.0.0';
 
 // Routes that don't need account_id prefix
@@ -54,6 +56,7 @@ class APIService {
     client: string;
   } | null = null;
   private accountId: number = 0;
+  private isLoggingOut: boolean = false;
 
   private constructor() {
     Object.assign(this.api.defaults.headers.common, deviceHeaders());
@@ -69,6 +72,7 @@ class APIService {
 
   public setAuthHeaders(headers: { 'access-token': string; uid: string; client: string }) {
     this.authHeaders = headers;
+    this.isLoggingOut = false;
   }
 
   public clearAuthHeaders() {
@@ -92,8 +96,6 @@ class APIService {
   private setupInterceptors() {
     this.api.interceptors.request.use(
       async (config: AxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
-        const headers = this.getHeaders();
-
         // Set base URL
         config.baseURL = getBaseUrl();
 
@@ -113,21 +115,33 @@ class APIService {
           config.url = `api/v1/accounts/${this.accountId}/${url}`;
         }
 
-        console.log('API Request:', config.method?.toUpperCase(), `${config.baseURL}/${config.url}`);
+        // Set auth headers directly on config.headers (works with AxiosHeaders class)
+        if (this.authHeaders) {
+          (config.headers as any)['access-token'] = this.authHeaders['access-token'];
+          (config.headers as any)['uid'] = this.authHeaders.uid;
+          (config.headers as any)['client'] = this.authHeaders.client;
+        }
 
-        return {
-          ...config,
-          headers: {
-            ...config.headers,
-            ...headers,
-          },
-        } as InternalAxiosRequestConfig;
+        console.log('API Request:', config.method?.toUpperCase(), `${config.baseURL}/${config.url}`, 'authHeaders:', !!this.authHeaders, 'accountId:', this.accountId);
+
+        return config as InternalAxiosRequestConfig;
       },
       (error: AxiosError) => Promise.reject(error),
     );
 
     this.api.interceptors.response.use(
       (response: AxiosResponse) => {
+        // Rotate auth headers from response (Devise Token Auth)
+        const newAccessToken = response.headers['access-token'];
+        const newClient = response.headers['client'];
+        const newUid = response.headers['uid'];
+        if (newAccessToken && newClient && newUid) {
+          this.authHeaders = {
+            'access-token': newAccessToken,
+            client: newClient,
+            uid: newUid,
+          };
+        }
         console.log('API Response:', response.status, response.config.url);
         return response;
       },
@@ -138,31 +152,45 @@ class APIService {
         if (axios.isCancel(error)) {
           return Promise.reject(error);
         }
-        if (error.response?.status === 401) {
-          this.clearAuthHeaders();
+
+        // Auto-logout on 401 (but not for auth routes like sign_in)
+        if (error.response?.status === 401 && !this.isLoggingOut) {
+          const url = error.config?.url || '';
+          const isAuthRoute = authRoutes.some(route => url.startsWith(route));
+          if (!isAuthRoute) {
+            this.isLoggingOut = true;
+            this.clearAuthHeaders();
+            try {
+              const store = getStore();
+              store.dispatch(logout());
+            } catch {
+              // Store not initialized yet
+            }
+          }
         }
+
         return Promise.reject(error);
       },
     );
   }
 
-  public async get<T>(url: string, config?: AxiosRequestConfig) {
+  public async get<T = any>(url: string, config?: AxiosRequestConfig) {
     return this.api.get<T>(url, config);
   }
 
-  public async post<T, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig) {
+  public async post<T = any, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig) {
     return this.api.post<T>(url, data, config);
   }
 
-  public async put<T, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig) {
+  public async put<T = any, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig) {
     return this.api.put<T>(url, data, config);
   }
 
-  public async patch<T, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig) {
+  public async patch<T = any, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig) {
     return this.api.patch<T>(url, data, config);
   }
 
-  public async delete<T>(url: string, config?: AxiosRequestConfig) {
+  public async delete<T = any>(url: string, config?: AxiosRequestConfig) {
     return this.api.delete<T>(url, config);
   }
 }

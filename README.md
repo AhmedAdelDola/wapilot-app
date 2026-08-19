@@ -1,11 +1,11 @@
-# Wapilot App - Custom Chatwoot Mobile App
+# Message Pro App - Custom Chatwoot Mobile App
 
 تم إنشاء التطبيق بنجاح بـ Design من Chatwoot.
 
 ## هيكل المشروع
 
 ```
-wapilot-app/
+message-pro-app/
 ├── src/
 │   ├── components/          # UI Components
 │   │   ├── button/         # Button components
@@ -33,7 +33,7 @@ wapilot-app/
 └── tsconfig.json           # TypeScript config
 ```
 
-##_Commandات التشغيل
+## Commandات التشغيل
 
 ```bash
 # تثبيت الـ Dependencies
@@ -56,8 +56,8 @@ pnpm ios
 
 ```typescript
 export const API_CONFIG = {
-  baseUrl: 'https://omni.wapilot.net',  // غيّر هذا
-  websocketUrl: 'wss://omni.wapilot.net',
+  baseUrl: 'https://omni.message-pro.com',  // غيّر هذا
+  websocketUrl: 'wss://omni.message-pro.com',
   // ...
 };
 ```

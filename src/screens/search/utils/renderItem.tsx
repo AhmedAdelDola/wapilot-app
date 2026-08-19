@@ -1,8 +1,8 @@
 import React from 'react';
-import type { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { getSearchSectionById } from '@/screens/search/config';
 import type { SearchItem, SearchSectionType } from '@/store/search/searchTypes';
 import type { AppDispatch } from '@/store';
+import type { SearchNavigation } from './handlers';
 
 const SECTION_PROP_NAMES: Record<SearchSectionType, string> = {
   contacts: 'contact',
@@ -13,7 +13,7 @@ const SECTION_PROP_NAMES: Record<SearchSectionType, string> = {
 export function createRenderItem(
   searchQuery: string,
   allSectionsData: Record<SearchSectionType, SearchItem[]>,
-  navigation: NavigationProp<ParamListBase>,
+  navigation: SearchNavigation,
   dispatch: AppDispatch,
 ) {
   const SearchResultItem = (

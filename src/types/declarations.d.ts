@@ -1,3 +1,10 @@
+declare var module: { exports: any };
+declare var require: any;
+
+declare namespace JSX {
+  type Element = import('react').JSX.Element;
+}
+
 declare module '@react-native-community/blur' {
   import { Component } from 'react';
   import { ViewProps } from 'react-native';
@@ -59,9 +66,10 @@ declare module 'react-native-audio-recorder-player' {
 }
 
 declare module 'react-native-file-viewer' {
-  export default class FileViewer {
-    open: (path: string) => Promise<void>;
-  }
+  declare const FileViewer: {
+    open: (path: string, options?: any) => Promise<void>;
+  };
+  export default FileViewer;
 }
 
 declare module 'react-native-fs' {
@@ -81,7 +89,14 @@ declare module 'react-native-fs' {
 
 declare module 'rn-fetch-blob' {
   const RNFetchBlob: {
-    config: (options: any) => any;
+    config: (options: any) => {
+      fetch: (
+        method: string,
+        url: string,
+        body?: any,
+        headers?: any,
+      ) => Promise<{ info: any; path: () => string; readFile: () => Promise<any> }>;
+    };
     fs: {
       documentDir: string;
       cacheDir: string;
@@ -126,22 +141,52 @@ declare module 'react-native-webview' {
 
   export interface WebViewProps extends ViewProps {
     source?: { uri?: string; html?: string };
+    originWhitelist?: string[];
     onMessage?: (event: any) => void;
+    onLoad?: (event: any) => void;
+    onLoadEnd?: (event: any) => void;
+    onLoadStart?: (event: any) => void;
     injectedJavaScript?: string;
     javaScriptEnabled?: boolean;
+    startInLoadingState?: boolean;
+    scrollEnabled?: boolean;
+    forceDarkOn?: boolean;
     style?: any;
   }
 
-  export default class WebView extends Component<WebViewProps> {
+  export class WebView<P extends WebViewProps = WebViewProps> extends Component<P> {
     reload: () => void;
     goBack: () => void;
     goForward: () => void;
+    injectJavaScript: (script: string) => void;
   }
+  export default WebView;
 }
 
 declare module 'react-native-image-picker' {
-  export const launchCamera: (options: any, callback: (response: any) => void) => void;
-  export const launchImageLibrary: (options: any, callback: (response: any) => void) => void;
+  export interface Asset {
+    base64?: string;
+    uri?: string;
+    width?: number;
+    height?: number;
+    fileSize?: number;
+    type?: string;
+    fileName?: string;
+    duration?: number;
+    bitrate?: number;
+    timestamp?: string;
+    id?: string;
+  }
+
+  export interface ImagePickerResponse {
+    didCancel?: boolean;
+    errorCode?: string;
+    errorMessage?: string;
+    assets?: Asset[];
+  }
+
+  export const launchCamera: (options?: any) => Promise<ImagePickerResponse>;
+  export const launchImageLibrary: (options?: any) => Promise<ImagePickerResponse>;
 }
 
 declare module 'react-native-image-modal' {
@@ -190,17 +235,65 @@ declare module 'react-native-device-info' {
     getBrand: () => string;
     getBundleId: () => string;
     getApplicationName: () => string;
-    isTablet: () => boolean;
-    getDeviceType: () => string;
+    getSystemName: () => string;
+    getManufacturer: () => string;
+    getApiLevel: () => number;
     getUniqueId: () => string;
+    getDeviceType: () => string;
+    isTablet: () => boolean;
+    isEmulator: () => boolean;
+    isLandscape: () => boolean;
+    hasNotch: () => boolean;
   };
   export default DeviceInfo;
+  export const getVersion: () => string;
+  export const getBuildNumber: () => string;
+  export const getDeviceId: () => string;
+  export const getModel: () => string;
+  export const getSystemVersion: () => string;
+  export const getBrand: () => string;
+  export const getBundleId: () => string;
+  export const getApplicationName: () => string;
+  export const getSystemName: () => string;
+  export const getManufacturer: () => string;
+  export const getApiLevel: () => number;
+  export const getUniqueId: () => string;
+  export const getDeviceType: () => string;
+  export const isTablet: () => boolean;
+  export const isEmulator: () => boolean;
+  export const isLandscape: () => boolean;
+  export const hasNotch: () => boolean;
 }
 
 declare module '@react-native-documents/picker' {
-  export const pick: (options?: any) => Promise<any[]>;
-  export const pickMultiple: (options?: any) => Promise<any[]>;
-  export const pickDirectory: () => Promise<any>;
+  export interface DocumentPickerResponse {
+    uri: string;
+    name?: string;
+    size?: number;
+    type?: string;
+    fileCopyUri?: string | null;
+    copyError?: string | null;
+  }
+
+  export const pick: (options?: any) => Promise<DocumentPickerResponse[]>;
+  export const pickMultiple: (options?: any) => Promise<DocumentPickerResponse[]>;
+  export const pickDirectory: (options?: any) => Promise<DocumentPickerResponse | null>;
+  export const types: Record<string, string>;
+  export const errorCodes: {
+    OPERATION_CANCELED: string;
+    IN_PROGRESS: string;
+    UNKNOWN: string;
+    INVALID_ARGUMENT: string;
+  };
+  export const isErrorWithCode: (error: unknown) => error is { code: string; message?: string };
+  export default {
+    pick: typeof pick,
+    pickMultiple: typeof pickMultiple,
+    pickDirectory: typeof pickDirectory,
+    types: typeof types,
+    errorCodes: typeof errorCodes,
+    isErrorWithCode: typeof isErrorWithCode,
+  };
 }
 
 declare module 'ffmpeg-kit-react-native' {
@@ -214,11 +307,41 @@ declare module 'ffmpeg-kit-react-native' {
 }
 
 declare module 'zeego/dropdown-menu' {
-  export const DropdownMenu: any;
+  import React from 'react';
+  export function create<T = any>(component: React.ComponentType<T>, type?: string): React.ComponentType<T>;
+  export const Root: any;
+  export const Trigger: any;
+  export const Content: any;
+  export const Item: any;
+  export const ItemTitle: any;
+  export const ItemSubtitle: any;
+  export const ItemIcon: any;
+  export const ItemImage: any;
+  export const Separator: any;
+  export const Label: any;
+  export const Group: any;
+  export const Preview: any;
+  export const PreviewFrame: any;
+  export const Arrow: any;
 }
 
 declare module 'zeego/context-menu' {
-  export const ContextMenu: any;
+  import React from 'react';
+  export function create<T = any>(component: React.ComponentType<T>, type?: string): React.ComponentType<T>;
+  export const Root: any;
+  export const Trigger: any;
+  export const Content: any;
+  export const Item: any;
+  export const ItemTitle: any;
+  export const ItemSubtitle: any;
+  export const ItemIcon: any;
+  export const ItemImage: any;
+  export const Separator: any;
+  export const Label: any;
+  export const Group: any;
+  export const Preview: any;
+  export const PreviewFrame: any;
+  export const Arrow: any;
 }
 
 declare module 'react-native-ios-context-menu' {
@@ -233,19 +356,21 @@ declare module 'react-native-ios-utilities' {
   export const HostView: any;
 }
 
-declare module 'react-native-markdown-display' {
-  import { Component } from 'react';
-  export default class Markdown extends Component<any> {}
-}
-
 declare module '@chatwoot/react-native-widget' {
-  const ChatwootWidget: {
-    init: (options: any) => void;
-    open: () => void;
-    close: () => void;
-    setUser: (user: any) => void;
-  };
-  export default ChatwootWidget;
+  import { Component } from 'react';
+
+  export interface ChatWootWidgetProps {
+    websiteToken?: string;
+    locale?: string;
+    baseUrl?: string;
+    closeModal?: () => void;
+    isModalVisible?: boolean;
+    user?: any;
+    customAttributes?: any;
+  }
+
+  export class ChatWootWidget extends Component<ChatWootWidgetProps> {}
+  export default ChatWootWidget;
 }
 
 declare module '@chatwoot/markdown-to-txt' {
@@ -256,6 +381,86 @@ declare module '@chatwoot/markdown-to-txt' {
 declare module '@chatwoot/utils' {
   export const formatMessageContent: (content: string) => string;
   export const getMessagePlaceHolder: () => string;
+  export const extractVariables: (text: string) => string[];
+  export const getMessageVariables: (params: {
+    conversation?: any;
+    contact?: any;
+  }) => Record<string, string>;
+  export const replaceVariablesInMessage: (params: {
+    message: string;
+    variables: Record<string, string>;
+  }) => string;
+  export const getUndefinedVariablesInMessage: (params: {
+    message: string;
+    variables: Record<string, string>;
+  }) => string[];
+  export const createTypingIndicator: (
+    onStart: () => void,
+    onStop: () => void,
+    idleTime: number,
+  ) => { start: () => void; stop: () => void };
+  export const evaluateSLAStatus: (params: {
+    appliedSla?: any;
+    chat?: any;
+  }) => { type: string; threshold: string; icon: string; isSlaMissed: boolean } | null;
+  export const MEDIA_FORMATS: string[];
+  export const findComponentByType: (
+    template: any,
+    type: string,
+  ) => { format?: string; text?: string; buttons?: any[] } | undefined;
+  export const isSendableTemplate: (template: any) => boolean;
+  export const renderTemplatePreview: (body: string, values: Record<string, string>) => string;
+  export const extractFilenameFromUrl: (url: string) => string;
+  export const isTwilioMediaTemplate: (template: any) => boolean;
+  export const getTwilioMediaVariableKey: (template: any) => string | undefined;
+  export const getTwilioMediaUrl: (template: any) => string;
+
+  export type WhatsAppTemplateHeaderFormat =
+    | 'TEXT'
+    | 'IMAGE'
+    | 'VIDEO'
+    | 'DOCUMENT'
+    | 'LOCATION';
+  export type WhatsAppTemplateButton = {
+    type: 'QUICK_REPLY' | 'URL' | 'PHONE_NUMBER' | 'COPY_CODE';
+    text?: string;
+    url?: string;
+  };
+  export type WhatsAppTemplateComponent = {
+    type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
+    format?: WhatsAppTemplateHeaderFormat;
+    text?: string;
+    buttons?: WhatsAppTemplateButton[];
+  };
+  export type WhatsAppMessageTemplate = {
+    name: string;
+    language: string;
+    category: string;
+    namespace: string;
+    status?: string;
+    components?: WhatsAppTemplateComponent[];
+  };
+  export type TemplateButtonParam =
+    | { type: 'url'; parameter: string; url?: string; variables?: string[] }
+    | { type: 'copy_code'; parameter: string };
+  export type WhatsAppProcessedParams = {
+    body?: Record<string, string>;
+    header?: { media_url?: string; media_type?: string; media_name?: string };
+    buttons?: TemplateButtonParam[];
+  };
+  export type TwilioProcessedParams = Record<string, string>;
+  export type TwilioContentTemplate = {
+    contentSid: string;
+    friendlyName: string;
+    language: string;
+    category: string;
+    status: string;
+    templateType: string;
+    mediaType: string;
+    body: string;
+    variables: string[];
+    types: Array<{ type: string; source?: string }>;
+  };
 }
 
 declare module '@kesha-antonov/react-native-action-cable' {
@@ -309,11 +514,18 @@ declare module '@sentry/react-native' {
     withScope: (callback: (scope: any) => void) => void;
     setTag: (key: string, value: string) => void;
     setExtra: (key: string, value: any) => void;
+    setUser: (user: any) => void;
   };
   export default Sentry;
   export const init: (options: any) => void;
   export const captureException: (error: any) => string;
   export const captureMessage: (message: string) => string;
+  export const withScope: (callback: (scope: any) => void) => void;
+  export const setTag: (key: string, value: string) => void;
+  export const setExtra: (key: string, value: any) => void;
+  export const setUser: (user: any) => void;
+  export const ErrorBoundary: (props: any) => any;
+  export const withProfiler: (component: any) => any;
 }
 
 declare module '@notifee/react-native' {
@@ -321,6 +533,7 @@ declare module '@notifee/react-native' {
     createChannel: (options: any) => Promise<string>;
     displayNotification: (options: any) => Promise<void>;
     cancelAllNotifications: () => Promise<void>;
+    setBadgeCount: (count: number) => Promise<void>;
     requestPermission: () => Promise<any>;
     onForegroundEvent: (handler: (event: any) => void) => () => void;
   };

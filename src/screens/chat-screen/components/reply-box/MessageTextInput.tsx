@@ -139,7 +139,7 @@ export const MessageTextInput = ({
   };
 
   const handleOnFocus = useCallback(
-    (_args: NativeSyntheticEvent<TextInputFocusEventData>) => {
+    (_args: unknown) => {
       setAddMenuOptionSheetState(false);
       setIsTextInputFocused(true);
     },
@@ -162,7 +162,7 @@ export const MessageTextInput = ({
   }, [quoteMessage]);
 
   const handleOnBlur = useCallback(
-    (_args: NativeSyntheticEvent<TextInputFocusEventData>) => {
+    (_args: unknown) => {
       // shouldHandleKeyboardEvents.value = false;
       setIsTextInputFocused(false);
       onBlur();
@@ -177,7 +177,7 @@ export const MessageTextInput = ({
     }
   };
 
-  const renderSuggestions: (suggestions: Agent[]) => FC<MentionSuggestionsProps> =
+  const renderSuggestions: (suggestions: Agent[]) => (props: MentionSuggestionsProps) => React.ReactNode =
     suggestions =>
     // eslint-disable-next-line react/display-name
     ({ keyword, onSuggestionPress }) => {

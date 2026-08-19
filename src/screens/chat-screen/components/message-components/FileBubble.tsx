@@ -1,29 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Alert, Pressable, StyleSheet } from 'react-native';
-import FileViewer from 'react-native-file-viewer';
+import * as Sharing from 'expo-sharing';
+import { downloadAsync, cacheDirectory } from 'expo-file-system/legacy';
 import Animated from 'react-native-reanimated';
-import RNFetchBlob from 'rn-fetch-blob';
 
 import { FileIcon } from '@/svg-icons';
 import { tailwind } from '@/theme';
 import { Icon } from '@/components-next/common';
-import { Spinner } from '@/components-next/spinner';
 import { MESSAGE_VARIANTS } from '@/constants';
-
-const generateUniqueFileName = (url: string, originalFileName: string) => {
-  const hash = url.split('').reduce((acc, char) => {
-    const charCode = char.charCodeAt(0);
-    return ((acc << 5) - acc + charCode) | 0;
-  }, 0);
-  const uniqueHash = Math.abs(hash).toString(36);
-  const fileExtension = originalFileName.includes('.')
-    ? originalFileName.substring(originalFileName.lastIndexOf('.'))
-    : '';
-  const baseFileName = originalFileName.includes('.')
-    ? originalFileName.substring(0, originalFileName.lastIndexOf('.'))
-    : originalFileName;
-  return `${baseFileName}_${uniqueHash}${fileExtension}`;
-};
 
 type FilePreviewProps = Pick<FileBubbleProps, 'fileSrc'> & {
   isComposed?: boolean;
@@ -32,75 +16,52 @@ type FilePreviewProps = Pick<FileBubbleProps, 'fileSrc'> & {
 
 export const FileBubblePreview = (props: FilePreviewProps) => {
   const { fileSrc, isComposed = false, variant } = props;
-  const dirs = RNFetchBlob.fs.dirs;
 
-  const [fileDownload, setFileDownload] = useState(false);
-  const fileName = fileSrc.split('/')[fileSrc.split('/').length - 1];
-  const uniqueFileName = generateUniqueFileName(fileSrc, fileName);
-  const localFilePath = dirs.DocumentDir + `/${uniqueFileName}`;
+  const fileName = decodeURIComponent(fileSrc.split('/').pop() || 'file');
 
-  const previewFile = () => {
+  const previewFile = async () => {
     try {
-      FileViewer.open(localFilePath).catch(e => Alert.alert(e));
-    } catch (e) {
-      Alert.alert('Not able to preview file' + e);
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (!isAvailable) {
+        Alert.alert('Sharing is not available on this device');
+        return;
+      }
+
+      // If it's already a local file, open directly
+      if (fileSrc.startsWith('file://')) {
+        await Sharing.shareAsync(fileSrc);
+        return;
+      }
+
+      // Download remote file to cache, then open
+      if (!cacheDirectory) {
+        Alert.alert('Error', 'Cache directory not available');
+        return;
+      }
+      const localUri = `${cacheDirectory}${fileName}`;
+      const { uri } = await downloadAsync(fileSrc, localUri);
+      await Sharing.shareAsync(uri);
+    } catch (e: any) {
+      Alert.alert('Error opening file', e?.message || String(e));
     }
   };
 
-  useEffect(() => {
-    const asyncFileDownload = () => {
-      RNFetchBlob.fs.exists(localFilePath).then(res => {
-        if (res) {
-          setFileDownload(false);
-        } else {
-          setFileDownload(true);
-          RNFetchBlob.config({
-            overwrite: true,
-            path: localFilePath,
-            fileCache: true,
-          })
-            .fetch('GET', fileSrc)
-            .then(_result => {
-              setFileDownload(false);
-            })
-            .catch(() => {
-              Alert.alert('File load error');
-            });
-        }
-      });
-    };
-    asyncFileDownload();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   return (
     <React.Fragment>
-      {fileDownload ? (
-        <Animated.View style={tailwind.style('pr-1.5')}>
-          <Spinner
-            size={20}
-            stroke={
-              variant === MESSAGE_VARIANTS.USER
-                ? tailwind.color('text-white')
-                : tailwind.color('bg-blue-800')
-            }
-          />
-        </Animated.View>
-      ) : (
-        <Animated.View style={tailwind.style('pr-1.5')}>
-          <Icon
-            size={24}
-            icon={
-              <FileIcon
-                fill={
-                  variant === MESSAGE_VARIANTS.USER
-                    ? tailwind.color('bg-white')
-                    : tailwind.color('text-blue-800')
-                }
-              />
-            }
-          />
-        </Animated.View>
-      )}
+      <Animated.View style={tailwind.style('pr-1.5')}>
+        <Icon
+          size={24}
+          icon={
+            <FileIcon
+              fill={
+                variant === MESSAGE_VARIANTS.USER
+                  ? tailwind.color('bg-white')
+                  : tailwind.color('text-blue-800')
+              }
+            />
+          }
+        />
+      </Animated.View>
       <Pressable hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }} onPress={previewFile}>
         <Animated.View style={tailwind.style('relative')}>
           <Animated.Text

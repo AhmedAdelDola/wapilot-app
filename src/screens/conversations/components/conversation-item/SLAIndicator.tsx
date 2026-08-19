@@ -27,7 +27,7 @@ export const SLAIndicator = ({
 }) => {
   const [slaStatus, setSlaStatus] = useState<SLAStatus | null>(null);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const updateSlaStatus = useCallback(() => {
     const status = evaluateSLAStatus({

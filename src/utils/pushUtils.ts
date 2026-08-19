@@ -1,3 +1,5 @@
+import notifee from '@notifee/react-native';
+
 export const findNotificationFromFCM = ({ message }: { message: any }) => {
   return message?.data || {};
 };
@@ -17,5 +19,18 @@ export const findConversationLinkFromPush = ({
 };
 
 export const clearAllDeliveredNotifications = async () => {
-  // Stub - no push notifications yet
+  try {
+    await notifee.cancelAllNotifications();
+  } catch {
+    // Ignore errors on platforms that don't support this
+  }
+};
+
+export const updateBadgeCount = ({ count }: { count: number }) => {
+  if (count === undefined) return;
+  try {
+    notifee.setBadgeCount(count);
+  } catch {
+    // Ignore errors on platforms that don't support this
+  }
 };

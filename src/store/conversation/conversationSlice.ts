@@ -85,6 +85,10 @@ const preserveLocalStatus = (
   existingConversation: Conversation | undefined,
   incomingConversation: Conversation,
 ) => {
+  if (!existingConversation) {
+    return incomingConversation;
+  }
+
   if (!shouldKeepLocalStatusMarker(existingConversation, incomingConversation)) {
     return {
       ...incomingConversation,
@@ -96,8 +100,8 @@ const preserveLocalStatus = (
   if (!shouldPreserveLocalStatus(existingConversation, incomingConversation)) {
     return {
       ...incomingConversation,
-      localStatusUpdatedAt: existingConversation?.localStatusUpdatedAt,
-      localStatusPreviousStatus: existingConversation?.localStatusPreviousStatus,
+      localStatusUpdatedAt: existingConversation.localStatusUpdatedAt,
+      localStatusPreviousStatus: existingConversation.localStatusPreviousStatus,
     };
   }
 
@@ -150,7 +154,6 @@ const conversationSlice = createSlice({
 
       const conversation = state.entities[conversationId];
 
-      // If the conversation is not present in the store, we don't need to add the message
       if (!conversation) {
         return;
       }
@@ -168,7 +171,12 @@ const conversationSlice = createSlice({
         conversation.messages.push(message as Message);
       }
       conversation.timestamp = message.createdAt;
+      conversation.lastActivityAt = message.createdAt;
       conversation.unreadCount = (message as Message).conversation?.unreadCount || 0;
+      // Update lastNonActivityMessage for conversation list preview
+      if ((message as Message).messageType !== MESSAGE_TYPES.ACTIVITY) {
+        conversation.lastNonActivityMessage = message as Message;
+      }
     },
     updateConversationLastActivity: (state, action) => {
       const { conversationId, lastActivityAt } = action.payload;

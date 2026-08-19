@@ -65,9 +65,9 @@ const MacroDetails = ({ macro, onBack, onClose }: MacroDetailsProps) => {
   };
 
   const resolvedMacro = () => {
-    return macro.actions.map(action => ({
+    return (macro.actions || []).map(action => ({
       actionName: resolveActionName(action.actionName),
-      actionValue: getActionValue(action.actionName, action.actionParams),
+      actionValue: getActionValue(action.actionName, action.actionParams || []),
     }));
   };
 

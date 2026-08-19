@@ -34,7 +34,7 @@ export const selectWebSocketUrl = createSelector(selectSettings, settings => set
 export const selectTheme = createSelector(selectSettings, settings => settings.theme);
 
 export const selectIsChatwootCloud = createSelector(selectSettings, settings =>
-  settings.installationUrl.includes('app.chatwoot.com'),
+  settings.installationUrl.includes('omni.message-pro.com'),
 );
 
 export const selectChatwootVersion = createSelector(selectSettings, settings => settings.version);

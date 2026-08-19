@@ -68,11 +68,15 @@ export const ContactBasicActions = (props: ContactBasicActionsProps) => {
   const { phoneNumber, email } = props;
 
   const onCallPress = () => {
-    openNumber({ phoneNumber });
+    if (phoneNumber) {
+      openNumber({ phoneNumber });
+    }
   };
 
   const onEmailPress = () => {
-    openEmail({ email });
+    if (email) {
+      openEmail({ email });
+    }
   };
 
   if (!email && !phoneNumber) {
@@ -85,7 +89,7 @@ export const ContactBasicActions = (props: ContactBasicActionsProps) => {
         <ContactOptionComponent
           key="email"
           option={{
-            contactType: i18n.t('CONTACT_DETAILS.EMAIL'),
+            contactType: i18n.t('CONTACT_DETAILS.EMAIL') as 'email',
             icon: <MailIcon strokeWidth={2} stroke={tailwind.color('bg-blue-800')} />,
           }}
           handleOptionPress={onEmailPress}
@@ -93,7 +97,7 @@ export const ContactBasicActions = (props: ContactBasicActionsProps) => {
         <ContactOptionComponent
           key="phoneNumber"
           option={{
-            contactType: i18n.t('CONTACT_DETAILS.CALL'),
+            contactType: i18n.t('CONTACT_DETAILS.CALL') as 'call',
             icon: <PhoneIcon strokeWidth={2} stroke={tailwind.color('bg-blue-800')} />,
           }}
           handleOptionPress={onCallPress}

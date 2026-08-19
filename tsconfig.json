@@ -2,7 +2,6 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
@@ -12,5 +11,20 @@
   "include": [
     "**/*.ts",
     "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/stories/**",
+    "**/*.stories.tsx",
+    "**/*.stories.ts",
+    "**/specs/**",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "src/components",
+    "src/types/types",
+    "src/context/context",
+    "src/utils/apiTestUtils.ts"
   ]
 }

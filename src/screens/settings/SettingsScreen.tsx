@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { StatusBar, Text, Platform, Pressable } from 'react-native';
+import { StatusBar, Text, Platform, Pressable, RefreshControl, ScrollView } from 'react-native';
 import Animated from 'react-native-reanimated';
 // import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -23,7 +23,6 @@ import { clearAllContacts } from '@/store/contact/contactSlice';
 import { clearSearchResults } from '@/store/search/searchSlice';
 
 import { RecentSearches } from '@/screens/search/utils/recentSearches';
-import i18n from 'i18n';
 import { HELP_URL } from '@/constants/url';
 import { tailwind } from '@/theme';
 
@@ -63,6 +62,7 @@ import {
 import { settingsActions } from '@/store/settings/settingsActions';
 import { setLocale } from '@/store/settings/settingsSlice';
 
+import i18n from '@/i18n';
 import AnalyticsHelper from '@/utils/analyticsUtils';
 import { PROFILE_EVENTS } from '@/constants/analyticsEvents';
 import { getUserPermissions } from '@/utils/permissionUtils';
@@ -78,6 +78,7 @@ const appVersionDetails = buildNumber ? `${appVersion} (${buildNumber})` : appVe
 const SettingsScreen = () => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
+  const [refreshing, setRefreshing] = useState(false);
   const availabilityStatus =
     (useSelector(selectCurrentUserAvailability) as AvailabilityStatus) || 'offline';
 
@@ -95,6 +96,20 @@ const SettingsScreen = () => {
 
   useEffect(() => {
     dispatch(settingsActions.getNotificationSettings());
+  }, [dispatch]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        dispatch(authActions.getProfile()).unwrap(),
+        dispatch(settingsActions.getNotificationSettings()).unwrap(),
+      ]);
+    } catch {
+      // errors handled by individual thunks
+    } finally {
+      setRefreshing(false);
+    }
   }, [dispatch]);
 
   const pushToken = useAppSelector(selectPushToken);
@@ -135,6 +150,13 @@ const SettingsScreen = () => {
   const enableAccountSwitch = accounts.length > 1;
 
   const activeLocale = useSelector(selectLocale);
+
+  useEffect(() => {
+    if (activeLocale) {
+      i18n.locale = activeLocale;
+    }
+  }, [activeLocale]);
+
   const {
     userAvailabilityStatusSheetRef,
     languagesModalSheetRef,
@@ -168,6 +190,7 @@ const SettingsScreen = () => {
   };
 
   const onChangeLanguage = (locale: string) => {
+    i18n.locale = locale;
     dispatch(setLocale(locale));
   };
 
@@ -282,9 +305,13 @@ const SettingsScreen = () => {
         barStyle={'dark-content'}
       />
       <SettingsHeader />
-      <Animated.ScrollView
+      <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tailwind.style(`pb-[${TAB_BAR_HEIGHT - 1}px]`)}>
+        contentContainerStyle={tailwind.style(`pb-[${TAB_BAR_HEIGHT - 1}px]`)}
+        bounces={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#000" />
+        }>
         <Animated.View style={tailwind.style('flex justify-center items-center pt-4 gap-4')}>
           <Animated.View>
             <UserAvatar src={avatarUrl} name={name} status={availabilityStatus} />
@@ -326,12 +353,13 @@ const SettingsScreen = () => {
             {`${chatwootInstance} ${appVersionDetails}`}
           </Text>
         </Pressable>
-      </Animated.ScrollView>
+      </ScrollView>
       <BottomSheetModal
         ref={userAvailabilityStatusSheetRef}
         backdropComponent={BottomSheetBackdrop}
         handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
         enablePanDownToClose
+        enableContentPanningGesture={false}
         animationConfigs={animationConfigs}
         // TODO: Fix this later
         // bottomInset={bottom === 0 ? 12 : bottom}
@@ -350,9 +378,8 @@ const SettingsScreen = () => {
         ref={languagesModalSheetRef}
         backdropComponent={BottomSheetBackdrop}
         handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
-        // TODO: Fix this later
-        // bottomInset={bottom === 0 ? 12 : bottom}
         enablePanDownToClose
+        enableContentPanningGesture={false}
         animationConfigs={animationConfigs}
         handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
         style={tailwind.style('rounded-[26px] overflow-hidden')}
@@ -366,9 +393,8 @@ const SettingsScreen = () => {
         ref={notificationPreferencesSheetRef}
         backdropComponent={BottomSheetBackdrop}
         handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
-        // TODO: Fix this later
-        // bottomInset={bottom === 0 ? 12 : bottom}
         enablePanDownToClose
+        enableContentPanningGesture={false}
         animationConfigs={animationConfigs}
         handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
         style={tailwind.style('rounded-[26px] overflow-hidden')}
@@ -382,9 +408,8 @@ const SettingsScreen = () => {
         ref={switchAccountSheetRef}
         backdropComponent={BottomSheetBackdrop}
         handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
-        // TODO: Fix this later
-        // bottomInset={bottom === 0 ? 12 : bottom}
         enablePanDownToClose
+        enableContentPanningGesture={false}
         animationConfigs={animationConfigs}
         handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
         style={tailwind.style('rounded-[26px] overflow-hidden')}
@@ -403,6 +428,7 @@ const SettingsScreen = () => {
         backdropComponent={BottomSheetBackdrop}
         handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
         enablePanDownToClose
+        enableContentPanningGesture={false}
         animationConfigs={animationConfigs}
         handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
         style={tailwind.style('rounded-[26px] overflow-hidden')}

@@ -259,8 +259,7 @@ export const AttachedMedia = () => {
         showsHorizontalScrollIndicator={false}
         data={attachments}
         renderItem={handleRenderItem}
-        // @ts-expect-error - FlatList keyExtractor expects string but Asset.uri is string
-        keyExtractor={(item: Asset) => item.uri}
+        keyExtractor={(item: Asset) => item.uri || item.id || ''}
       />
     </Animated.View>
   ) : null;

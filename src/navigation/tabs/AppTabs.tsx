@@ -14,6 +14,7 @@ import {
   selectPubSubToken,
   selectUserId,
   selectCurrentUserAccountId,
+  selectAuthHeaders,
 } from '@/store/auth/authSelectors';
 import { selectWebSocketUrl } from '@/store/settings/settingsSelectors';
 
@@ -40,6 +41,8 @@ import { clearAllDeliveredNotifications } from '@/utils/pushUtils';
 import { dashboardAppActions } from '@/store/dashboard-app/dashboardAppActions';
 import { customAttributeActions } from '@/store/custom-attribute/customAttributeActions';
 import { clearSelection } from '@/store/conversation/conversationSelectedSlice';
+import { apiService } from '@/services/APIService';
+import { config } from '@/config';
 
 const Tab = createBottomTabNavigator();
 
@@ -87,12 +90,29 @@ const Tabs = () => {
   const accountId = useAppSelector(selectCurrentUserAccountId);
   const webSocketUrl = useAppSelector(selectWebSocketUrl);
 
+  // Derive WebSocket URL from config base URL (persisted values may be stale)
+  const correctWebSocketUrl = (() => {
+    const host = config.chatwoot.baseUrl.replace(/^https?:\/\//, '').replace(/\/+$/, '');
+    return `wss://${host}/cable`;
+  })();
+  const authHeaders = useAppSelector(selectAuthHeaders);
+
+  useEffect(() => {
+    // Initialize apiService from persisted Redux state (after rehydration)
+    if (authHeaders) {
+      apiService.setAuthHeaders(authHeaders);
+    }
+    if (accountId) {
+      apiService.setAccountId(accountId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     // Here is the place we are loading all the data for the app first time first time or user switches account
     dispatch(authActions.getProfile());
     dispatch(settingsActions.saveDeviceDetails());
     dispatch(inboxActions.fetchInboxes());
-    initActionCable();
     dispatch(labelActions.fetchLabels());
     dispatch(setCurrentState('none'));
     dispatch(clearSelection());
@@ -103,6 +123,12 @@ const Tabs = () => {
     initPushNotifications();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Initialize ActionCable when user data becomes available
+  useEffect(() => {
+    initActionCable();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pubSubToken, correctWebSocketUrl, accountId, userId]);
 
   const initAnalytics = useCallback(async () => {
     if (user) {
@@ -128,10 +154,16 @@ const Tabs = () => {
   }, []);
 
   const initActionCable = useCallback(async () => {
-    if (pubSubToken && webSocketUrl && accountId && userId) {
-      actionCableConnector.init({ pubSubToken, webSocketUrl, accountId, userId });
+    console.log('[ActionCable] initActionCable called with:', {
+      pubSubToken: pubSubToken ? 'present' : 'MISSING',
+      webSocketUrl: correctWebSocketUrl,
+      accountId: accountId ?? 'MISSING',
+      userId: userId ?? 'MISSING',
+    });
+    if (pubSubToken && correctWebSocketUrl && accountId && userId) {
+      actionCableConnector.init({ pubSubToken, webSocketUrl: correctWebSocketUrl, accountId, userId });
     }
-  }, [accountId, pubSubToken, userId, webSocketUrl]);
+  }, [accountId, pubSubToken, userId, correctWebSocketUrl]);
 
   useEffect(() => {
     dispatch(settingsActions.getChatwootVersion({ installationUrl: installationUrl }));

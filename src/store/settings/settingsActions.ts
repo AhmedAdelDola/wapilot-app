@@ -109,9 +109,8 @@ export const settingsActions = {
         }
 
         const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-        // https://github.com/invertase/react-native-firebase/issues/6893#issuecomment-1427998691
-        // await messaging().registerDeviceForRemoteMessages();
-        await sleep(1000);
+        // Workaround: FCM token may not be ready immediately after permission grant
+        await sleep(500);
         const fcmToken = await messaging().getToken();
 
         const pushData: PushPayload = {

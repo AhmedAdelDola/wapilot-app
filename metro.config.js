@@ -9,10 +9,6 @@ const srcDir = path.resolve(__dirname, 'src');
 
 // Map native packages to our stubs for Expo Go compatibility
 config.resolver.extraNodeModules = {
-  // Firebase
-  '@react-native-firebase/app': path.join(stubsDir, 'firebaseApp.ts'),
-  '@react-native-firebase/messaging': path.join(stubsDir, 'firebaseMessaging.ts'),
-
   // Sentry
   '@sentry/react-native': path.join(stubsDir, 'sentry.ts'),
 
@@ -56,11 +52,10 @@ config.resolver.extraNodeModules = {
   '@chatwoot/markdown-to-txt': path.join(stubsDir, 'markdownToTxt.ts'),
   '@chatwoot/utils': path.join(stubsDir, 'chatwootUtils.ts'),
 
-  // Action Cable
-  '@kesha-antonov/react-native-action-cable': path.join(stubsDir, 'actionCable.ts'),
+  // Action Cable - using native WebSocket via src/utils/actionCable.ts
   
-  // Document picker (pnpm compat)
-  '@react-native-documents/picker': path.join(stubsDir, 'documentPicker.ts'),
+  // Document picker - using expo-document-picker via alias
+  '@react-native-documents/picker': path.join(stubsDir, 'documentPickerExpo.ts'),
   
   // Device info
   'react-native-device-info': path.join(stubsDir, 'deviceInfo.ts'),

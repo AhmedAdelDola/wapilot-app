@@ -1,5 +1,5 @@
 import { Channel } from './common/Channel';
-import type { TwilioContentTemplates, WhatsAppMessageTemplate } from './MessageTemplate';
+import type { TwilioContentTemplate, WhatsAppMessageTemplate } from './MessageTemplate';
 
 export type Inbox = {
   id: number;
@@ -14,5 +14,5 @@ export type Inbox = {
   };
   provider: string;
   messageTemplates?: WhatsAppMessageTemplate[];
-  contentTemplates?: TwilioContentTemplates;
+  contentTemplates?: { templates?: TwilioContentTemplate[] };
 };

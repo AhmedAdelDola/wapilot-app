@@ -157,16 +157,14 @@ const normalizeWhatsApp = (template: WhatsAppMessageTemplate): NormalizedTemplat
   };
 };
 
-// Adapts a camelCased mobile Twilio template to the shared package's snake_case
-// shape so the neutral Twilio helpers can read it.
 const toNeutralTwilio = (template: TwilioContentTemplate): NeutralTwilioTemplate => ({
-  content_sid: template.contentSid,
-  friendly_name: template.friendlyName,
+  contentSid: template.contentSid,
+  friendlyName: template.friendlyName,
   language: template.language,
   category: template.category,
   status: template.status,
-  template_type: template.templateType,
-  media_type: template.mediaType,
+  templateType: template.templateType,
+  mediaType: template.mediaType,
   body: template.body,
   variables: template.variables,
   types: template.types,

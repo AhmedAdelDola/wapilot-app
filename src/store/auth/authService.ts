@@ -27,26 +27,32 @@ export class AuthService {
       } as MfaRequiredResponse;
     }
 
+    const headers = {
+      'access-token': response.headers['access-token'],
+      uid: response.headers.uid,
+      client: response.headers.client,
+    };
+
+    apiService.setAuthHeaders(headers);
+
     // Regular login response
     return {
       user: response.data.data,
-      headers: {
-        'access-token': response.headers['access-token'],
-        uid: response.headers.uid,
-        client: response.headers.client,
-      },
+      headers,
     } as LoginResponse;
   }
 
   static async verifyMfa(payload: MfaVerificationPayload): Promise<LoginResponse> {
     const response = await apiService.post<{ data: User }>('auth/sign_in', payload);
+    const headers = {
+      'access-token': response.headers['access-token'],
+      uid: response.headers.uid,
+      client: response.headers.client,
+    };
+    apiService.setAuthHeaders(headers);
     return {
       user: response.data.data,
-      headers: {
-        'access-token': response.headers['access-token'],
-        uid: response.headers.uid,
-        client: response.headers.client,
-      },
+      headers,
     };
   }
   static async getProfile(): Promise<ProfileResponse> {
@@ -69,13 +75,15 @@ export class AuthService {
 
   static async loginWithSso(payload: SsoAuthPayload): Promise<SsoAuthResponse> {
     const response = await apiService.post<{ data: User }>('auth/sign_in', payload);
+    const headers = {
+      'access-token': response.headers['access-token'],
+      uid: response.headers.uid,
+      client: response.headers.client,
+    };
+    apiService.setAuthHeaders(headers);
     return {
       user: response.data.data,
-      headers: {
-        'access-token': response.headers['access-token'],
-        uid: response.headers.uid,
-        client: response.headers.client,
-      },
+      headers,
     };
   }
 }

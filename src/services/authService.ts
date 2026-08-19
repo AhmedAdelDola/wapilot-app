@@ -59,7 +59,7 @@ class AuthService {
    */
   async login(payload: LoginPayload): Promise<LoginResponse> {
     console.log('AuthService: Calling POST /auth/sign_in');
-    console.log('AuthService: Base URL will be:', 'https://omni.wapilot.net');
+    console.log('AuthService: Base URL will be:', 'https://omni.message-pro.com');
     
     const response = await apiService.post('auth/sign_in', {
       email: payload.email,

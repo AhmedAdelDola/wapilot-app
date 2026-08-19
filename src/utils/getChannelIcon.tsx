@@ -15,23 +15,27 @@ import {
 import { Channel, InboxTypes } from '@/types';
 import { LineFilledIcon } from '@/svg-icons/channels/Line';
 
-const isTwilioChannel = (channelType: Channel) => {
+const isTwilioChannel = (channelType: Channel | string) => {
   return channelType === InboxTypes.TWILIO;
 };
 
-const isFacebookChannel = (channelType: Channel) => {
+const isFacebookChannel = (channelType: Channel | string) => {
   return channelType === InboxTypes.FB;
 };
 
-const isATwilioSMSChannel = (channelType: Channel, medium: string) => {
+const isATwilioSMSChannel = (channelType: Channel | string, medium: string) => {
   return isTwilioChannel(channelType) && medium === 'sms';
 };
 
-const isAWhatsAppChannel = (channelType: Channel) => {
+const isAWhatsAppChannel = (channelType: Channel | string) => {
   return channelType === InboxTypes.WHATSAPP;
 };
 
-export const getChannelIcon = (channelType: Channel, medium: string, additionalType: string) => {
+export const getChannelIcon = (
+  channelType: Channel | string,
+  medium: string,
+  additionalType: string,
+) => {
   if (isFacebookChannel(channelType)) {
     if (additionalType === 'instagram_direct_message') {
       return <InstagramFilledIcon />;

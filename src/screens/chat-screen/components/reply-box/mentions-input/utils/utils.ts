@@ -1,6 +1,5 @@
 import { diffChars } from 'diff';
 import { StyleProp, TextStyle } from 'react-native';
-// @ts-expect-error the lib do not have TS declarations yet
 import matchAll from 'string.prototype.matchall';
 import {
   CharactersDiffChange,
@@ -421,7 +420,9 @@ const parseValue = (
 
     const regex = isMentionPartType(partType) ? mentionRegEx : partType.pattern;
 
-    const matches: RegexMatchResult[] = Array.from(matchAll(value ?? '', regex));
+    const matches: RegexMatchResult[] = Array.from(
+      matchAll(value ?? '', regex),
+    ) as RegexMatchResult[];
 
     // In case when we didn't get any matches continue parsing value with rest part types
     if (matches.length === 0) {

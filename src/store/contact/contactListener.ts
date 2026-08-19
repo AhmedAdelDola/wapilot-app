@@ -13,7 +13,7 @@ export const contactListenerMiddleware = createListenerMiddleware();
 contactListenerMiddleware.startListening({
   matcher: isAnyOf(conversationActions.fetchConversations.fulfilled),
   effect: (action, listenerApi) => {
-    const { payload } = action;
+    const { payload } = action as unknown as { payload: { conversations: Conversation[] } };
     const { conversations } = payload;
     const contacts = conversations.map((conversation: Conversation) => conversation.meta.sender);
     if (contacts.length > 0) {
@@ -25,7 +25,7 @@ contactListenerMiddleware.startListening({
 contactListenerMiddleware.startListening({
   matcher: isAnyOf(conversationActions.fetchConversation.fulfilled),
   effect: (action, listenerApi) => {
-    const conversation = action.payload as Conversation;
+    const conversation = (action as unknown as { payload: Conversation }).payload;
     const contact = conversation?.meta?.sender;
     if (contact) {
       listenerApi.dispatch(addContact(contact));
@@ -36,7 +36,9 @@ contactListenerMiddleware.startListening({
 contactListenerMiddleware.startListening({
   matcher: isAnyOf(notificationActions.fetchNotifications.fulfilled),
   effect: (action, listenerApi) => {
-    const { payload: notifications } = action.payload;
+    const { payload: notifications } = (
+      action as unknown as { payload: { payload: Notification[] } }
+    ).payload;
     const conversationNotifications = notifications.filter(
       (notification: Notification) =>
         notification.primaryActorType === 'Conversation' && notification.primaryActor?.meta?.sender,
@@ -53,7 +55,7 @@ contactListenerMiddleware.startListening({
 contactListenerMiddleware.startListening({
   matcher: isAnyOf(addNotification),
   effect: (action, listenerApi) => {
-    const { payload } = action;
+    const { payload } = action as unknown as { payload: { notification: Notification } };
     const { notification } = payload;
     const contact = notification?.primaryActor?.meta?.sender;
     if (contact) {

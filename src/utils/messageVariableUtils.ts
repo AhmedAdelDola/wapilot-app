@@ -79,7 +79,10 @@ export const replaceMessageVariables = ({
   // @ts-ignore
   variables: MessageVariables;
 }) => {
-  return replaceVariablesInMessage({ message, variables });
+  return replaceVariablesInMessage({
+    message,
+    variables: variables as Record<string, string>,
+  });
 };
 
 export const getAllUndefinedVariablesInMessage = ({
@@ -89,5 +92,8 @@ export const getAllUndefinedVariablesInMessage = ({
   message: string;
   variables: MessageVariables;
 }) => {
-  return getUndefinedVariablesInMessage({ message, variables });
+  return getUndefinedVariablesInMessage({
+    message,
+    variables: variables as Record<string, string>,
+  });
 };

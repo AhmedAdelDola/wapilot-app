@@ -121,7 +121,6 @@ export const getMessagesByConversationId = createDraftSafeSelector(
     return conversation.messages
       .slice()
       .sort((a, b) => a.createdAt - b.createdAt)
-      .reverse()
       .filter((message, index, self) => index === self.findIndex(m => m.id === message.id));
   },
 );
@@ -136,8 +135,8 @@ export const getLastEmailInSelectedChat = createDraftSafeSelector(
       return [];
     }
     const lastEmail = [...conversation.messages].reverse().find(message => {
-      const { contentAttributes = {}, messageType } = message;
-      const { email = {} } = contentAttributes || {};
+      const { contentAttributes, messageType } = message;
+      const email = contentAttributes?.email || ({} as { from?: string[] });
       const isIncomingOrOutgoing =
         messageType === MESSAGE_TYPES.OUTGOING || messageType === MESSAGE_TYPES.INCOMING;
       if (email.from && isIncomingOrOutgoing) {
@@ -147,4 +146,9 @@ export const getLastEmailInSelectedChat = createDraftSafeSelector(
     });
     return lastEmail;
   },
+);
+
+export const selectUnreadConversationCount = createSelector(
+  selectAllConversations,
+  conversations => conversations.filter(c => c.unreadCount > 0).length,
 );

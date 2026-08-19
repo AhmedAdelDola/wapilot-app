@@ -22,7 +22,7 @@ import { filterTeams } from '@/store/team/teamSelectors';
 type TeamCellProps = {
   value: Team;
   lastItem: boolean;
-  teamId: string | undefined;
+  teamId: number | undefined;
 };
 
 const TeamCell = (props: TeamCellProps) => {
@@ -37,7 +37,7 @@ const TeamCell = (props: TeamCellProps) => {
     await dispatch(
       conversationActions.assignConversation({
         conversationId: selectedConversation?.id,
-        teamId: value.id === teamId ? undefined : value.id,
+        teamId: value.id === teamId ? undefined : String(value.id),
       }),
     );
     AnalyticsHelper.track(CONVERSATION_EVENTS.TEAM_CHANGED);
@@ -69,7 +69,7 @@ const TeamCell = (props: TeamCellProps) => {
   );
 };
 
-const TeamStack = ({ teams, teamId }: { teams: Team[]; teamId: string | undefined }) => {
+const TeamStack = ({ teams, teamId }: { teams: Team[]; teamId: number | undefined }) => {
   const isFetching = useAppSelector(selectLoading);
 
   return (
@@ -117,7 +117,7 @@ export const UpdateTeam = () => {
         onChangeText={handleChangeText}
         placeholder={i18n.t('CONVERSATION.SEARCH_TEAM')}
       />
-      <TeamStack teams={teams} teamId={teamId} />
+      <TeamStack teams={teams as Team[]} teamId={teamId} />
     </React.Fragment>
   );
 };

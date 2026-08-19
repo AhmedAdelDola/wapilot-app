@@ -90,7 +90,12 @@ export interface SendMessagePayload {
     id: number;
     thumbnail?: string;
   };
-  file?: File;
+  file?: {
+    uri?: string;
+    fileName?: string;
+    name?: string;
+    type?: string;
+  };
   contentAttributes?: {
     inReplyTo: number;
   };

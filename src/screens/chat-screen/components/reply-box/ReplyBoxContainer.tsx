@@ -51,6 +51,7 @@ import { CannedResponses } from './CannedResponses';
 import { AttachedMedia } from '../message-components/AttachedMedia';
 import { CommandOptionsMenu } from '../message-components/CommandOptionsMenu';
 import { SendMessagePayload } from '@/store/conversation/conversationTypes';
+import type { Message } from '@/types';
 import { TypingIndicator } from './TypingIndicator';
 import { getTypingUsersText } from '@/utils';
 import { selectTypingUsersByConversationId } from '@/store/conversation/conversationTypingSlice';
@@ -126,7 +127,9 @@ const BottomSheetContent = () => {
   } = useChatWindowContext();
 
   // Copilot
-  const copilotAbortRef = useRef<{ abort: () => void; unwrap: () => Promise<unknown> }>();
+  const copilotAbortRef = useRef<{ abort: () => void; unwrap: () => Promise<unknown> } | null>(
+    null,
+  );
   const isCopilotActive = useAppSelector(selectIsCopilotActive);
   const isGenerating = useAppSelector(selectIsGenerating);
   const generatedContent = useAppSelector(selectGeneratedContent);
@@ -173,9 +176,12 @@ const BottomSheetContent = () => {
 
   useEffect(() => {
     if (!lastEmail) return;
-    const {
-      contentAttributes: { email: emailAttributes = {} },
-    } = lastEmail;
+    const contentAttributes = (lastEmail as Message).contentAttributes;
+    const emailAttributes = (contentAttributes?.email || {}) as {
+      from?: string[];
+      cc?: string[];
+      bcc?: string[];
+    };
 
     // Retrieve the email of the current conversation's sender
     const conversationContact = conversation?.meta?.sender?.email || '';
@@ -192,13 +198,13 @@ const BottomSheetContent = () => {
 
     // If the last incoming message sender is different from the conversation contact, add them to the "to"
     // and add the conversation contact to the CC
-    if (!emailAttributes.from.includes(conversationContact)) {
+    if (emailAttributes.from && !emailAttributes.from.includes(conversationContact)) {
       to.push(...emailAttributes.from);
       cc.push(conversationContact);
     }
 
     // Remove the conversation contact's email from the BCC list if present
-    let bcc = (emailAttributes.bcc || []).filter(email => email !== conversationContact);
+    let bcc = (emailAttributes.bcc || []).filter((email: string) => email !== conversationContact);
 
     // Ensure only unique email addresses are in the CC list
     bcc = [...new Set(bcc)];
@@ -376,8 +382,6 @@ const BottomSheetContent = () => {
       //   }
       // });
       // TODO: Add support for multiple files later
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
       messagePayload.file = attachedFiles[0];
     }
 

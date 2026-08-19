@@ -33,9 +33,17 @@ const Chatwoot = () => {
     return true;
   };
 
+  const handleBeforeLift = () => {
+    const state = store.getState();
+    const { settings } = state;
+    if (settings?.localeValue) {
+      i18n.locale = settings.localeValue;
+    }
+  };
+
   return (
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
+      <PersistGate loading={null} persistor={persistor} onBeforeLift={handleBeforeLift}>
         <AppErrorBoundary>
           <AppNavigator />
         </AppErrorBoundary>

@@ -1,4 +1,3 @@
-import type { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { StackActions } from '@react-navigation/native';
 
 import type { Contact } from '@/types/Contact';
@@ -9,6 +8,12 @@ import { transformContact } from '@/utils/camelCaseKeys';
 import { addContact } from '@/store/contact/contactSlice';
 import { apiService } from '@/services/APIService';
 import type { AppDispatch } from '@/store';
+
+export type SearchNavigation = {
+  dispatch: (action: any) => void;
+  canGoBack: () => boolean;
+  goBack: () => void;
+};
 
 /**
  * Get additional data for contact items (finds related conversation)
@@ -29,7 +34,7 @@ export function getContactAdditionalData(
  * Handle contact item press - fetches full contact details and navigates
  */
 export async function handleContactPress(
-  navigation: NavigationProp<ParamListBase>,
+  navigation: SearchNavigation,
   item: Contact,
   dispatch?: AppDispatch,
 ): Promise<void> {
@@ -69,7 +74,7 @@ export async function handleContactPress(
  * Handle conversation item press - navigates to chat screen
  */
 export function handleConversationPress(
-  navigation: NavigationProp<ParamListBase>,
+  navigation: SearchNavigation,
   item: Conversation,
 ): void {
   const pushToChatScreen = StackActions.push('ChatScreen', {
@@ -82,7 +87,7 @@ export function handleConversationPress(
 /**
  * Handle message item press - navigates to chat screen with message ID
  */
-export function handleMessagePress(navigation: NavigationProp<ParamListBase>, item: Message): void {
+export function handleMessagePress(navigation: SearchNavigation, item: Message): void {
   const pushToChatScreen = StackActions.push('ChatScreen', {
     conversationId: item.conversationId,
     isConversationOpenedExternally: false,
