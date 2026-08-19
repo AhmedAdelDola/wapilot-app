@@ -7,7 +7,7 @@ const config = getDefaultConfig(__dirname);
 const stubsDir = path.resolve(__dirname, 'src/stubs');
 const srcDir = path.resolve(__dirname, 'src');
 
-// Map native packages to our stubs for Expo Go compatibility
+// Map uninstalled native packages to stubs (from Chatwoot port)
 const extraNodeModules = {
   // Sentry
   '@sentry/react-native': path.join(stubsDir, 'sentry.ts'),
@@ -17,9 +17,6 @@ const extraNodeModules = {
 
   // Blur
   '@react-native-community/blur': path.join(stubsDir, 'blur.ts'),
-
-  // WebView
-  'react-native-webview': path.join(stubsDir, 'webview.ts'),
 
   // UI
   'react-native-snackbar': path.join(stubsDir, 'snackbar.ts'),
@@ -52,21 +49,16 @@ const extraNodeModules = {
   '@chatwoot/markdown-to-txt': path.join(stubsDir, 'markdownToTxt.ts'),
   '@chatwoot/utils': path.join(stubsDir, 'chatwootUtils.ts'),
 
-  // Action Cable - using native WebSocket via src/utils/actionCable.ts
-  
-  // Document picker - using expo-document-picker via alias
-  '@react-native-documents/picker': path.join(stubsDir, 'documentPickerExpo.ts'),
-  
-  // Device info
-  'react-native-device-info': path.join(stubsDir, 'deviceInfo.ts'),
-
   // Bare imports (matching Chatwoot's tsconfig "*" -> "src/*" paths)
   'i18n': path.join(srcDir, 'i18n'),
 };
 
-// In EAS builds, use real Firebase packages (native modules are compiled)
-// In local dev (Expo Go), use stubs since Firebase native modules aren't available
-if (process.env.EAS_BUILD !== 'true') {
+// In Expo Go ONLY, map installed native modules to stubs (since Expo Go lacks custom C++/Java native code)
+// In standalone native builds (Release APK, EAS Build, Dev Client), use real installed npm packages
+if (process.env.EXPO_DEV_SETTING_EXPO_GO === 'true') {
+  extraNodeModules['react-native-webview'] = path.join(stubsDir, 'webview.ts');
+  extraNodeModules['react-native-device-info'] = path.join(stubsDir, 'deviceInfo.ts');
+  extraNodeModules['@react-native-documents/picker'] = path.join(stubsDir, 'documentPickerExpo.ts');
   extraNodeModules['@react-native-firebase/app'] = path.join(stubsDir, 'firebaseApp.ts');
   extraNodeModules['@react-native-firebase/messaging'] = path.join(stubsDir, 'firebaseMessaging.ts');
 }

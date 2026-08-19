@@ -19,11 +19,19 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_CHATWOOT_BASE_URL": "https://omni.message-pro.com",
+        "EXPO_PUBLIC_CHATWOOT_WEBSOCKET_URL": "wss://omni.message-pro.com"
       }
     },
     "production": {
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_CHATWOOT_BASE_URL": "https://omni.message-pro.com",
+        "EXPO_PUBLIC_CHATWOOT_WEBSOCKET_URL": "wss://omni.message-pro.com"
       }
     }
   },

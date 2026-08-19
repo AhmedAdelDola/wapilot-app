@@ -19,6 +19,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.messagepro.app',
+      googleServicesFile: './GoogleService-Info.plist',
       infoPlist: {
         NSCameraUsageDescription:
           'This app requires access to the camera to upload images and videos.',
@@ -49,15 +50,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       [
         '@react-native-firebase/app',
         {
-          googleServicesFile: './google-services.json',
+          androidGoogleServicesFile: './google-services.json',
+          iosGoogleServicesFile: './GoogleService-Info.plist',
         },
       ],
-      [
-        '@react-native-firebase/messaging',
-        {
-          googleServicesFile: './GoogleService-Info.plist',
-        },
-      ],
+      '@react-native-firebase/messaging',
     ],
     androidNavigationBar: { backgroundColor: '#ffffff' },
   };

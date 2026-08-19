@@ -28,9 +28,13 @@ import Inter50024 from '@/assets/fonts/Inter-500-24.ttf';
 import Inter58024 from '@/assets/fonts/Inter-580-24.ttf';
 import Inter60020 from '@/assets/fonts/Inter-600-20.ttf';
 
-messaging().setBackgroundMessageHandler(async (remoteMessage: { messageId?: string; data?: Record<string, string> }) => {
-  console.log('Message handled in the background!', remoteMessage);
-});
+try {
+  messaging().setBackgroundMessageHandler(async (remoteMessage: { messageId?: string; data?: Record<string, string> }) => {
+    console.log('Message handled in the background!', remoteMessage);
+  });
+} catch (error) {
+  console.warn('Failed to set background message handler:', error);
+}
 
 export const AppNavigationContainer = () => {
   const [fontsLoaded] = useFonts({

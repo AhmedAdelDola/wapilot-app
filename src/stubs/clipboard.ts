@@ -1,1 +1,7 @@
-export default { getString: async () => '', setString: (s: string) => {} };
+export const getString = async () => '';
+export const setString = (s: string) => {};
+
+export default {
+  getString,
+  setString,
+};
