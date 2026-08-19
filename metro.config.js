@@ -8,7 +8,7 @@ const stubsDir = path.resolve(__dirname, 'src/stubs');
 const srcDir = path.resolve(__dirname, 'src');
 
 // Map native packages to our stubs for Expo Go compatibility
-config.resolver.extraNodeModules = {
+const extraNodeModules = {
   // Sentry
   '@sentry/react-native': path.join(stubsDir, 'sentry.ts'),
 
@@ -63,6 +63,15 @@ config.resolver.extraNodeModules = {
   // Bare imports (matching Chatwoot's tsconfig "*" -> "src/*" paths)
   'i18n': path.join(srcDir, 'i18n'),
 };
+
+// In EAS builds, use real Firebase packages (native modules are compiled)
+// In local dev (Expo Go), use stubs since Firebase native modules aren't available
+if (process.env.EAS_BUILD !== 'true') {
+  extraNodeModules['@react-native-firebase/app'] = path.join(stubsDir, 'firebaseApp.ts');
+  extraNodeModules['@react-native-firebase/messaging'] = path.join(stubsDir, 'firebaseMessaging.ts');
+}
+
+config.resolver.extraNodeModules = extraNodeModules;
 
 // Resolve bare imports like 'i18n' to 'src/i18n' (matching Chatwoot's tsconfig paths)
 config.resolver.resolveRequest = (context, moduleName, platform) => {
