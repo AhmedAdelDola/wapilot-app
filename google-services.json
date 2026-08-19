@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "525049549009",
+    "project_id": "omni-massage-pro",
+    "storage_bucket": "omni-massage-pro.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:525049549009:android:28cfa046c3fefead0c35f0",
+        "android_client_info": {
+          "package_name": "com.messagepro.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAI9fonGhxJsRZPHaHmOjwe365GVGUypjQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
