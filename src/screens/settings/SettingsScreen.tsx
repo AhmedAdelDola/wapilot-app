@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { StatusBar, Text, Platform, Pressable, RefreshControl, ScrollView } from 'react-native';
+import { StatusBar, Platform, Pressable, RefreshControl, ScrollView } from 'react-native';
 import Animated from 'react-native-reanimated';
-// import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -36,6 +35,10 @@ import {
   NotificationPreferences,
   SwitchAccount,
   SettingsList,
+  UserHeader,
+  SettingsSection,
+  SettingsRow,
+  Toggle,
 } from '@/components-next';
 import { UserAvatar } from './components/UserAvatar';
 
@@ -312,32 +315,70 @@ const SettingsScreen = () => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#000" />
         }>
-        <Animated.View style={tailwind.style('flex justify-center items-center pt-4 gap-4')}>
-          <Animated.View>
-            <UserAvatar src={avatarUrl} name={name} status={availabilityStatus} />
-            <Animated.View
-              style={tailwind.style(
-                'absolute border-[2px] border-white rounded-full -bottom-[2px] right-[10px]',
-              )}></Animated.View>
-          </Animated.View>
-          <Animated.View style={tailwind.style('flex flex-col items-center gap-1')}>
-            <Animated.Text style={tailwind.style('text-[22px] font-inter-580-24 text-gray-950')}>
-              {name}
-            </Animated.Text>
-            <Animated.Text
-              style={tailwind.style(
-                'text-[15px] font-inter-420-20 leading-[17.25px] text-gray-900',
-              )}>
-              {email}
-            </Animated.Text>
-          </Animated.View>
-        </Animated.View>
-        <Animated.View style={tailwind.style('pt-6')}>
-          <SettingsList sectionTitle={i18n.t('SETTINGS.PREFERENCES')} list={preferencesList} />
-        </Animated.View>
-        <Animated.View style={tailwind.style('pt-6')}>
-          <SettingsList sectionTitle={i18n.t('SETTINGS.SUPPORT')} list={supportList} />
-        </Animated.View>
+        <UserHeader
+          name={name || ''}
+          email={email || ''}
+          avatarUrl={avatarUrl}
+          status={availabilityStatus as 'online' | 'away' | 'offline'}
+        />
+        <SettingsSection title={i18n.t('SETTINGS.GENERAL')}>
+          <SettingsRow
+            icon={<SwitchIcon />}
+            title={`Set yourself as ${availabilityStatus === 'online' ? 'Available' : 'Busy'}`}
+            onPress={() => openSheet()}
+          />
+        </SettingsSection>
+        <SettingsSection title={i18n.t('SETTINGS.ACCOUNT')}>
+          <SettingsRow
+            icon={<SwitchIcon />}
+            title={i18n.t('SETTINGS.SWITCH_ACCOUNT')}
+            subtitle={activeAccountName}
+            onPress={() => {
+              if (enableAccountSwitch) {
+                switchAccountSheetRef.current?.present();
+              }
+            }}
+            hasChevron={enableAccountSwitch}
+          />
+          <SettingsRow
+            icon={<NotificationIcon />}
+            title={i18n.t('SETTINGS.NOTIFICATIONS')}
+            onPress={() => notificationPreferencesSheetRef.current?.present()}
+            disabled={!hasConversationPermission}
+          />
+          <SettingsRow
+            icon={<TranslateIcon />}
+            title={i18n.t('SETTINGS.CHANGE_LANGUAGE')}
+            subtitle={LANGUAGES[activeLocale as keyof typeof LANGUAGES]}
+            onPress={() => languagesModalSheetRef.current?.present()}
+          />
+        </SettingsSection>
+        <SettingsSection title={i18n.t('SETTINGS.APP')}>
+          <SettingsRow
+            icon={<SwitchIcon />}
+            title="Dark mode"
+            subtitle="Use system setting"
+            onPress={() => {}}
+          />
+          <SettingsRow
+            icon={<SwitchIcon />}
+            title="Haptic feedback"
+            rightElement={<Toggle value={true} onValueChange={() => {}} />}
+            hasChevron={false}
+          />
+        </SettingsSection>
+        <SettingsSection title={i18n.t('SETTINGS.SUPPORT')}>
+          <SettingsRow
+            icon={<SwitchIcon />}
+            title={i18n.t('SETTINGS.READ_DOCS')}
+            onPress={openURL}
+          />
+          <SettingsRow
+            icon={<ChatwootIcon />}
+            title={i18n.t('SETTINGS.CHAT_WITH_US')}
+            onPress={() => toggleWidget(true)}
+          />
+        </SettingsSection>
         <Animated.View style={tailwind.style('pt-6 mx-4')}>
           <Button
             variant="secondary"
