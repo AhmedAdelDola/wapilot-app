@@ -4,27 +4,23 @@ import Animated from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { DrawerLayout } from 'react-native-gesture-handler';
 
-import { TAB_BAR_HEIGHT } from '@/constants';
 import { tailwind } from '@/theme';
-import { useAppSelector } from '@/hooks';
-import { selectAllInboxes } from '@/store/inbox/inboxSelectors';
 import { FilterChips, EmptyState, Sidebar, FAB } from '@/components-next';
-import { EmptyConversationsIcon } from '@/svg-icons';
+import { EmptyCallsIcon } from '@/svg-icons';
 
-const STATUS_FILTER_OPTIONS = [
+const CALL_STATUS_FILTER_OPTIONS = [
   { id: 'all', label: 'All' },
-  { id: 'open', label: 'Open' },
-  { id: 'closed', label: 'Closed' },
-  { id: 'snoozed', label: 'Snoozed' },
+  { id: 'missed', label: 'Missed' },
+  { id: 'no_answer', label: 'No Answer' },
+  { id: 'ongoing', label: 'Ongoing' },
+  { id: 'ended', label: 'Ended' },
 ];
 
-const InboxScreen = () => {
+const CallsScreen = () => {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedInbox, setSelectedInbox] = useState('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const drawerRef = useRef<DrawerLayout>(null);
-
-  const inboxes = useAppSelector(selectAllInboxes);
 
   const handleRefresh = useCallback(() => {
     setIsRefreshing(true);
@@ -125,26 +121,22 @@ const InboxScreen = () => {
           </View>
 
           <FilterChips
-            options={STATUS_FILTER_OPTIONS}
+            options={CALL_STATUS_FILTER_OPTIONS}
             selectedId={selectedStatus}
             onSelect={setSelectedStatus}
           />
 
           <View style={tailwind.style('flex-1 items-center justify-center px-8')}>
             <EmptyState
-              icon={<EmptyConversationsIcon size={64} color="#D1D5DB" />}
-              title="No conversations to show"
+              icon={<EmptyCallsIcon size={64} color="#9CA3AF" />}
+              title="No calls"
+              subtitle="Set up calls in Channel settings in Web"
             />
           </View>
-
-          <FAB
-            label="Unreplied"
-            onPress={() => console.log('FAB pressed')}
-          />
         </View>
       </DrawerLayout>
     </SafeAreaView>
   );
 };
 
-export default InboxScreen;
+export default CallsScreen;

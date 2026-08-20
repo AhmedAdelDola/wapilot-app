@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, RefreshControl, StatusBar, Text, View } from 'react-native';
 import Animated, {
   LinearTransition,
@@ -20,7 +20,7 @@ import {
   selectIsLoadingNotifications,
   getFilteredNotifications,
 } from '@/store/notification/notificationSelectors';
-import { InboxItemContainer } from './components';
+import { InboxItemContainer } from '@/screens/inbox/components';
 import { useInboxListStateContext } from '@/context';
 import { resetNotifications } from '@/store/notification/notificationSlice';
 import i18n from '@/i18n';
@@ -60,7 +60,6 @@ const InboxList = () => {
     }
   }, [sortOrder]);
 
-  // eslint-disable-next-line react/display-name
   const ListFooterComponent = React.memo(() => {
     if (isAllNotificationsFetched) return null;
     return (
@@ -69,7 +68,7 @@ const InboxList = () => {
           'flex-1 items-center justify-center pt-8',
           `pb-[${TAB_BAR_HEIGHT}px]`,
         )}>
-        {isAllNotificationsFetched ? null : <ActivityIndicator size="small" />}
+        <ActivityIndicator size="small" />
       </Animated.View>
     );
   });

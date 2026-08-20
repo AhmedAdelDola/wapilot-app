@@ -21,7 +21,7 @@ import { selectWebSocketUrl } from '@/store/settings/settingsSelectors';
 import { getUserPermissions } from '@/utils/permissionUtils';
 import { CONVERSATION_PERMISSIONS } from 'constants/permissions';
 
-import { AuthStack, ConversationStack, SettingsStack, InboxStack } from '../stack';
+import { AuthStack, ConversationStack, SettingsStack, InboxStack, CallsStack } from '../stack';
 import ChatScreen from '@/screens/chat-screen/ChatScreen';
 import ContactDetailsScreen from '@/screens/contact-details/ContactDetailsScreen';
 import DashboardScreen from '@/screens/dashboard/DashboardScreen';
@@ -49,6 +49,7 @@ const Tab = createBottomTabNavigator();
 export type TabParamList = {
   Conversations: undefined;
   Inbox: undefined;
+  Calls: undefined;
   Settings: undefined;
   Login: undefined;
   ConfigInstallationURL: undefined;
@@ -202,6 +203,9 @@ const Tabs = () => {
           options={{ headerShown: false }}
           component={ConversationStack}
         />
+      )}
+      {hasConversationPermission && (
+        <Tab.Screen name="Calls" component={CallsStack} options={{ headerShown: false }} />
       )}
       <Tab.Screen name="Settings" options={{ headerShown: false }} component={SettingsStack} />
     </Tab.Navigator>

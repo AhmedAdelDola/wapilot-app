@@ -1,55 +1,25 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { StatusBar, Platform, Pressable, RefreshControl, ScrollView } from 'react-native';
-import Animated from 'react-native-reanimated';
+import { Platform, Pressable, RefreshControl, ScrollView, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StackActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import {
-  BottomSheetModal,
-  BottomSheetScrollView,
-  useBottomSheetSpringConfigs,
-} from '@gorhom/bottom-sheet';
 import DeviceInfo from 'react-native-device-info';
 import * as WebBrowser from 'expo-web-browser';
 import ChatWootWidget from '@chatwoot/react-native-widget';
 import { useSelector } from 'react-redux';
 import * as Application from 'expo-application';
+
 import { Account, AvailabilityStatus } from '@/types';
 import { clearAllConversations } from '@/store/conversation/conversationSlice';
 import { resetNotifications } from '@/store/notification/notificationSlice';
 import { clearAllContacts } from '@/store/contact/contactSlice';
 import { clearSearchResults } from '@/store/search/searchSlice';
-
 import { RecentSearches } from '@/screens/search/utils/recentSearches';
 import { HELP_URL } from '@/constants/url';
 import { tailwind } from '@/theme';
-
-import {
-  BottomSheetBackdrop,
-  BottomSheetHeader,
-  BottomSheetWrapper,
-  Button,
-  LanguageList,
-  AvailabilityStatusList,
-  NotificationPreferences,
-  SwitchAccount,
-  SettingsList,
-  UserHeader,
-  SettingsSection,
-  SettingsRow,
-  Toggle,
-} from '@/components-next';
-import { UserAvatar } from './components/UserAvatar';
-
-import { LANGUAGES, TAB_BAR_HEIGHT } from '@/constants';
-import { useRefsContext } from '@/context';
-import { ChatwootIcon, NotificationIcon, SwitchIcon, TranslateIcon } from '@/svg-icons';
-import { GenericListType } from '@/types';
-
+import { UserHeader, SettingsSection, SettingsRow, Toggle } from '@/components-next';
+import { TAB_BAR_HEIGHT } from '@/constants';
 import { useHaptic } from '@/utils';
-import { SettingsHeader } from './SettingsHeader';
-import { DebugActions } from './components/DebugActions';
 import {
   selectCurrentUserAvailability,
   selectUser,
@@ -61,20 +31,19 @@ import {
   selectLocale,
   selectIsChatwootCloud,
   selectPushToken,
+  selectTheme,
 } from '@/store/settings/settingsSelectors';
 import { settingsActions } from '@/store/settings/settingsActions';
-import { setLocale } from '@/store/settings/settingsSlice';
-
 import i18n from '@/i18n';
 import AnalyticsHelper from '@/utils/analyticsUtils';
 import { PROFILE_EVENTS } from '@/constants/analyticsEvents';
 import { getUserPermissions } from '@/utils/permissionUtils';
 import { CONVERSATION_PERMISSIONS } from '@/constants/permissions';
 import { useAppDispatch, useAppSelector } from '@/hooks';
+import { GetSupportSheet } from './components/GetSupportSheet';
 
 const appName = Application.applicationName;
 const appVersion = Application.nativeApplicationVersion;
-
 const buildNumber = Application.nativeBuildVersion;
 const appVersionDetails = buildNumber ? `${appVersion} (${buildNumber})` : appVersion;
 
@@ -82,12 +51,12 @@ const SettingsScreen = () => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const [refreshing, setRefreshing] = useState(false);
+  const [showWidget, toggleWidget] = useState(false);
+  const [showGetSupport, setShowGetSupport] = useState(false);
+
   const availabilityStatus =
     (useSelector(selectCurrentUserAvailability) as AvailabilityStatus) || 'offline';
 
-  // const { bottom } = useSafeAreaInsets();
-
-  const [showWidget, toggleWidget] = useState(false);
   const user = useSelector(selectUser);
   const {
     name,
@@ -96,6 +65,19 @@ const SettingsScreen = () => {
     identifier_hash: identifierHash,
     account_id: activeAccountId,
   } = user || {};
+
+  const pushToken = useAppSelector(selectPushToken);
+  const currentTheme = useAppSelector(selectTheme);
+  const isChatwootCloud = useAppSelector(selectIsChatwootCloud);
+  const accounts = useSelector(selectAccounts) || [];
+  const activeAccountName = accounts.length
+    ? accounts.find((account: Account) => account.id === activeAccountId)?.name || ''
+    : '';
+
+  const userPermissions = getUserPermissions(user, activeAccountId);
+  const hasConversationPermission = CONVERSATION_PERMISSIONS.some(permission =>
+    userPermissions.includes(permission),
+  );
 
   useEffect(() => {
     dispatch(settingsActions.getNotificationSettings());
@@ -115,13 +97,27 @@ const SettingsScreen = () => {
     }
   }, [dispatch]);
 
-  const pushToken = useAppSelector(selectPushToken);
+  const hapticSelection = useHaptic();
 
-  const userPermissions = getUserPermissions(user, activeAccountId);
+  const getThemeLabel = () => {
+    switch (currentTheme) {
+      case 'system':
+        return 'Use system setting';
+      case 'light':
+        return 'Light';
+      case 'dark':
+        return 'Dark';
+      default:
+        return 'Off';
+    }
+  };
 
-  const hasConversationPermission = CONVERSATION_PERMISSIONS.some(permission =>
-    userPermissions.includes(permission),
-  );
+  const onClickLogout = useCallback(async () => {
+    await AsyncStorage.removeItem('cwCookie');
+    await RecentSearches.clearAll();
+    await dispatch(settingsActions.removeDevice({ pushToken }));
+    dispatch(logout());
+  }, [dispatch, pushToken]);
 
   const userDetails = {
     identifier: email,
@@ -137,177 +133,18 @@ const SettingsScreen = () => {
     appVersion: appVersionDetails,
     deviceId: DeviceInfo.getDeviceId(),
     packageName: appName,
-    operatingSystem: Platform.OS, // android/ios
+    operatingSystem: Platform.OS,
   };
-
-  const isChatwootCloud = useAppSelector(selectIsChatwootCloud);
 
   const chatwootInstance = isChatwootCloud ? `${appName} cloud` : `${appName} self-hosted`;
 
-  const accounts = useSelector(selectAccounts) || [];
-
-  const activeAccountName = accounts.length
-    ? accounts.find((account: Account) => account.id === activeAccountId)?.name || ''
-    : '';
-
-  const enableAccountSwitch = accounts.length > 1;
-
-  const activeLocale = useSelector(selectLocale);
-
-  useEffect(() => {
-    if (activeLocale) {
-      i18n.locale = activeLocale;
-    }
-  }, [activeLocale]);
-
-  const {
-    userAvailabilityStatusSheetRef,
-    languagesModalSheetRef,
-    notificationPreferencesSheetRef,
-    switchAccountSheetRef,
-    debugActionsSheetRef,
-  } = useRefsContext();
-
-  const hapticSelection = useHaptic();
-
-  const animationConfigs = useBottomSheetSpringConfigs({
-    mass: 1,
-    stiffness: 420,
-    damping: 30,
-  });
-
-  const openSheet = () => {
-    hapticSelection?.();
-    userAvailabilityStatusSheetRef.current?.present();
-  };
-
-  const changeAvailabilityStatus = (updatedStatus: string) => {
-    AnalyticsHelper.track(PROFILE_EVENTS.TOGGLE_AVAILABILITY_STATUS, {
-      from: availabilityStatus,
-      to: updatedStatus,
-    });
-    const payload = { profile: { availability: updatedStatus, account_id: activeAccountId } };
-    // TODO: Fix this later
-    // @ts-expect-error TODO: Fix typing for dispatch
-    dispatch(authActions.updateAvailability(payload));
-  };
-
-  const onChangeLanguage = (locale: string) => {
-    i18n.locale = locale;
-    dispatch(setLocale(locale));
-  };
-
-  const changeAccount = (accountId: number) => {
-    dispatch(clearAllContacts());
-    dispatch(clearAllConversations());
-    dispatch(resetNotifications());
-    dispatch(clearSearchResults());
-    dispatch(setAccount(accountId));
-    dispatch(authActions.setActiveAccount({ profile: { account_id: accountId } }));
-    navigation.dispatch(StackActions.replace('Tab'));
-  };
-
-  useEffect(() => {
-    userAvailabilityStatusSheetRef.current?.dismiss({
-      overshootClamping: true,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availabilityStatus]);
-
-  useEffect(() => {
-    languagesModalSheetRef.current?.dismiss({
-      overshootClamping: true,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeLocale]);
-
-  const openURL = async () => {
-    await WebBrowser.openBrowserAsync(HELP_URL);
-  };
-
-  // const openSystemSettings = () => {
-  //   if (Platform.OS === 'ios') {
-  //     Linking.openURL('app-settings:');
-  //   } else {
-  //     Linking.openSettings();
-  //   }
-  // };
-
-  const onClickLogout = useCallback(async () => {
-    await AsyncStorage.removeItem('cwCookie');
-    await RecentSearches.clearAll();
-    await dispatch(settingsActions.removeDevice({ pushToken }));
-    dispatch(logout());
-  }, [dispatch, pushToken]);
-
-  const preferencesList: GenericListType[] = [
-    {
-      hasChevron: true,
-      title: i18n.t('SETTINGS.CHANGE_AVAILABILITY'),
-      icon: <SwitchIcon />,
-      subtitle: '',
-      subtitleType: 'light',
-      onPressListItem: () => openSheet(),
-    },
-    {
-      hasChevron: true,
-      title: i18n.t('SETTINGS.NOTIFICATIONS'),
-      icon: <NotificationIcon />,
-      subtitle: '',
-      subtitleType: 'light',
-      disabled: !hasConversationPermission,
-      onPressListItem: () => notificationPreferencesSheetRef.current?.present(),
-      // onPressListItem: openSystemSettings,
-    },
-    {
-      hasChevron: true,
-      title: i18n.t('SETTINGS.CHANGE_LANGUAGE'),
-      icon: <TranslateIcon />,
-      subtitle: LANGUAGES[activeLocale as keyof typeof LANGUAGES],
-      subtitleType: 'light',
-      onPressListItem: () => languagesModalSheetRef.current?.present(),
-    },
-    {
-      hasChevron: enableAccountSwitch,
-      title: i18n.t('SETTINGS.SWITCH_ACCOUNT'),
-      icon: <SwitchIcon />,
-      subtitle: activeAccountName,
-      subtitleType: 'light',
-      onPressListItem: () => {
-        if (enableAccountSwitch) {
-          switchAccountSheetRef.current?.present();
-        }
-      },
-    },
-  ];
-
-  const supportList: GenericListType[] = [
-    {
-      hasChevron: true,
-      title: i18n.t('SETTINGS.READ_DOCS'),
-      icon: <SwitchIcon />,
-      subtitle: '',
-      subtitleType: 'light',
-      onPressListItem: openURL,
-    },
-    {
-      hasChevron: true,
-      title: i18n.t('SETTINGS.CHAT_WITH_US'),
-      icon: <ChatwootIcon />,
-      subtitle: '',
-      subtitleType: 'light',
-      onPressListItem: () => toggleWidget(true),
-    },
-  ];
-
   return (
-    <SafeAreaView style={tailwind.style('flex-1 bg-white font-inter-normal-20')}>
+    <SafeAreaView style={tailwind.style('flex-1 bg-white')}>
       <StatusBar
         translucent
         backgroundColor={tailwind.color('bg-white')}
         barStyle={'dark-content'}
       />
-      <SettingsHeader />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={tailwind.style(`pb-[${TAB_BAR_HEIGHT - 1}px]`)}
@@ -315,170 +152,111 @@ const SettingsScreen = () => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#000" />
         }>
-        <UserHeader
-          name={name || ''}
-          email={email || ''}
-          avatarUrl={avatarUrl}
-          status={availabilityStatus as 'online' | 'away' | 'offline'}
-        />
-        <SettingsSection title={i18n.t('SETTINGS.GENERAL')}>
+        <Text style={tailwind.style('text-[28px] font-inter-580-24 text-gray-950 px-4 pt-4 pb-2')}>
+          Settings
+        </Text>
+
+        <Pressable
+          onPress={() => navigation.navigate('ProfileScreen' as never)}
+          style={tailwind.style('flex-row items-center px-4 py-3')}>
+          <UserHeader
+            name={name || ''}
+            email={email || ''}
+            avatarUrl={avatarUrl}
+            status={availabilityStatus as 'online' | 'away' | 'offline'}
+          />
+          <Text style={tailwind.style('text-gray-400 ml-2')}>›</Text>
+        </Pressable>
+
+        <SettingsSection title="General">
           <SettingsRow
-            icon={<SwitchIcon />}
+            icon={<Text style={tailwind.style('text-xl')}>👤</Text>}
             title={`Set yourself as ${availabilityStatus === 'online' ? 'Available' : 'Busy'}`}
-            onPress={() => openSheet()}
-          />
-        </SettingsSection>
-        <SettingsSection title={i18n.t('SETTINGS.ACCOUNT')}>
-          <SettingsRow
-            icon={<SwitchIcon />}
-            title={i18n.t('SETTINGS.SWITCH_ACCOUNT')}
-            subtitle={activeAccountName}
-            onPress={() => {
-              if (enableAccountSwitch) {
-                switchAccountSheetRef.current?.present();
-              }
-            }}
-            hasChevron={enableAccountSwitch}
-          />
-          <SettingsRow
-            icon={<NotificationIcon />}
-            title={i18n.t('SETTINGS.NOTIFICATIONS')}
-            onPress={() => notificationPreferencesSheetRef.current?.present()}
-            disabled={!hasConversationPermission}
-          />
-          <SettingsRow
-            icon={<TranslateIcon />}
-            title={i18n.t('SETTINGS.CHANGE_LANGUAGE')}
-            subtitle={LANGUAGES[activeLocale as keyof typeof LANGUAGES]}
-            onPress={() => languagesModalSheetRef.current?.present()}
-          />
-        </SettingsSection>
-        <SettingsSection title={i18n.t('SETTINGS.APP')}>
-          <SettingsRow
-            icon={<SwitchIcon />}
-            title="Dark mode"
-            subtitle="Use system setting"
             onPress={() => {}}
           />
+        </SettingsSection>
+
+        <SettingsSection title="Account">
           <SettingsRow
-            icon={<SwitchIcon />}
+            icon={<Text style={tailwind.style('text-xl')}>🏢</Text>}
+            title="Change workspace"
+            subtitle={activeAccountName}
+            onPress={() => navigation.navigate('ChangeWorkspaceScreen' as never)}
+            hasChevron
+          />
+          <SettingsRow
+            icon={<Text style={tailwind.style('text-xl')}>🔔</Text>}
+            title="Update notifications"
+            onPress={() => navigation.navigate('UpdateNotificationsScreen' as never)}
+            hasChevron
+          />
+          <SettingsRow
+            icon={<Text style={tailwind.style('text-xl')}>🔑</Text>}
+            title="Change password"
+            onPress={() => navigation.navigate('ChangePasswordScreen' as never)}
+            hasChevron
+          />
+        </SettingsSection>
+
+        <SettingsSection title="App">
+          <SettingsRow
+            icon={<Text style={tailwind.style('text-xl')}>🌙</Text>}
+            title="Dark mode"
+            subtitle={getThemeLabel()}
+            onPress={() => navigation.navigate('DarkModeScreen' as never)}
+            hasChevron
+          />
+          <SettingsRow
+            icon={<Text style={tailwind.style('text-xl')}>📳</Text>}
             title="Haptic feedback"
             rightElement={<Toggle value={true} onValueChange={() => {}} />}
             hasChevron={false}
           />
         </SettingsSection>
-        <SettingsSection title={i18n.t('SETTINGS.SUPPORT')}>
+
+        <SettingsSection title="Help & feedback">
           <SettingsRow
-            icon={<SwitchIcon />}
-            title={i18n.t('SETTINGS.READ_DOCS')}
-            onPress={openURL}
+            icon={<Text style={tailwind.style('text-xl')}>⚠️</Text>}
+            title="Report a bug"
+            onPress={() => navigation.navigate('ReportBugScreen' as never)}
+            hasChevron
           />
           <SettingsRow
-            icon={<ChatwootIcon />}
-            title={i18n.t('SETTINGS.CHAT_WITH_US')}
-            onPress={() => toggleWidget(true)}
+            icon={<Text style={tailwind.style('text-xl')}>💬</Text>}
+            title="Get support"
+            onPress={() => setShowGetSupport(true)}
+            hasChevron
           />
         </SettingsSection>
-        <Animated.View style={tailwind.style('pt-6 mx-4')}>
-          <Button
-            variant="secondary"
-            text={i18n.t('SETTINGS.LOGOUT')}
-            isDestructive
-            handlePress={onClickLogout}
-          />
-        </Animated.View>
+
         <Pressable
-          style={tailwind.style('p-4 items-center')}
-          onLongPress={() => debugActionsSheetRef.current?.present()}>
-          <Text style={tailwind.style('text-sm text-gray-700 ')}>
-            {`${chatwootInstance} ${appVersionDetails}`}
+          onPress={onClickLogout}
+          style={tailwind.style('flex-row items-center px-6 py-4')}>
+          <Text style={tailwind.style('text-xl mr-3')}>🚪</Text>
+          <Text style={tailwind.style('text-[16px] font-inter-normal-20 text-gray-950')}>
+            Log out
+          </Text>
+        </Pressable>
+
+        <Pressable
+          style={tailwind.style('items-center py-4')}
+          onLongPress={() => {}}>
+          <Text style={tailwind.style('text-[12px] text-gray-500')}>
+            Version {appVersionDetails}
           </Text>
         </Pressable>
       </ScrollView>
-      <BottomSheetModal
-        ref={userAvailabilityStatusSheetRef}
-        backdropComponent={BottomSheetBackdrop}
-        handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
-        enablePanDownToClose
-        enableContentPanningGesture={false}
-        animationConfigs={animationConfigs}
-        // TODO: Fix this later
-        // bottomInset={bottom === 0 ? 12 : bottom}
-        handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
-        style={tailwind.style('rounded-[26px] overflow-hidden')}
-        snapPoints={[190]}>
-        <BottomSheetWrapper>
-          <BottomSheetHeader headerText={i18n.t('SETTINGS.SET_AVAILABILITY')} />
-          <AvailabilityStatusList
-            changeAvailabilityStatus={changeAvailabilityStatus}
-            availabilityStatus={availabilityStatus}
+
+      {showGetSupport && (
+        <View style={tailwind.style('absolute inset-0 bg-black/50 justify-end')}>
+          <Pressable
+            style={tailwind.style('flex-1')}
+            onPress={() => setShowGetSupport(false)}
           />
-        </BottomSheetWrapper>
-      </BottomSheetModal>
-      <BottomSheetModal
-        ref={languagesModalSheetRef}
-        backdropComponent={BottomSheetBackdrop}
-        handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
-        enablePanDownToClose
-        enableContentPanningGesture={false}
-        animationConfigs={animationConfigs}
-        handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
-        style={tailwind.style('rounded-[26px] overflow-hidden')}
-        snapPoints={['70%']}>
-        <BottomSheetScrollView showsVerticalScrollIndicator={false}>
-          <BottomSheetHeader headerText={i18n.t('SETTINGS.SET_LANGUAGE')} />
-          <LanguageList onChangeLanguage={onChangeLanguage} currentLanguage={activeLocale} />
-        </BottomSheetScrollView>
-      </BottomSheetModal>
-      <BottomSheetModal
-        ref={notificationPreferencesSheetRef}
-        backdropComponent={BottomSheetBackdrop}
-        handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
-        enablePanDownToClose
-        enableContentPanningGesture={false}
-        animationConfigs={animationConfigs}
-        handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
-        style={tailwind.style('rounded-[26px] overflow-hidden')}
-        snapPoints={['52%']}>
-        <BottomSheetWrapper>
-          <BottomSheetHeader headerText={i18n.t('SETTINGS.NOTIFICATION_PREFERENCES')} />
-          <NotificationPreferences />
-        </BottomSheetWrapper>
-      </BottomSheetModal>
-      <BottomSheetModal
-        ref={switchAccountSheetRef}
-        backdropComponent={BottomSheetBackdrop}
-        handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
-        enablePanDownToClose
-        enableContentPanningGesture={false}
-        animationConfigs={animationConfigs}
-        handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
-        style={tailwind.style('rounded-[26px] overflow-hidden')}
-        snapPoints={['50%']}>
-        <BottomSheetWrapper>
-          <BottomSheetHeader headerText={i18n.t('SETTINGS.SWITCH_ACCOUNT')} />
-          <SwitchAccount
-            currentAccountId={activeAccountId}
-            changeAccount={changeAccount}
-            accounts={accounts}
-          />
-        </BottomSheetWrapper>
-      </BottomSheetModal>
-      <BottomSheetModal
-        ref={debugActionsSheetRef}
-        backdropComponent={BottomSheetBackdrop}
-        handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
-        enablePanDownToClose
-        enableContentPanningGesture={false}
-        animationConfigs={animationConfigs}
-        handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
-        style={tailwind.style('rounded-[26px] overflow-hidden')}
-        snapPoints={['36%']}>
-        <BottomSheetWrapper>
-          <BottomSheetHeader headerText={i18n.t('SETTINGS.DEBUG_ACTIONS')} />
-          <DebugActions />
-        </BottomSheetWrapper>
-      </BottomSheetModal>
+          <GetSupportSheet onClose={() => setShowGetSupport(false)} />
+        </View>
+      )}
+
       {!!process.env.EXPO_PUBLIC_CHATWOOT_WEBSITE_TOKEN &&
         !!process.env.EXPO_PUBLIC_CHATWOOT_BASE_URL &&
         !!showWidget && (

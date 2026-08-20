@@ -19,6 +19,8 @@ import {
   InboxIconOutline,
   SettingsIconFilled,
   SettingsIconOutline,
+  CallsIconFilled,
+  CallsIconOutline,
 } from '@/svg-icons';
 import { tailwind } from '@/theme';
 import { useHaptic, useScaleAnimation, useTabBarHeight } from '@/utils';
@@ -42,6 +44,8 @@ const TabBarIcons = ({ focused, route }: TabBarIconsProps) => {
       return focused ? <ConversationIconFilled /> : <ConversationIconOutline />;
     case 'Inbox':
       return focused ? <InboxIconFilled /> : <InboxIconOutline />;
+    case 'Calls':
+      return focused ? <CallsIconFilled /> : <CallsIconOutline />;
     case 'Settings':
       return focused ? <SettingsIconFilled /> : <SettingsIconOutline />;
   }

@@ -8,6 +8,7 @@ export * from './icon';
 export * from './search';
 export * from './section-header';
 export * from './settings-row';
+export * from './sidebar';
 export * from './slider';
 export * from './swipeable';
 export * from './tabs';
