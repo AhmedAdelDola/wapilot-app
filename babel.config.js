@@ -13,6 +13,7 @@ module.exports = function (api) {
           },
         },
       ],
+      '@babel/plugin-transform-class-properties',
       'react-native-reanimated/plugin',
     ],
   };
