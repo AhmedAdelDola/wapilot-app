@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -125,37 +125,57 @@ const InboxScreen = () => {
   }, [fetchCounts]);
 
   // Client-side filtering logic based on selected status & sidebar section
-  const conversations = allConversations.filter((conv: Conversation) => {
-    // Status Filter
-    const targetStatus = STATUS_MAP[selectedStatus];
-    if (targetStatus && conv.status !== targetStatus) {
-      return false;
-    }
-
-    // Sidebar Filter
-    if (selectedSidebar === 'mine') {
-      return conv.meta?.assignee?.id === userId;
-    }
-    if (selectedSidebar === 'unassigned') {
-      return !conv.meta?.assignee;
-    }
-    if (selectedSidebar.startsWith('inbox_')) {
-      const inboxId = Number(selectedSidebar.replace('inbox_', ''));
-      return conv.inboxId === inboxId;
-    }
-    if (selectedSidebar.startsWith('label_')) {
-      const labelTitle = selectedSidebar.replace('label_', '');
-      return (conv.labels || []).includes(labelTitle);
-    }
-    if (selectedSidebar.startsWith('stage_')) {
-      const stageId = selectedSidebar.replace('stage_', '');
-      const stageObj = lifecycleStages.find(s => String(s.id) === stageId);
-      if (stageObj) {
-        return (conv.labels || []).some(l => l.toLowerCase().includes(stageObj.name.toLowerCase()));
+  const conversations = useMemo(() => {
+    const filtered = allConversations.filter((conv: Conversation) => {
+      // Status Filter
+      const targetStatus = STATUS_MAP[selectedStatus];
+      if (targetStatus && conv.status !== targetStatus) {
+        return false;
       }
-    }
-    return true;
-  });
+
+      // Sidebar Filter
+      if (selectedSidebar === 'mine') {
+        return conv.meta?.assignee?.id === userId;
+      }
+      if (selectedSidebar === 'unassigned') {
+        return !conv.meta?.assignee;
+      }
+      if (selectedSidebar.startsWith('inbox_')) {
+        const inboxId = Number(selectedSidebar.replace('inbox_', ''));
+        return conv.inboxId === inboxId;
+      }
+      if (selectedSidebar.startsWith('label_')) {
+        const labelTitle = selectedSidebar.replace('label_', '');
+        return (conv.labels || []).includes(labelTitle);
+      }
+      if (selectedSidebar.startsWith('stage_')) {
+        const stageId = selectedSidebar.replace('stage_', '');
+        const stageObj = lifecycleStages.find(s => String(s.id) === stageId);
+        if (stageObj) {
+          return (conv.labels || []).some(l => l.toLowerCase().includes(stageObj.name.toLowerCase()));
+        }
+      }
+      return true;
+    });
+
+    const getTime = (conv: Conversation): number => {
+      // Treat 0 / null / undefined as "no value" so they fall back to the next source
+      const lastActivity = conv.lastActivityAt && Number(conv.lastActivityAt) > 0 ? Number(conv.lastActivityAt) : 0;
+      if (lastActivity > 0) return lastActivity;
+      const lastMsg =
+        conv.messages && conv.messages.length > 0
+          ? (conv.messages[conv.messages.length - 1]?.createdAt as number) || 0
+          : 0;
+      if (lastMsg > 0) return lastMsg;
+      return (conv.createdAt as number) || 0;
+    };
+
+    return [...filtered].sort((a, b) => {
+      const aTime = getTime(a);
+      const bTime = getTime(b);
+      return bTime - aTime;
+    });
+  }, [allConversations, selectedStatus, selectedSidebar, userId, lifecycleStages]);
 
   const fetchConversations = useCallback(
     async (page: number = 1) => {
@@ -299,7 +319,7 @@ const InboxScreen = () => {
         label: inbox.name,
         icon: (
           <View style={tailwind.style('w-5 h-5 items-center justify-center')}>
-            <Icon icon={getChannelIcon(inbox.channel_type as Channel, inbox.medium, '')} size={16} />
+            <Icon icon={getChannelIcon(inbox.channelType as Channel, inbox.medium, '')} size={16} />
           </View>
         ),
         count: allConversations.filter(c => c.inboxId === inbox.id).length,
@@ -458,8 +478,7 @@ const InboxScreen = () => {
           {/* Content */}
           <View style={tailwind.style('flex-1')}>{renderContent()}</View>
 
-          {/* FAB */}
-          <FAB label="Unreplied" onPress={() => setSelectedSidebar('unassigned')} />
+
         </View>
       </DrawerLayout>
     </SafeAreaView>

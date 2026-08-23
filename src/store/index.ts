@@ -52,6 +52,7 @@ export const store = configureStore({
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: {
+        warnAfter: 256,
         ignoredActions: [
           FLUSH,
           REHYDRATE,

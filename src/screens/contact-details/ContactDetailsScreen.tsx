@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { View, Platform } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import camelCase from 'camelcase';
 
 import { TAB_BAR_HEIGHT } from '@/constants';
 import {
@@ -93,6 +92,11 @@ const allSocialMediaProfiles: GenericListType[] = [
   },
 ];
 
+const toCamelCase = (str: string): string =>
+  str
+    .replace(/[^a-zA-Z0-9]+(.)/g, (_match, chr: string) => chr.toUpperCase())
+    .replace(/^[A-Z]/, c => c.toLowerCase());
+
 const processContactAttributes = (
   attributes: CustomAttribute[],
   customAttributes: Record<string, string>,
@@ -104,12 +108,12 @@ const processContactAttributes = (
 
   return attributes.reduce<(CustomAttribute & { value: string })[]>((result, attribute) => {
     const { attributeKey } = attribute;
-    const meetsCondition = filterCondition(camelCase(attributeKey), customAttributes);
+    const meetsCondition = filterCondition(toCamelCase(attributeKey), customAttributes);
 
     if (meetsCondition) {
       result.push({
         ...attribute,
-        value: customAttributes[camelCase(attributeKey)] ?? '',
+        value: customAttributes[toCamelCase(attributeKey)] ?? '',
       });
     }
 

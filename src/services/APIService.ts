@@ -138,7 +138,8 @@ class APIService {
           (config.headers as any)['client'] = this.authHeaders.client;
         }
 
-        console.log('API Request:', config.method?.toUpperCase(), `${config.baseURL}/${config.url}`, 'authHeaders:', !!this.authHeaders, 'accountId:', this.accountId);
+        const queryParams = config.params ? '?' + new URLSearchParams(config.params).toString() : '';
+        console.log('API Request:', config.method?.toUpperCase(), `${config.baseURL}/${config.url}${queryParams}`, 'authHeaders:', !!this.authHeaders, 'accountId:', this.accountId);
 
         return config as InternalAxiosRequestConfig;
       },
@@ -165,7 +166,7 @@ class APIService {
             // Store not initialized yet
           }
         }
-        console.log('API Response:', response.status, response.config.url);
+        // console.log('API Response:', response.status, response.config.url);
         return response;
       },
       async (error: AxiosError) => {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Animated, Image, Pressable, StatusBar, TextInput, View } from 'react-native';
+import { ActivityIndicator, Animated, Image, Pressable, StatusBar, Text, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   BottomSheetModal,
@@ -17,14 +17,13 @@ import i18n from '@/i18n';
 import { resetAuth } from '@/store/auth/authSlice';
 import { authActions } from '@/store/auth/authActions';
 import { useAppDispatch, useAppSelector } from '@/hooks';
+import { useTheme } from '@/theme/useTheme';
 
 import {
   BottomSheetBackdrop,
   BottomSheetHeader,
   LanguageList,
-  Button,
   Icon,
-  AuthButton,
 } from '@/components-next';
 import {
   selectInstallationUrl,
@@ -56,6 +55,7 @@ const LoginScreen = () => {
   });
 
   const { languagesModalSheetRef } = useRefsContext();
+  const { colors, isDark } = useTheme();
 
   const animationConfigs = useBottomSheetSpringConfigs({
     mass: 1,
@@ -136,56 +136,34 @@ const LoginScreen = () => {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={tailwind.style('flex-1 bg-white')}>
+    <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: colors.background }}>
       <StatusBar
         translucent
-        backgroundColor={tailwind.color('bg-white')}
-        barStyle={'dark-content'}
+        backgroundColor={colors.background}
+        barStyle={isDark ? 'light-content' : 'dark-content'}
       />
-      <View style={tailwind.style('flex-1 bg-white')}>
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
         <KeyboardAwareScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           bottomOffset={24}
-          contentContainerStyle={tailwind.style('px-6 pt-24 pb-8')}>
-          <Image
-            // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
-            source={require('@/assets/images/logo.png')}
-            style={tailwind.style('w-10 h-10')}
-            resizeMode="contain"
-          />
-          <View style={tailwind.style('pt-6 gap-4')}>
-            <Animated.Text style={tailwind.style('text-2xl text-gray-950 font-inter-semibold-20')}>
-              {i18n.t('LOGIN.TITLE')}
-            </Animated.Text>
-            <Animated.Text
-              style={tailwind.style(
-                'font-inter-normal-20 leading-[18px] tracking-[0.32px] text-gray-900',
-              )}>
-              {i18n.t('LOGIN.DESCRIPTION', { baseUrl })}
-            </Animated.Text>
-          </View>
-
-          {showSsoLogin && (
-            <View>
-              <AuthButton
-                text={i18n.t('LOGIN.LOGIN_VIA_SSO')}
-                icon={<LockIcon />}
-                handlePress={handleSsoLogin}
-                disabled={isLoggingIn}
-                variant="outline"
-                style={tailwind.style('mt-8')}
+          contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingTop: 34, paddingBottom: 16 }}>
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+              <Image
+                // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
+                source={require('@/assets/images/logo.png')}
+                style={{ width: 23, height: 23, borderRadius: 7, marginRight: 6 }}
+                resizeMode="contain"
               />
-
-              <View style={tailwind.style('flex-row items-center my-6')}>
-                <View style={tailwind.style('flex-1 h-px bg-gray-300')} />
-                <Animated.Text style={tailwind.style('px-4 text-sm text-gray-600')}>
-                  OR
-                </Animated.Text>
-                <View style={tailwind.style('flex-1 h-px bg-gray-300')} />
-              </View>
+              <Text style={{ color: colors.textPrimary, fontSize: 17, fontWeight: '800', letterSpacing: -0.4 }}>
+                message.pro
+              </Text>
             </View>
-          )}
+
+            <Text style={{ color: colors.textPrimary, fontSize: 17, fontWeight: '700', marginBottom: 26 }}>
+              Sign in to Message Pro
+            </Text>
 
           <Controller
             control={control}
@@ -197,27 +175,24 @@ const LoginScreen = () => {
               },
             }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <View style={tailwind.style('pt-2 gap-2')}>
-                <Animated.Text style={tailwind.style('font-inter-420-20 text-gray-950')}>
+              <View style={{ marginBottom: 14 }}>
+                <Animated.Text style={{ color: colors.textSecondary, fontSize: 11, fontWeight: '500', marginBottom: 7 }}>
                   {i18n.t('LOGIN.EMAIL')}
                 </Animated.Text>
                 <TextInput
-                  style={[
-                    tailwind.style(
-                      'text-base font-inter-normal-20 tracking-[0.24px] leading-[20px] android:leading-[18px]',
-                      'py-2 px-3 rounded-xl text-gray-950 bg-blackA-A4',
-                      'h-10',
-                    ),
-                  ]}
+                  style={{ height: 44, borderRadius: 7, borderWidth: 1, borderColor: errors.email ? '#fb7185' : colors.border, color: colors.textPrimary, paddingHorizontal: 12, fontSize: 13 }}
                   onBlur={onBlur}
                   onChangeText={onChange}
                   value={value}
-                  placeholderTextColor={tailwind.color('text-gray-900')}
+                  placeholder={i18n.t('LOGIN.EMAIL')}
+                  placeholderTextColor={colors.textTertiary}
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  autoComplete="email"
+                  textContentType="emailAddress"
                 />
                 {errors.email && (
-                  <Animated.Text style={tailwind.style('font-inter-normal-20 text-ruby-900')}>
+                  <Animated.Text style={{ color: '#fda4af', fontSize: 11, marginTop: 5 }}>
                     {errors.email.message}
                   </Animated.Text>
                 )}
@@ -236,33 +211,30 @@ const LoginScreen = () => {
               },
             }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <View style={tailwind.style('pt-8 gap-2')}>
-                <Animated.Text style={tailwind.style('font-inter-420-20  text-gray-950')}>
+              <View style={{ marginBottom: 7 }}>
+                <Animated.Text style={{ color: colors.textSecondary, fontSize: 11, fontWeight: '500', marginBottom: 7 }}>
                   {i18n.t('LOGIN.PASSWORD')}
                 </Animated.Text>
                 <View style={tailwind.style('relative')}>
                   <TextInput
-                    style={[
-                      tailwind.style(
-                        'text-base font-inter-normal-20 tracking-[0.24px] leading-[20px] android:leading-[18px]',
-                        'py-2 pl-3 pr-10 rounded-xl text-gray-950 bg-blackA-A4',
-                        'h-10',
-                      ),
-                    ]}
+                  style={{ height: 44, borderRadius: 7, borderWidth: 1, borderColor: errors.password ? '#fb7185' : colors.border, color: colors.textPrimary, paddingLeft: 12, paddingRight: 44, fontSize: 13 }}
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
-                    placeholderTextColor={tailwind.color('text-gray-500')}
-                    secureTextEntry={!showPassword}
-                  />
-                  <Pressable
-                    style={tailwind.style('absolute right-4 top-2.5')}
+                  placeholder={i18n.t('LOGIN.PASSWORD')}
+                  placeholderTextColor={colors.textTertiary}
+                  secureTextEntry={!showPassword}
+                  autoComplete="password"
+                  textContentType="password"
+                />
+                <Pressable
+                    style={{ position: 'absolute', right: 13, top: 12 }}
                     onPress={() => setShowPassword(!showPassword)}>
                     <Icon size={20} icon={showPassword ? <EyeIcon /> : <EyeSlash />} />
                   </Pressable>
                 </View>
                 {errors.password && (
-                  <Animated.Text style={tailwind.style('text-ruby-900')}>
+                  <Animated.Text style={{ color: '#fda4af', fontSize: 11, marginTop: 5 }}>
                     {errors.password.message}
                   </Animated.Text>
                 )}
@@ -271,28 +243,34 @@ const LoginScreen = () => {
             name="password"
           />
 
-          <Pressable style={tailwind.style('pt-1 mb-8')} onPress={openResetPassword}>
-            <Animated.Text style={tailwind.style('text-blue-800 font-inter-medium-24 text-right')}>
+          <Pressable style={{ alignSelf: 'flex-start', paddingVertical: 7, marginBottom: 9 }} onPress={openResetPassword}>
+            <Animated.Text style={{ color: colors.accent, fontSize: 12, fontWeight: '600' }}>
               {i18n.t('LOGIN.FORGOT_PASSWORD')}
             </Animated.Text>
           </Pressable>
 
-          <Button
-            text={isLoggingIn ? i18n.t('LOGIN.LOGIN_LOADING') : i18n.t('LOGIN.LOGIN')}
-            handlePress={handleSubmit(onSubmit)}
-          />
-
           <Pressable
-            style={tailwind.style(
-              'flex-row justify-center items-center mt-6 py-3 px-4 rounded-xl border border-gray-200',
-            )}
-            onPress={() => languagesModalSheetRef.current?.present()}>
-            <Icon size={18} icon={<TranslateIcon stroke="#6b7280" />} />
-            <Animated.Text
-              style={tailwind.style('text-sm text-gray-600 ml-2 font-inter-normal-20')}>
-              {i18n.t('LOGIN.CHANGE_LANGUAGE')}
-            </Animated.Text>
+            onPress={handleSubmit(onSubmit)}
+            disabled={isLoggingIn}
+            style={{ height: 45, borderRadius: 7, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center', opacity: isLoggingIn ? 0.7 : 1 }}>
+            {isLoggingIn ? <ActivityIndicator color={colors.textInverse} /> : <Text style={{ color: colors.textInverse, fontSize: 13, fontWeight: '800' }}>{i18n.t('LOGIN.LOGIN')}</Text>}
           </Pressable>
+
+          <View style={{ flex: 1, minHeight: 96 }} />
+
+          {showSsoLogin ? (
+            <Pressable onPress={handleSsoLogin} disabled={isLoggingIn} style={{ height: 44, borderRadius: 7, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
+              <Text style={{ color: colors.textPrimary, fontSize: 12, fontWeight: '600' }}>{i18n.t('LOGIN.LOGIN_VIA_SSO')}</Text>
+            </Pressable> 
+          ) : null}
+
+         
+
+          {/* Static footer message - replace the string below with whatever text you want */}
+          <Animated.Text style={{ color: colors.textTertiary, fontSize: 12, textAlign: 'center', marginTop: 14 }}>
+            {'No account? Sign up on your desktop.'}
+          </Animated.Text>
+          </View>
         </KeyboardAwareScrollView>
       </View>
       <BottomSheetModal

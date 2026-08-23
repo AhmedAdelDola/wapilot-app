@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
-import { SafeAreaView, StatusBar, Animated, Easing } from 'react-native';
+import { StatusBar, Animated, Easing } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import NetInfo from '@react-native-community/netinfo';
 import i18n from 'i18n';
 import { tailwind } from '@/theme';

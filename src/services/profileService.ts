@@ -146,9 +146,17 @@ class ProfileService {
    *
    * Returns all canned responses for the account
    */
-  async listCannedResponses(): Promise<CannedResponse[]> {
-    const response = await apiService.get('canned_responses');
-    return response.data.payload;
+  async listCannedResponses(searchKey?: string): Promise<CannedResponse[]> {
+    const url = searchKey ? `canned_responses?search=${searchKey}` : 'canned_responses';
+    const response = await apiService.get(url);
+    const data: any = response.data;
+    if (Array.isArray(data)) {
+      return data;
+    }
+    if (data && Array.isArray(data.payload)) {
+      return data.payload;
+    }
+    return [];
   }
 
   /**
@@ -158,8 +166,19 @@ class ProfileService {
    * Returns all labels for the account
    */
   async listLabels(): Promise<Label[]> {
-    const response = await apiService.get('labels');
-    return response.data.payload;
+    try {
+      const response = await apiService.get('labels');
+      const data: any = response.data;
+      if (Array.isArray(data)) {
+        return data;
+      }
+      if (data && Array.isArray(data.payload)) {
+        return data.payload;
+      }
+      return [];
+    } catch {
+      return [];
+    }
   }
 
   /**

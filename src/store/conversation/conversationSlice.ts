@@ -18,6 +18,7 @@ export interface ConversationState {
   isLoadingMessages: boolean;
   isAllConversationsFetched: boolean;
   isAllMessagesFetched: boolean;
+  isAllMessagesFetchedByConversation: Record<number, boolean>;
   isConversationFetching: boolean;
   isChangingConversationStatus: boolean;
 }
@@ -35,6 +36,7 @@ const initialState = conversationAdapter.getInitialState<ConversationState>({
   isAllConversationsFetched: false,
   isLoadingMessages: false,
   isAllMessagesFetched: false,
+  isAllMessagesFetchedByConversation: {},
   isConversationFetching: false,
   isChangingConversationStatus: false,
 });
@@ -161,6 +163,9 @@ const conversationSlice = createSlice({
       if (message.messageType === MESSAGE_TYPES.INCOMING) {
         conversation.canReply = true;
       }
+      if (!conversation.messages) {
+        conversation.messages = [];
+      }
       // Check message is already present in the conversation
       const pendingMessageIndex = findPendingMessageIndex(conversation, message);
       if (pendingMessageIndex !== -1) {
@@ -172,7 +177,14 @@ const conversationSlice = createSlice({
       }
       conversation.timestamp = message.createdAt;
       conversation.lastActivityAt = message.createdAt;
-      conversation.unreadCount = (message as Message).conversation?.unreadCount || 0;
+      if ((message as any).conversation?.unreadCount !== undefined) {
+        conversation.unreadCount = (message as any).conversation.unreadCount;
+      } else if (
+        message.messageType === MESSAGE_TYPES.INCOMING ||
+        (message as any).messageType === 0
+      ) {
+        conversation.unreadCount = (conversation.unreadCount || 0) + 1;
+      }
       // Update lastNonActivityMessage for conversation list preview
       if ((message as Message).messageType !== MESSAGE_TYPES.ACTIVITY) {
         conversation.lastNonActivityMessage = message as Message;
@@ -194,20 +206,29 @@ const conversationSlice = createSlice({
         state.isLoadingConversations = true;
       })
       .addCase(conversationActions.fetchConversations.fulfilled, (state, { payload }) => {
-        const { conversations, meta } = payload;
+        const { conversations, meta, page } = payload;
         const conversationsToUpsert = conversations.filter(
           conversation =>
             !isOutdatedConversationUpdate(state.entities[conversation.id], conversation),
         );
-        conversationAdapter.upsertMany(
-          state,
-          conversationsToUpsert.map(conversation =>
-            preserveLocalStatus(state.entities[conversation.id], conversation),
-          ),
+        const transformedConversations = conversationsToUpsert.map(conversation =>
+          preserveLocalStatus(state.entities[conversation.id], conversation),
         );
+        // Page 1 is a fresh load (e.g. switching inbox / tab / assignee):
+        // replace the whole list so the new server order is authoritative and
+        // stale conversations from a previous filter don't linger at the bottom.
+        // Page 2+ appends via upsertMany for infinite scroll.
+        if (page === 1) {
+          conversationAdapter.setAll(state, transformedConversations);
+        } else {
+          conversationAdapter.upsertMany(state, transformedConversations);
+        }
         state.isLoadingConversations = false;
-        state.isAllConversationsFetched = conversations.length < 20 || false;
+        state.isAllConversationsFetched = conversations.length === 0;
         state.meta = meta;
+      })
+      .addCase(conversationActions.fetchConversationsMeta.fulfilled, (state, { payload }) => {
+        state.meta = payload;
       })
       .addCase(conversationActions.fetchConversations.rejected, (state, { error }) => {
         state.isLoadingConversations = false;
@@ -229,6 +250,8 @@ const conversationSlice = createSlice({
         );
         state.isConversationFetching = false;
         state.isAllMessagesFetched = false;
+        state.isAllMessagesFetchedByConversation ||= {};
+        state.isAllMessagesFetchedByConversation[conversation.id] = false;
       })
       .addCase(conversationActions.fetchConversation.rejected, state => {
         state.isConversationFetching = false;
@@ -252,13 +275,18 @@ const conversationSlice = createSlice({
           const existingIds = new Set(conversation.messages.map(m => m.id));
           const newMessages = messages.filter(m => !existingIds.has(m.id));
           conversation.messages.push(...newMessages);
-          conversation.messages.sort((a, b) => b.createdAt - a.createdAt);
+          const sorted = [...conversation.messages].sort((a, b) => b.createdAt - a.createdAt);
+          conversation.messages.splice(0, conversation.messages.length, ...sorted);
           // Reset so older-message pagination isn't blocked after search nav
           state.isAllMessagesFetched = false;
+          state.isAllMessagesFetchedByConversation ||= {};
+          state.isAllMessagesFetchedByConversation[conversationId] = false;
         } else {
           // Normal pagination: prepend older messages
           conversation.messages.unshift(...messages);
           state.isAllMessagesFetched = messages.length < 20 || false;
+          state.isAllMessagesFetchedByConversation ||= {};
+          state.isAllMessagesFetchedByConversation[conversationId] = messages.length < 20;
         }
 
         conversation.meta = {

@@ -13,6 +13,9 @@ type ToggleProps = {
   onValueChange: (value: boolean) => void;
 };
 
+const ACTIVE_COLOR = '#3b82f6';
+const INACTIVE_COLOR = '#d1d5db';
+
 export const Toggle = ({ value, onValueChange }: ToggleProps) => {
   const hapticSelection = useHaptic();
   const translateX = useSharedValue(value ? 20 : 2);
@@ -25,7 +28,7 @@ export const Toggle = ({ value, onValueChange }: ToggleProps) => {
   };
 
   const trackStyle = useAnimatedStyle(() => ({
-    backgroundColor: value ? tailwind.color('bg-blue-500') : tailwind.color('bg-gray-300'),
+    backgroundColor: value ? ACTIVE_COLOR : INACTIVE_COLOR,
   }));
 
   const thumbStyle = useAnimatedStyle(() => ({

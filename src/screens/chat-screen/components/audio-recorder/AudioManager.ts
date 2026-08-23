@@ -21,38 +21,59 @@ let audioRecorderPlayer: AudioRecorderPlayer | undefined;
 let currentPath: Path;
 let currentCallback: Callback = () => {};
 let currentPosition = 0;
+let playbackRequestId = 0;
+
+const stopCurrentPlayer = async () => {
+  await audioRecorderPlayer?.stopPlayer();
+  audioRecorderPlayer?.removePlayBackListener();
+  currentPosition = 0;
+  currentCallback({ status: AudioStatus.STOPPED });
+  audioRecorderPlayer = undefined;
+};
 
 export const startPlayer = async (path: string, callback: Callback) => {
-  if (currentPath === undefined) {
-    currentPath = path;
-    currentCallback = callback;
-  } else if (currentPath !== path) {
-    if (audioRecorderPlayer !== undefined) {
-      await stopPlayer();
-    }
-    currentPath = path;
-    currentCallback = callback;
+  // Every tap gets a monotonically increasing id. If a newer tap happens
+  // while an earlier player is being stopped/started, the earlier request
+  // becomes stale and is not allowed to start audio afterwards.
+  const requestId = ++playbackRequestId;
+
+  if (audioRecorderPlayer !== undefined) {
+    // Stop any currently playing track before starting a new one so
+    // multiple voice notes don't play at the same time.
+    await stopCurrentPlayer();
   }
+
+  if (requestId !== playbackRequestId) return;
+
+  currentPath = path;
+  currentCallback = callback;
+  currentPosition = 0;
 
   if (audioRecorderPlayer === undefined) {
     audioRecorderPlayer = new AudioRecorderPlayer();
   }
+  const player = audioRecorderPlayer;
 
   const shouldBeResumed = currentPath === path && currentPosition > 0;
 
   if (shouldBeResumed) {
-    await audioRecorderPlayer.resumePlayer();
+    await player.resumePlayer();
+    if (requestId !== playbackRequestId) return;
     currentCallback({
       status: AudioStatus.RESUMED,
     });
     return;
   }
 
-  await audioRecorderPlayer.startPlayer(currentPath);
+  await player.startPlayer(currentPath);
+  if (requestId !== playbackRequestId) {
+    if (audioRecorderPlayer === player) await stopCurrentPlayer();
+    return;
+  }
   currentCallback({
     status: AudioStatus.STARTED,
   });
-  audioRecorderPlayer.addPlayBackListener(async e => {
+  player.addPlayBackListener(async e => {
     if (e.currentPosition === e.duration) {
       currentCallback({
         status: AudioStatus.STOPPED,
@@ -86,9 +107,7 @@ export const seekTo = async (position: number) => {
 };
 
 export const stopPlayer = async () => {
-  await audioRecorderPlayer?.stopPlayer();
-  audioRecorderPlayer?.removePlayBackListener();
-  currentPosition = 0;
-  currentCallback({ status: AudioStatus.STOPPED });
-  audioRecorderPlayer = undefined;
+  // Invalidate any pending start operation before stopping the native player.
+  playbackRequestId += 1;
+  await stopCurrentPlayer();
 };

@@ -1,16 +1,16 @@
 // Stub for @react-native-firebase/messaging
-// Replace with real package when building dev client
+// Matches the real package API: messaging() is called as a function
 
 export default function messaging() {
   return {
     getToken: async () => 'stub-token',
-    onTokenRefresh: (callback: any) => () => {},
+    onTokenRefresh: (_callback: (token: string) => void) => () => {},
     requestPermission: async () => 1,
     hasPermission: async () => 1,
-    setBackgroundMessageHandler: async (handler: any) => {},
-    onNotificationOpenedApp: (handler: any) => () => {},
+    setBackgroundMessageHandler: (_handler: (msg: any) => Promise<void>) => {},
+    onNotificationOpenedApp: (_handler: (msg: any) => void) => () => {},
     getInitialNotification: async () => null,
-    subscribeToTopic: async (topic: string) => {},
-    unsubscribeFromTopic: async (topic: string) => {},
+    subscribeToTopic: async (_topic: string) => {},
+    unsubscribeFromTopic: async (_topic: string) => {},
   };
 }

@@ -31,6 +31,7 @@ import type {
   TogglePriorityPayload,
   TranslateMessagePayload,
   TranslateMessageAPIResponse,
+  ConversationListMeta,
 } from './conversationTypes';
 
 import {
@@ -45,24 +46,43 @@ export class ConversationService {
   static async getConversations(payload: ConversationPayload): Promise<ConversationListResponse> {
     const { status, assigneeType, page, sortBy, inboxId = 0 } = payload;
 
-    const params = {
-      inbox_id: inboxId || null,
-      assignee_type: assigneeType,
-      status: status,
-      page: page,
-      sort_by: sortBy,
+    const params: Record<string, any> = {
+      assignee_type: assigneeType || 'all',
+      status: status || 'all',
+      page: page || 1,
+      sort_by: sortBy || 'latest',
     };
-    const response = await apiService.get<ConversationListAPIResponse>('conversations', {
+    if (inboxId && Number(inboxId) > 0) {
+      params.inbox_id = inboxId;
+    }
+    const response = await apiService.get<any>('conversations', {
       params,
     });
-    const {
-      data: { payload: conversations, meta },
-    } = response.data;
+    const resPayload = response.data?.data?.payload || response.data?.payload || [];
+    const resMeta = response.data?.data?.meta || response.data?.meta || {};
+    const conversations = Array.isArray(resPayload) ? resPayload : [];
     const transformedResponse: ConversationListResponse = {
       conversations: conversations.map(transformConversation),
-      meta: transformConversationListMeta(meta),
+      meta: transformConversationListMeta(resMeta),
+      page,
     };
     return transformedResponse;
+  }
+
+  static async getConversationsMeta(
+    payload: Partial<ConversationPayload> = {},
+  ): Promise<ConversationListMeta> {
+    const { status = 'all' as any, assigneeType = 'all' as any, inboxId = 0 } = payload;
+    const params: Record<string, any> = {
+      status,
+      assignee_type: assigneeType,
+    };
+    if (inboxId && Number(inboxId) > 0) {
+      params.inbox_id = inboxId;
+    }
+    const response = await apiService.get('conversations/meta', { params });
+    const meta = response.data.meta || response.data;
+    return transformConversationListMeta(meta);
   }
 
   static async fetchConversation(conversationId: number): Promise<ConversationResponse> {

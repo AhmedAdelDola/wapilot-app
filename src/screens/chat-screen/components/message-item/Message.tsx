@@ -157,7 +157,7 @@ const MessageWrapper = ({
         ),
       ]}>
       <Animated.View style={tailwind.style('flex flex-row')}>
-        {!shouldGroupWithPrevious && shouldShowAvatar ? (
+        {shouldShowAvatar ? (
           <Animated.View style={tailwind.style('flex items-end justify-end mr-1')}>
             <Avatar size={'md'} src={avatarInfo.src} name={avatarInfo.name || ''} />
           </Animated.View>
@@ -366,8 +366,10 @@ export const MessageComponent = (props: MessageComponentProps) => {
 
   const shouldShowAvatar = () => {
     if (messageType === MESSAGE_TYPES.ACTIVITY) return false;
-    if (orientation() === ORIENTATION.RIGHT) return false;
-    return true;
+    // Show avatar for every outgoing (agent/team) message on the left,
+    // and for incoming messages when they start a group.
+    if (orientation() === ORIENTATION.RIGHT) return true;
+    return !shouldGroupWithPrevious();
   };
 
   const isMyMessage = () => {

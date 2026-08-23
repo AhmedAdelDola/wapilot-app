@@ -26,7 +26,7 @@ type ComposedBubbleProps = {
   variant: string;
 };
 
-const isMessageCreatedAtLessThan24HoursOld = (messageTimestamp: number) => {
+const isMessageCreatedAtMoreThan24HoursOld = (messageTimestamp: number) => {
   const currentTime = new Date();
   const messageTime = new Date(messageTimestamp * 1000);
   const hoursDifference = differenceInHours(currentTime, messageTime);
@@ -60,7 +60,7 @@ export const ComposedBubble = (props: ComposedBubbleProps) => {
   );
   const { imageType } = contentAttributes || {};
   const isAnInstagramStory = imageType === ATTACHMENT_TYPES.STORY_MENTION;
-  const isInstagramStoryExpired = isMessageCreatedAtLessThan24HoursOld(createdAt);
+  const isInstagramStoryExpired = isMessageCreatedAtMoreThan24HoursOld(createdAt);
   const isMessageSending = status === MESSAGE_STATUS.PROGRESS;
 
   return (
@@ -139,7 +139,11 @@ export const ComposedBubble = (props: ComposedBubbleProps) => {
                 <Animated.View
                   key={attachment.fileType + index}
                   style={tailwind.style('flex flex-row items-center my-2')}>
-                  <AudioBubble audioSrc={attachment.dataUrl} variant={props.variant} />
+                  <AudioBubble
+                    audioSrc={attachment.dataUrl}
+                    variant={props.variant}
+                    senderThumbnail={(props.item.sender as any)?.thumbnail}
+                  />
                 </Animated.View>
               );
             }

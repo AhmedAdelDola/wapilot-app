@@ -21,6 +21,8 @@ export enum AVEncodingOption {
 
 let recording: Audio.Recording | null = null;
 let sound: Audio.Sound | null = null;
+let playbackRequestId = 0;
+let playbackQueue: Promise<void> = Promise.resolve();
 
 let recordBackListener: ((e: RecordBackType) => void) | null = null;
 let playBackListener: ((e: PlayBackType) => void) | null = null;
@@ -114,69 +116,79 @@ export default class AudioRecorderPlayer {
 
   startPlayer = async (path?: string, _onPlayBackStatus?: (e: PlayBackType) => void): Promise<string> => {
     if (!path) return '';
+    const play = async (): Promise<string> => {
+      const requestId = ++playbackRequestId;
+      if (sound) {
+        try {
+          await sound.unloadAsync();
+        } catch {}
+        sound = null;
+      }
 
-    if (sound) {
-      try {
-        await sound.unloadAsync();
-      } catch {}
-      sound = null;
-    }
-
-    const { sound: newSound } = await Audio.Sound.createAsync(
-      { uri: path },
-      { shouldPlay: true, progressUpdateIntervalMillis: 100 },
-      (status: AVPlaybackStatus) => {
-        if (!status.isLoaded) return;
-        if (playBackListener) {
-          playBackListener({
+      let newSound: Audio.Sound;
+      const result = await Audio.Sound.createAsync(
+        { uri: path },
+        // `shouldPlay` is supported by the project's expo-av runtime. The
+        // queue guarantees the prior sound has fully stopped first.
+        { shouldPlay: true, progressUpdateIntervalMillis: 100 },
+        (status: AVPlaybackStatus) => {
+          if (requestId !== playbackRequestId || sound !== newSound) return;
+          if (!status.isLoaded) return;
+          playBackListener?.({
             currentPosition: status.positionMillis,
             duration: status.durationMillis ?? 0,
           });
-        }
-        if (status.didJustFinish) {
-          this.stopPlayer();
-        }
-      }
-    );
+          if (status.didJustFinish) this.stopPlayer();
+        },
+      );
+      newSound = result.sound;
+      sound = newSound;
+      return path;
+    };
 
-    sound = newSound;
-    return path;
+    const result = playbackQueue.then(play, play);
+    playbackQueue = result.then(() => undefined, () => undefined);
+    return result;
   };
 
   stopPlayer = async (): Promise<string> => {
-    if (!sound) return '';
+    const stop = async (): Promise<string> => {
+      playbackRequestId += 1;
+      if (!sound) return '';
 
-    try {
-      await sound.stopAsync();
-      await sound.unloadAsync();
-    } catch {}
+      try {
+        await sound.unloadAsync();
+      } catch {}
 
-    sound = null;
-    playBackListener = null;
-
-    return '';
+      sound = null;
+      playBackListener = null;
+      return '';
+    };
+    const result = playbackQueue.then(stop, stop);
+    playbackQueue = result.then(() => undefined, () => undefined);
+    return result;
   };
 
   pausePlayer = async (): Promise<string> => {
     if (!sound) return '';
-    await sound.pauseAsync();
+    await sound.setStatusAsync({ shouldPlay: false });
     return '';
   };
 
   resumePlayer = async (): Promise<string> => {
     if (!sound) return '';
-    await sound.playAsync();
+    await sound.setStatusAsync({ shouldPlay: true });
     return '';
   };
 
   seekToPlayer = async (position: number): Promise<void> => {
     if (!sound) return;
-    await sound.setPositionAsync(position);
+    await sound.setStatusAsync({ positionMillis: position });
   };
 
   setVolume = async (volume: number): Promise<void> => {
     if (!sound) return;
-    await sound.setVolumeAsync(volume);
+    await sound.setStatusAsync({ volume });
   };
 
   addRecordBackListener = (cb: (e: RecordBackType) => void): (() => void) => {

@@ -1,4 +1,5 @@
 import type { Conversation, ConversationListMeta, ConversationMeta } from '@/types/Conversation';
+export type { ConversationListMeta };
 import type {
   AssigneeTypes,
   ConversationStatus,
@@ -28,6 +29,7 @@ export interface ConversationAPIResponse {
 export interface ConversationListResponse {
   meta: ConversationListMeta;
   conversations: Conversation[];
+  page?: number;
 }
 
 export interface ConversationResponse {

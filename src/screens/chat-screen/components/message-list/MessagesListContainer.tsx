@@ -79,7 +79,7 @@ export const MessagesListContainer = () => {
   const [isListVisible, setIsListVisible] = useState(!messageId);
 
   const conversation = useAppSelector(state => selectConversationById(state, conversationId));
-  const isAllMessagesFetched = useAppSelector(selectIsAllMessagesFetched);
+  const isAllMessagesFetched = useAppSelector(selectIsAllMessagesFetched(conversationId));
   const isLoadingMessages = useAppSelector(selectIsLoadingMessages);
   const messages = useAppSelector(state => getMessagesByConversationId(state, { conversationId }));
   const attachments = useAppSelector(selectAttachments);

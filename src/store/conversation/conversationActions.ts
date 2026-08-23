@@ -27,6 +27,7 @@ import type {
   TogglePriorityPayload,
   TranslateMessagePayload,
   TranslateMessageAPIResponse,
+  ConversationListMeta,
 } from './conversationTypes';
 import { AxiosError } from 'axios';
 import { MESSAGE_STATUS } from '@/constants';
@@ -35,6 +36,53 @@ import { transformMessage } from '@/utils/camelCaseKeys';
 import { Platform } from 'react-native';
 
 export const conversationActions = {
+  fetchAllConversations: createAsyncThunk<void, ConversationPayload | undefined>(
+    'conversations/fetchAllConversations',
+    async (params, { dispatch }) => {
+      const status = params?.status || 'all';
+      const assigneeType = params?.assigneeType || 'all';
+      const inboxId = params?.inboxId || 0;
+      const sortBy = params?.sortBy || 'latest';
+
+      let page = 1;
+      let hasMore = true;
+      while (hasMore && page <= 2) {
+        const result = await dispatch(
+          conversationActions.fetchConversations({
+            status,
+            assigneeType,
+            inboxId,
+            page,
+            sortBy,
+          } as any),
+        );
+        const payload = (result as any).payload as ConversationListResponse;
+        if (payload && payload.conversations && Array.isArray(payload.conversations)) {
+          if (payload.conversations.length < 20) {
+            hasMore = false;
+          } else {
+            page++;
+          }
+        } else {
+          hasMore = false;
+        }
+      }
+    },
+  ),
+  fetchConversationsMeta: createAsyncThunk<ConversationListMeta, Partial<ConversationPayload> | undefined>(
+    'conversations/fetchConversationsMeta',
+    async (payload = { status: 'all' as any, assigneeType: 'all' as any }, { rejectWithValue }) => {
+      try {
+        return await ConversationService.getConversationsMeta(payload);
+      } catch (error) {
+        const { response } = error as AxiosError<ApiErrorResponse>;
+        if (!response) {
+          throw error;
+        }
+        return rejectWithValue(response.data);
+      }
+    },
+  ),
   fetchConversations: createAsyncThunk<ConversationListResponse, ConversationPayload>(
     'conversations/fetchConversations',
     async (payload, { rejectWithValue }) => {

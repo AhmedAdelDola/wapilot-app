@@ -12,7 +12,7 @@ import { FlashList, ListRenderItem } from '@shopify/flash-list';
 import { TAB_BAR_HEIGHT } from '@/constants';
 import { InboxListStateProvider } from '@/context';
 import type { Notification } from '@/types/Notification';
-import { tailwind } from '@/theme';
+import { tailwind, useTheme } from '@/theme';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { notificationActions } from '@/store/notification/notificationAction';
 import {
@@ -44,6 +44,7 @@ const FILTER_EMPTY_MESSAGES: Record<NotificationFilterType, { title: string; sub
 };
 
 const InboxList = () => {
+  const { isDark } = useTheme();
   const [pageNumber, setPageNumber] = useState(1);
   const [isFlashListReady, setFlashListReady] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -74,7 +75,7 @@ const InboxList = () => {
           'flex-1 items-center justify-center pt-8',
           `pb-[${TAB_BAR_HEIGHT}px]`,
         )}>
-        <ActivityIndicator size="small" />
+        <ActivityIndicator size="small" color={isDark ? '#38bdf8' : '#2563eb'} />
       </Animated.View>
     );
   });
@@ -163,7 +164,7 @@ const InboxList = () => {
   return shouldShowEmptyLoader ? (
     <Animated.View
       style={tailwind.style('flex-1 items-center justify-center', `pb-[${TAB_BAR_HEIGHT}px]`)}>
-      <ActivityIndicator />
+      <ActivityIndicator color={isDark ? '#38bdf8' : '#2563eb'} />
     </Animated.View>
   ) : notifications.length === 0 ? (
     <Animated.ScrollView
@@ -178,7 +179,7 @@ const InboxList = () => {
         onSelect={handleFilterSelect}
       />
       <EmptyState
-        icon={<InboxEmptyIcon size={64} color="#374151" />}
+        icon={<InboxEmptyIcon size={64} color={isDark ? '#64748b' : '#9ca3af'} />}
         title={emptyMsg.title}
         subtitle={emptyMsg.subtitle}
       />
@@ -208,15 +209,19 @@ const InboxList = () => {
 };
 
 const NotificationsScreen = () => {
+  const { isDark } = useTheme();
+  const bgColor = isDark ? '#0f172a' : '#ffffff';
+  const textPrimary = isDark ? '#f8fafc' : '#030712';
+
   return (
-    <SafeAreaView edges={['top']} style={tailwind.style('flex-1 bg-white')}>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: bgColor }}>
       <StatusBar
         translucent
-        backgroundColor={tailwind.color('bg-white')}
-        barStyle={'dark-content'}
+        backgroundColor={bgColor}
+        barStyle={isDark ? 'light-content' : 'dark-content'}
       />
-      <View style={tailwind.style('px-5 pt-4 pb-2')}>
-        <Text style={tailwind.style('text-2xl font-bold text-gray-950')}>
+      <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 }}>
+        <Text style={{ fontSize: 24, fontWeight: '700', color: textPrimary }}>
           Notifications
         </Text>
       </View>

@@ -86,8 +86,8 @@ export const buildCreatePayload = (data: PendingMessage): MessageBuilderPayload 
     // @ts-expect-error
     payload.append('attachments[]', {
       uri: file.uri,
-      name: file.fileName || 'attachment.jpg',
-      type: file.type?.includes('/') ? file.type : 'image/jpeg',
+      name: file.fileName || file.name || 'attachment',
+      type: file.type?.includes('/') ? file.type : 'application/octet-stream',
     });
     payload.append('private', isPrivate.toString());
     payload.append('echo_id', echoId);

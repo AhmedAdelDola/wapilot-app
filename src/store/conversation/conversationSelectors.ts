@@ -35,10 +35,11 @@ export const selectIsAllConversationsFetched = createSelector(
   state => state.isAllConversationsFetched,
 );
 
-export const selectIsAllMessagesFetched = createSelector(
-  selectConversationsState,
-  state => state.isAllMessagesFetched,
-);
+export const selectIsAllMessagesFetched = (conversationId: number) =>
+  createSelector(
+    selectConversationsState,
+    state => state.isAllMessagesFetchedByConversation?.[conversationId] ?? false,
+  );
 
 export const selectIsLoadingMessages = createSelector(
   selectConversationsState,
@@ -81,7 +82,7 @@ export const getFilteredConversations = createDraftSafeSelector(
       sortType = 'latest';
     }
 
-    const sortedConversations = conversations.sort(comparator[sortType as keyof SortComparator]);
+    const sortedConversations = [...conversations].sort(comparator[sortType as keyof SortComparator]);
 
     if (assigneeType === 'me') {
       return sortedConversations.filter(conversation => {

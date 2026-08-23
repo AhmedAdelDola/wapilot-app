@@ -1,5 +1,6 @@
 import React, { Component, ReactNode } from 'react';
-import { SafeAreaView, Text, View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import i18n from '@/i18n';
 
 interface Props {

@@ -11,8 +11,10 @@ interface ConversationTypingState {
   records: { [key: number]: TypingUser[] };
 }
 
+const EMPTY_TYPING_USERS: TypingUser[] = [];
+
 const initialState: ConversationTypingState = {
-  records: [],
+  records: {},
 };
 
 const conversationTypingSlice = createSlice({
@@ -27,6 +29,7 @@ const conversationTypingSlice = createSlice({
       );
       if (!hasUserRecordAlready) {
         state.records = {
+          ...state.records,
           [conversationId]: [...records, user],
         };
       }
@@ -49,6 +52,6 @@ export const { setTypingUsers, removeTypingUser } = conversationTypingSlice.acti
 export const selectTypingUsers = (state: RootState) => state.conversationTyping.records;
 
 export const selectTypingUsersByConversationId = (conversationId: number) =>
-  createSelector(selectTypingUsers, records => records[conversationId] || []);
+  createSelector(selectTypingUsers, records => records[conversationId] ?? EMPTY_TYPING_USERS);
 
 export default conversationTypingSlice.reducer;

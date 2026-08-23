@@ -19,7 +19,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { tailwind } from '@/theme';
+import { tailwind, useTheme } from '@/theme';
 import { useHaptic } from '@/utils';
 import { AnimatedNativeView } from '@/components-next/native-components';
 
@@ -127,6 +127,8 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
     rightElementBgColor = 'bg-green-800',
   } = props;
 
+  const { isDark } = useTheme();
+  const defaultBg = isDark ? '#0f172a' : '#ffffff';
   const hapticWarning = useHaptic('success');
   const hapticSelection = useHaptic();
 
@@ -134,7 +136,7 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
   const isGestureActive = useSharedValue(false);
 
   const maxTranslation = WIDTH * 0.6;
-  const tappedBgStyle = tailwind.color('bg-gray-200') as string;
+  const tappedBgStyle = isDark ? '#1e293b' : ((tailwind.color('bg-gray-200') as string) || '#e5e7eb');
   const maxSnapPointLeft = -maxTranslation;
   const maxSnapPointRight = maxTranslation;
 
@@ -427,7 +429,7 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
 
   const tappedCellStyle = useAnimatedStyle(() => {
     return {
-      backgroundColor: interpolateColor(isTapped.value, [0, 1], ['white', tappedBgStyle]),
+      backgroundColor: interpolateColor(isTapped.value, [0, 1], [defaultBg, tappedBgStyle]),
     };
   });
 

@@ -1,5 +1,11 @@
+import { AppState } from 'react-native';
 import { getStore } from '@/store/storeAccessor';
-import { transformMessage } from '@/utils/camelCaseKeys';
+import {
+  transformConversation,
+  transformMessage,
+  transformNotification,
+} from '@/utils/camelCaseKeys';
+import { conversationActions } from '@/store/conversation/conversationActions';
 
 const PRESENCE_INTERVAL = 20000;
 const RECONNECT_BASE = 1000;
@@ -27,20 +33,32 @@ const handleReceived = (data: any) => {
   if (!store) return;
 
   const accountId = (store.getState().auth.user as any)?.account_id;
-  if (payload.account_id && accountId && payload.account_id !== accountId) return;
+  if (payload.account_id && accountId && Number(payload.account_id) !== Number(accountId)) return;
+
+  console.log(`[ActionCable] ⚡ Event received: ${event}`, payload?.id || payload?.conversation_id || '');
 
   switch (event) {
     case 'message.created': {
-      console.log('[ActionCable] 📩 message.created payload keys:', Object.keys(payload));
-      console.log('[ActionCable] 📩 message.created conversationId:', payload.conversation_id ?? payload.conversationId ?? 'MISSING');
       const message = transformMessage(payload);
-      console.log('[ActionCable] 📩 transformed message conversationId:', message.conversationId);
-      store.dispatch({
-        type: 'conversation/addOrUpdateMessage',
-        payload: message,
-      });
+      const conversationId = message.conversationId;
+
+      if (conversationId) {
+        const state = store.getState();
+        const existingConv = state.conversations?.entities?.[conversationId];
+
+        if (!existingConv) {
+          // New conversation or not currently in store -> fetch the conversation so it appears in Inbox
+          store.dispatch(conversationActions.fetchConversation(conversationId) as any);
+        } else {
+          store.dispatch({
+            type: 'conversation/addOrUpdateMessage',
+            payload: message,
+          });
+        }
+      }
       break;
     }
+
     case 'message.updated': {
       const message = transformMessage(payload);
       store.dispatch({
@@ -49,22 +67,55 @@ const handleReceived = (data: any) => {
       });
       break;
     }
-    case 'conversation.updated':
+
     case 'conversation.created':
-    case 'conversation.status_changed': {
-      store.dispatch({
-        type: 'conversation/updateConversation',
-        payload,
-      });
-      break;
-    }
+    case 'conversation.updated':
+    case 'conversation.status_changed':
+    case 'conversation.contact_changed':
     case 'assignee.changed': {
+      const conversation = transformConversation(payload);
       store.dispatch({
         type: 'conversation/updateConversation',
-        payload,
+        payload: conversation,
       });
+      try {
+        store.dispatch(conversationActions.fetchConversationsMeta({ status: 'all', assigneeType: 'all' } as any) as any);
+      } catch {
+        // ignore
+      }
       break;
     }
+
+    case 'conversation.read': {
+      const convId = payload.id ?? payload.conversation_id;
+      if (convId) {
+        store.dispatch({
+          type: 'conversation/markMessageRead/fulfilled',
+          payload: {
+            conversationId: Number(convId),
+            unreadCount: payload.unread_count ?? 0,
+            agentLastSeenAt: payload.agent_last_seen_at,
+          },
+        });
+      }
+      break;
+    }
+
+    case 'conversation.unread': {
+      const convId = payload.id ?? payload.conversation_id;
+      if (convId) {
+        store.dispatch({
+          type: 'conversation/markMessagesUnread/fulfilled',
+          payload: {
+            conversationId: Number(convId),
+            unreadCount: payload.unread_count ?? 1,
+            agentLastSeenAt: payload.agent_last_seen_at,
+          },
+        });
+      }
+      break;
+    }
+
     case 'conversation.typing_on': {
       if (payload.user) {
         store.dispatch({
@@ -77,6 +128,7 @@ const handleReceived = (data: any) => {
       }
       break;
     }
+
     case 'conversation.typing_off': {
       if (payload.user) {
         store.dispatch({
@@ -89,6 +141,30 @@ const handleReceived = (data: any) => {
       }
       break;
     }
+
+    case 'presence.update': {
+      if (payload.users) {
+        store.dispatch({
+          type: 'auth/setCurrentUserAvailability',
+          payload: { users: payload.users },
+        });
+      }
+      break;
+    }
+
+    case 'notification.created': {
+      try {
+        const notification = transformNotification(payload);
+        store.dispatch({
+          type: 'notification/addNotification',
+          payload: { notification },
+        });
+      } catch (e) {
+        console.error('[ActionCable] Error transforming notification:', e);
+      }
+      break;
+    }
+
     default:
       break;
   }
@@ -173,7 +249,6 @@ const connect = () => {
       }
 
       if (msg.message) {
-        console.log('[ActionCable] 📩 Event:', msg.message.event);
         handleReceived(msg.message);
       }
     } catch {
@@ -220,6 +295,16 @@ const disconnect = () => {
   isConnecting = false;
   savedParams = null;
 };
+
+// Reconnect automatically when app comes to foreground
+AppState.addEventListener('change', (nextAppState) => {
+  if (nextAppState === 'active' && savedParams) {
+    if (!ws || ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
+      console.log('[ActionCable] App active - reconnecting WebSocket...');
+      connect();
+    }
+  }
+});
 
 const actionCableConnector = {
   init: (params: { pubSubToken: string; webSocketUrl: string; accountId: number; userId: number }) => {
