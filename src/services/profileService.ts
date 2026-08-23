@@ -64,6 +64,14 @@ export interface Label {
   color: string;
 }
 
+export interface LifecycleStage {
+  id: number;
+  name: string;
+  color?: string;
+  icon?: string;
+  sort_order?: number;
+}
+
 class ProfileService {
   /**
    * Get Profile
@@ -152,6 +160,21 @@ class ProfileService {
   async listLabels(): Promise<Label[]> {
     const response = await apiService.get('labels');
     return response.data.payload;
+  }
+
+  /**
+   * List Lifecycle Stages
+   * GET /api/v1/accounts/{account_id}/lifecycle_stages
+   *
+   * Returns all lifecycle stages for building customer segment filters
+   */
+  async listLifecycleStages(): Promise<LifecycleStage[]> {
+    try {
+      const response = await apiService.get('lifecycle_stages');
+      return response.data.payload || response.data.data || response.data || [];
+    } catch {
+      return [];
+    }
   }
 }
 

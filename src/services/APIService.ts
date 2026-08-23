@@ -7,7 +7,6 @@ import axios, {
 import { Platform } from 'react-native';
 import { API_CONFIG } from '@/config/apiConfig';
 import { getStore } from '@/store/storeAccessor';
-import { logout } from '@/store/auth/authSlice';
 
 const CLIENT_NAME = 'Message Pro Mobile';
 const CLIENT_VERSION = '1.0.0';
@@ -99,11 +98,28 @@ class APIService {
         // Set base URL
         config.baseURL = getBaseUrl();
 
+        // Fallback to Redux store accountId if not set yet
+        if (!this.accountId) {
+          try {
+            const store = getStore();
+            const storeAccountId = store?.getState()?.auth?.user?.account_id;
+            if (storeAccountId) {
+              this.accountId = Number(storeAccountId);
+            }
+          } catch {
+            // store not available yet
+          }
+        }
+
         // Build the full URL with proper prefix
         const url = config.url || '';
 
+        // If URL already has api/v1/ or auth/ prefix, keep as-is
+        if (url.startsWith('api/v1/') || url.startsWith('auth/')) {
+          // Keep URL as-is
+        }
         // Auth routes - no prefix needed (they use /auth/...)
-        if (authRoutes.some(route => url.startsWith(route))) {
+        else if (authRoutes.some(route => url.startsWith(route))) {
           // Keep URL as-is
         }
         // Non-account routes - use /api/v1/ prefix
@@ -136,11 +152,18 @@ class APIService {
         const newClient = response.headers['client'];
         const newUid = response.headers['uid'];
         if (newAccessToken && newClient && newUid) {
-          this.authHeaders = {
+          const newHeaders = {
             'access-token': newAccessToken,
             client: newClient,
             uid: newUid,
           };
+          this.authHeaders = newHeaders;
+          try {
+            const store = getStore();
+            store.dispatch({ type: 'auth/updateAuthHeaders', payload: newHeaders });
+          } catch {
+            // Store not initialized yet
+          }
         }
         console.log('API Response:', response.status, response.config.url);
         return response;
@@ -162,7 +185,7 @@ class APIService {
             this.clearAuthHeaders();
             try {
               const store = getStore();
-              store.dispatch(logout());
+              store.dispatch({ type: 'auth/logout' });
             } catch {
               // Store not initialized yet
             }
@@ -176,6 +199,99 @@ class APIService {
 
   public async get<T = any>(url: string, config?: AxiosRequestConfig) {
     return this.api.get<T>(url, config);
+  }
+
+  // ---------- Chatwoot Mobile Agent API (from Postman collection) ----------
+
+  /** POST /auth/sign_in — returns user + Devise auth headers */
+  public async signIn(email: string, password: string) {
+    const res = await this.post<{ data: any }>('auth/sign_in', { email, password });
+    const h = res.headers as any;
+    if (h['access-token'] && h['client'] && h['uid']) {
+      this.setAuthHeaders({
+        'access-token': h['access-token'],
+        client: h['client'],
+        uid: h['uid'],
+      });
+    }
+    return res.data;
+  }
+
+  /** GET /api/v1/profile */
+  public async getProfile() {
+    const res = await this.get<{ data: any }>('profile');
+    return res.data;
+  }
+
+  /** PUT /api/v1/profile/set_active_account */
+  public async setActiveAccount(accountId: number) {
+    const res = await this.put<{ data: any }>('profile/set_active_account', {
+      profile: { account_id: accountId },
+    });
+    return res.data;
+  }
+
+  /** GET /api/v1/accounts/{account_id}/notifications?page= */
+  public async getNotifications(page = 1) {
+    const res = await this.get<{ data: any[]; meta?: any }>(`notifications?page=${page}`);
+    return res.data;
+  }
+
+  /** GET /api/v1/accounts/{account_id}/notifications/unread_count */
+  public async getUnreadNotificationCount() {
+    const res = await this.get<{ count: number }>('notifications/unread_count');
+    return res.data;
+  }
+
+  /** POST /api/v1/accounts/{account_id}/notifications/read_all */
+  public async markAllNotificationsRead() {
+    const res = await this.post('notifications/read_all');
+    return res.data;
+  }
+
+  /** POST /api/v1/accounts/{account_id}/notifications/{id}/unread */
+  public async markNotificationUnread(id: number) {
+    const res = await this.post(`notifications/${id}/unread`);
+    return res.data;
+  }
+
+  /** GET /api/v1/accounts/{account_id}/conversations?status=&assignee_type=&page= */
+  public async getConversations(params: { status?: string; assignee_type?: string; page?: number } = {}) {
+    const qs = new URLSearchParams();
+    if (params.status) qs.set('status', params.status);
+    if (params.assignee_type) qs.set('assignee_type', params.assignee_type);
+    qs.set('page', String(params.page || 1));
+    const res = await this.get<{ data: any[]; meta?: any }>(`conversations?${qs.toString()}`);
+    return res.data;
+  }
+
+  /** GET /api/v1/accounts/{account_id}/conversations/search?q=&page= */
+  public async searchConversations(q: string, page = 1) {
+    const res = await this.get<{ data: any[] }>(`conversations/search?q=${encodeURIComponent(q)}&page=${page}`);
+    return res.data;
+  }
+
+  /** GET /api/v1/accounts/{account_id}/contacts?page=&sort= */
+  public async getContacts(params: { page?: number; sort?: string; q?: string } = {}) {
+    const qs = new URLSearchParams();
+    qs.set('include_contact_inboxes', 'true');
+    qs.set('page', String(params.page || 1));
+    qs.set('sort', params.sort || 'name');
+    if (params.q) qs.set('q', params.q);
+    const res = await this.get<{ data: any[]; meta?: any }>(`contacts?${qs.toString()}`);
+    return res.data;
+  }
+
+  /** POST /api/v1/accounts/{account_id}/contacts — add contact */
+  public async createContact(payload: {
+    name?: string;
+    email?: string;
+    phone_number?: string;
+    first_name?: string;
+    last_name?: string;
+  }) {
+    const res = await this.post<{ data: any }>('contacts', payload);
+    return res.data;
   }
 
   public async post<T = any, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig) {

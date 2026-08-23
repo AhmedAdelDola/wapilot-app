@@ -25,8 +25,8 @@ export const FilterChip = ({ label, isActive, onPress }: FilterChipProps) => {
         onPress={handlePress}
         {...handlers}
         style={tailwind.style(
-          'px-4 py-2 rounded-full',
-          isActive ? 'bg-gray-950' : 'bg-gray-100',
+          'px-3 py-1.5 rounded-full',
+          isActive ? 'bg-gray-900' : 'bg-gray-100',
         )}>
         <Text
           style={tailwind.style(

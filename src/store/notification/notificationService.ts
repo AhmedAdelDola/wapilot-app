@@ -4,17 +4,26 @@ import type {
   MarkAsReadPayload,
   NotificationAPIResponse,
   InboxSortTypes,
+  NotificationFilterType,
 } from './notificationTypes';
 import { transformNotification, transformNotificationMeta } from '@/utils/camelCaseKeys';
+import { NotificationFilterParams } from './notificationTypes';
 
 export class NotificationService {
   static async getNotifications(
     page: number = 1,
     sort_order: InboxSortTypes,
+    filterType: NotificationFilterType = 'new',
   ): Promise<NotificationResponse> {
-    const response = await apiService.get<NotificationAPIResponse>(
-      `notifications?sort_order=${sort_order}&includes[]=snoozed&includes[]=read&page=${page}`,
-    );
+    const filterParams = NotificationFilterParams[filterType];
+    const params = [
+      `sort_order=${sort_order}`,
+      `page=${page}`,
+      filterParams,
+    ]
+      .filter(Boolean)
+      .join('&');
+    const response = await apiService.get<NotificationAPIResponse>(`notifications?${params}`);
     const { payload, meta } = response.data.data;
     const notifications = payload.map(transformNotification);
     return {

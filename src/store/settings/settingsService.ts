@@ -43,6 +43,6 @@ export class SettingsService {
   }
 
   static async removeDevice(payload: RemoveDevicePayload): Promise<void> {
-    await apiService.delete('notification_subscriptions', { data: payload });
+    await apiService.delete(`notification_subscriptions?push_token=${encodeURIComponent(payload.push_token)}`, { data: payload });
   }
 }

@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { tailwind } from '@/theme';
 import { useHaptic, useScaleAnimation } from '@/utils';
-import { CaretRightSmall } from '@/svg-icons';
+import { CaretRight } from '@/svg-icons';
 
 type SettingsRowProps = {
   icon: React.ReactNode;
@@ -62,7 +62,7 @@ export const SettingsRow = ({
         {rightElement && <View style={tailwind.style('mr-2')}>{rightElement}</View>}
         {hasChevron && onPress && (
           <View style={tailwind.style('ml-2')}>
-            <CaretRightSmall />
+            <CaretRight />
           </View>
         )}
       </Pressable>

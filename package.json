@@ -15,7 +15,7 @@
     "@shopify/flash-list": "2.0.2",
     "@types/lodash": "^4.17.25",
     "axios": "^1.19.0",
-    "babel-preset-expo": "^57.0.7",
+    "babel-preset-expo": "^54.0.12",
     "camelcase": "^9.0.0",
     "camelcase-keys": "^6.2.2",
     "date-fns": "^4.4.0",

@@ -21,23 +21,23 @@ export const FAB = ({ label, onPress, icon }: FABProps) => {
 
   return (
     <Animated.View
-      style={[
-        tailwind.style('absolute bottom-24 right-5'),
+      style={tailwind.style(
+        'absolute bottom-20 right-4',
         animatedStyle,
-      ]}>
+      )}>
       <Pressable
         onPress={handlePress}
         {...handlers}
         style={tailwind.style(
-          'flex-row items-center bg-gray-950 px-5 py-3 rounded-full',
-          'shadow-lg',
+          'flex-row items-center bg-white px-4 py-2.5 rounded-2xl',
+          'shadow-lg border border-gray-100',
         )}>
         {icon && (
           <Animated.View style={tailwind.style('mr-2')}>{icon}</Animated.View>
         )}
         <Text
           style={tailwind.style(
-            'text-[15px] font-inter-medium-24 text-white',
+            'text-sm font-inter-medium-24 text-gray-800',
           )}>
           {label}
         </Text>

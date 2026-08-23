@@ -21,7 +21,7 @@ import { selectWebSocketUrl } from '@/store/settings/settingsSelectors';
 import { getUserPermissions } from '@/utils/permissionUtils';
 import { CONVERSATION_PERMISSIONS } from 'constants/permissions';
 
-import { AuthStack, ConversationStack, SettingsStack, InboxStack, CallsStack } from '../stack';
+import { AuthStack, SettingsStack, InboxStack, CallsStack, NotificationsStack } from '../stack';
 import ChatScreen from '@/screens/chat-screen/ChatScreen';
 import ContactDetailsScreen from '@/screens/contact-details/ContactDetailsScreen';
 import DashboardScreen from '@/screens/dashboard/DashboardScreen';
@@ -47,7 +47,7 @@ import { config } from '@/config';
 const Tab = createBottomTabNavigator();
 
 export type TabParamList = {
-  Conversations: undefined;
+  Notifications: undefined;
   Inbox: undefined;
   Calls: undefined;
   Settings: undefined;
@@ -55,7 +55,6 @@ export type TabParamList = {
   ConfigInstallationURL: undefined;
   ForgotPassword: undefined;
   Search: undefined;
-  Notifications: undefined;
 };
 
 export type TabBarExcludedScreenParamList = {
@@ -106,24 +105,31 @@ const Tabs = () => {
     if (accountId) {
       apiService.setAccountId(accountId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [authHeaders, accountId]);
 
   useEffect(() => {
-    // Here is the place we are loading all the data for the app first time first time or user switches account
-    dispatch(authActions.getProfile());
+    if (accountId) {
+      apiService.setAccountId(accountId);
+    }
+    // Here is the place we are loading all the data for the app first time or user switches account
+    dispatch(authActions.getProfile()).then((result: any) => {
+      const activeAccId = result.payload?.account_id || accountId;
+      if (activeAccId) {
+        apiService.setAccountId(activeAccId);
+      }
+      dispatch(inboxActions.fetchInboxes());
+      dispatch(labelActions.fetchLabels());
+      dispatch(dashboardAppActions.index());
+      dispatch(customAttributeActions.index());
+    });
     dispatch(settingsActions.saveDeviceDetails());
-    dispatch(inboxActions.fetchInboxes());
-    dispatch(labelActions.fetchLabels());
     dispatch(setCurrentState('none'));
     dispatch(clearSelection());
-    dispatch(dashboardAppActions.index());
-    dispatch(customAttributeActions.index());
     initAnalytics();
     initSentry();
     initPushNotifications();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [accountId]);
 
   // Initialize ActionCable when user data becomes available
   useEffect(() => {
@@ -193,16 +199,10 @@ const Tabs = () => {
   }, []);
 
   return (
-    <Tab.Navigator tabBar={CustomTabBar} initialRouteName="Inbox">
+    <Tab.Navigator tabBar={CustomTabBar} initialRouteName="Notifications">
+      <Tab.Screen name="Notifications" component={NotificationsStack} options={{ headerShown: false }} />
       {hasConversationPermission && (
         <Tab.Screen name="Inbox" component={InboxStack} options={{ headerShown: false }} />
-      )}
-      {hasConversationPermission && (
-        <Tab.Screen
-          name="Conversations"
-          options={{ headerShown: false }}
-          component={ConversationStack}
-        />
       )}
       {hasConversationPermission && (
         <Tab.Screen name="Calls" component={CallsStack} options={{ headerShown: false }} />

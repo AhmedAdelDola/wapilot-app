@@ -26,7 +26,7 @@ export const Sidebar = ({ sections, selectedId, onSelect }: SidebarProps) => {
   return (
     <ScrollView style={tailwind.style('flex-1 bg-white')}>
       <View style={tailwind.style('pt-4 pb-8')}>
-        <Text style={tailwind.style('text-[28px] font-inter-580-24 text-gray-950 px-4 mb-4')}>
+        <Text style={tailwind.style('text-2xl font-bold text-gray-950 px-4 mb-4')}>
           Inbox
         </Text>
         {sections.map(section => (

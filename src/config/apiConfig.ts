@@ -5,7 +5,7 @@ import { config } from '@/config';
  *
  * Based on the Chatwoot Mobile Agent API Postman Collection
  * Base URL: https://omni.message-pro.com
- * WebSocket URL: wss://omni.message-pro.com
+ * WebSocket URL: wss://omni.message-pro.com/cable
  *
  * Authentication: Devise Token Auth (access-token, client, uid)
  * Realtime: ActionCable at wss://omni.message-pro.com/cable

@@ -1,6 +1,5 @@
-import React, { useCallback, useRef, useState } from 'react';
-import { Pressable, RefreshControl, StatusBar, Text, View } from 'react-native';
-import Animated from 'react-native-reanimated';
+import React, { useRef, useState } from 'react';
+import { Pressable, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { DrawerLayout } from 'react-native-gesture-handler';
 
@@ -19,13 +18,7 @@ const CALL_STATUS_FILTER_OPTIONS = [
 const CallsScreen = () => {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedInbox, setSelectedInbox] = useState('all');
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const drawerRef = useRef<DrawerLayout>(null);
-
-  const handleRefresh = useCallback(() => {
-    setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 1000);
-  }, []);
 
   const handleInboxSelect = (id: string) => {
     setSelectedInbox(id);
@@ -48,10 +41,10 @@ const CallsScreen = () => {
       title: 'Lifecycle',
       icon: <View style={tailwind.style('w-5 h-5 rounded-full bg-green-200')} />,
       items: [
-        { id: 'new-lead', label: 'New Lead', icon: <Text>🆕</Text>, count: 0 },
-        { id: 'hot-lead', label: 'Hot Lead', icon: <Text>🔥</Text>, count: 0 },
-        { id: 'payment', label: 'Payment', icon: <Text>💳</Text>, count: 0 },
-        { id: 'customer', label: 'Customer', icon: <Text>🤩</Text>, count: 0 },
+        { id: 'new-lead', label: 'New Lead', icon: <Text>+</Text>, count: 0 },
+        { id: 'hot-lead', label: 'Hot Lead', icon: <Text>+</Text>, count: 0 },
+        { id: 'payment', label: 'Payment', icon: <Text>+</Text>, count: 0 },
+        { id: 'customer', label: 'Customer', icon: <Text>+</Text>, count: 0 },
       ],
     },
     {
@@ -99,25 +92,13 @@ const CallsScreen = () => {
               onPress={() => drawerRef.current?.openDrawer()}
               hitSlop={16}>
               <View style={tailwind.style('w-6 h-6 items-center justify-center')}>
-                <Text style={tailwind.style('text-xl')}>☰</Text>
+                <Text style={tailwind.style('text-xl')}>{'\u2630'}</Text>
               </View>
             </Pressable>
             <Text style={tailwind.style('text-[20px] font-inter-580-24 text-gray-950')}>
               {getSelectedInboxTitle()}
             </Text>
-            <View style={tailwind.style('flex-row items-center gap-4')}>
-              <Pressable hitSlop={16}>
-                <Text style={tailwind.style('text-xl')}>🔍</Text>
-              </Pressable>
-              <Pressable hitSlop={16}>
-                <Text style={tailwind.style('text-xl')}>👤</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => {}}
-                hitSlop={16}>
-                <Text style={tailwind.style('text-xl')}>☰</Text>
-              </Pressable>
-            </View>
+            <View style={tailwind.style('w-6')} />
           </View>
 
           <FilterChips

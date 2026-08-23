@@ -46,7 +46,15 @@ export interface MarkAsReadPayload {
 
 export type InboxSortTypes = 'asc' | 'desc';
 
+export type NotificationFilterType = 'new' | 'archived' | 'all';
+
 export const InboxSortOptions: Record<InboxSortTypes, string> = {
   desc: 'desc',
   asc: 'asc',
+};
+
+export const NotificationFilterParams: Record<NotificationFilterType, string> = {
+  new: '',
+  archived: 'includes[]=read',
+  all: 'includes[]=read&includes[]=snoozed',
 };

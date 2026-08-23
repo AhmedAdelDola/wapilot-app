@@ -9,7 +9,7 @@ export const config = {
   // Chatwoot Server
   chatwoot: {
     baseUrl: process.env.EXPO_PUBLIC_CHATWOOT_BASE_URL || 'https://omni.message-pro.com',
-    websocketUrl: process.env.EXPO_PUBLIC_CHATWOOT_WEBSOCKET_URL || 'wss://omni.message-pro.com',
+    websocketUrl: process.env.EXPO_PUBLIC_CHATWOOT_WEBSOCKET_URL || 'wss://omni.message-pro.com/cable',
     minimumVersion: process.env.EXPO_PUBLIC_MINIMUM_CHATWOOT_VERSION || '4.1.0',
   },
 

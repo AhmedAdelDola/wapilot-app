@@ -1,13 +1,15 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import SettingsScreen from '@/screens/settings/SettingsScreen';
-import ProfileScreen from '@/screens/settings/ProfileScreen';
-import DarkModeScreen from '@/screens/settings/DarkModeScreen';
-import ChangePasswordScreen from '@/screens/settings/ChangePasswordScreen';
-import UpdateNotificationsScreen from '@/screens/settings/UpdateNotificationsScreen';
-import ChangeWorkspaceScreen from '@/screens/settings/ChangeWorkspaceScreen';
-import ReportBugScreen from '@/screens/settings/ReportBugScreen';
+import SettingsScreenDesign from '@/screens/settings/SettingsScreenDesign';
+import {
+  ProfileScreen,
+  DarkModeScreen,
+  ChangePasswordScreen,
+  UpdateNotificationsScreen,
+  ChangeWorkspaceScreen,
+  ReportBugScreen,
+} from '@/screens/settings/SettingsSubScreens';
 
 export type SettingsStackParamList = {
   SettingsScreen: undefined;
@@ -27,7 +29,7 @@ export const SettingsStack = () => {
       <Stack.Screen
         options={{ headerShown: false }}
         name="SettingsScreen"
-        component={SettingsScreen}
+        component={SettingsScreenDesign}
       />
       <Stack.Screen
         options={{ headerShown: false, animation: 'slide_from_right' }}

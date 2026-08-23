@@ -172,7 +172,19 @@ const SettingsScreen = () => {
           <SettingsRow
             icon={<Text style={tailwind.style('text-xl')}>👤</Text>}
             title={`Set yourself as ${availabilityStatus === 'online' ? 'Available' : 'Busy'}`}
-            onPress={() => {}}
+            onPress={async () => {
+              const newStatus = availabilityStatus === 'online' ? 'offline' : 'online';
+              if (activeAccountId) {
+                dispatch(
+                  authActions.updateAvailability({
+                    profile: {
+                      availability: newStatus,
+                      account_id: String(activeAccountId),
+                    },
+                  }),
+                );
+              }
+            }}
           />
         </SettingsSection>
 

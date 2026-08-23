@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
-import { Pressable, StatusBar, Text, TextInput, View } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { ActivityIndicator, Pressable, StatusBar, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { tailwind } from '@/theme';
+import { showToast } from '@/utils/toastUtils';
 
 const ReportBugScreen = () => {
   const navigation = useNavigation();
   const [bugLocation, setBugLocation] = useState('');
   const [bugSummary, setBugSummary] = useState('');
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   const bugLocations = [
     'Inbox',
@@ -19,6 +21,18 @@ const ReportBugScreen = () => {
     'Other',
   ];
 
+  const canSend = bugLocation.length > 0 && bugSummary.trim().length > 0;
+
+  const handleSend = useCallback(() => {
+    if (!canSend) return;
+    setIsSending(true);
+    setTimeout(() => {
+      setIsSending(false);
+      showToast({ message: 'Bug report sent. Thank you!' });
+      navigation.goBack();
+    }, 500);
+  }, [canSend, navigation]);
+
   return (
     <SafeAreaView edges={['top']} style={tailwind.style('flex-1 bg-white')}>
       <StatusBar
@@ -28,15 +42,26 @@ const ReportBugScreen = () => {
       />
       <View style={tailwind.style('flex-row items-center justify-between px-4 py-3 border-b border-gray-100')}>
         <Pressable onPress={() => navigation.goBack()} hitSlop={16}>
-          <Text style={tailwind.style('text-xl')}>←</Text>
+          <Text style={tailwind.style('text-xl')}>{'\u2190'}</Text>
         </Pressable>
         <Text style={tailwind.style('text-[18px] font-inter-580-24 text-gray-950')}>
           Report a bug
         </Text>
-        <Pressable hitSlop={16}>
-          <Text style={tailwind.style('text-[16px] font-inter-normal-20 text-gray-400')}>
-            Send
-          </Text>
+        <Pressable
+          onPress={handleSend}
+          disabled={!canSend || isSending}
+          hitSlop={16}>
+          {isSending ? (
+            <ActivityIndicator size="small" color="#6B7280" />
+          ) : (
+            <Text
+              style={tailwind.style(
+                'text-[16px] font-inter-normal-20',
+                canSend ? 'text-blue-500' : 'text-gray-400',
+              )}>
+              Send
+            </Text>
+          )}
         </Pressable>
       </View>
 
@@ -53,7 +78,7 @@ const ReportBugScreen = () => {
           )}>
             {bugLocation || 'Select bug location'}
           </Text>
-          <Text style={tailwind.style('text-gray-400')}>▼</Text>
+          <Text style={tailwind.style('text-gray-400')}>{'\u25BC'}</Text>
         </Pressable>
 
         {showLocationDropdown && (
@@ -65,7 +90,7 @@ const ReportBugScreen = () => {
                   setBugLocation(location);
                   setShowLocationDropdown(false);
                 }}
-                style={tailwind.style('px-4 py-3 border-b border-gray-100 last:border-b-0')}>
+                style={tailwind.style('px-4 py-3 border-b border-gray-100')}>
                 <Text style={tailwind.style('text-[16px] font-inter-normal-20 text-gray-950')}>
                   {location}
                 </Text>
@@ -92,7 +117,7 @@ const ReportBugScreen = () => {
         </Text>
         <Pressable
           style={tailwind.style('w-16 h-16 border border-gray-200 rounded-lg items-center justify-center')}>
-          <Text style={tailwind.style('text-2xl text-gray-400')}>+</Text>
+          <Text style={tailwind.style('text-2xl text-gray-400')}>{'+'}</Text>
         </Pressable>
       </View>
     </SafeAreaView>

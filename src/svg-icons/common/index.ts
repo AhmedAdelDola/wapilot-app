@@ -1,3 +1,5 @@
+export * from './InboxEmptyIcon';
+export * from './NavigationIcons';
 export * from './Add';
 export * from './AddParticipant';
 export * from './ArchiveBox';

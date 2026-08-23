@@ -93,6 +93,12 @@ export const authSlice = createSlice({
     setAccount: (state, action) => {
       if (state.user) {
         state.user.account_id = action.payload;
+        apiService.setAccountId(action.payload);
+      }
+    },
+    updateAuthHeaders: (state, action) => {
+      if (action.payload) {
+        state.headers = action.payload;
       }
     },
   },
@@ -120,10 +126,15 @@ export const authSlice = createSlice({
         }
       })
       .addCase(authActions.getProfile.fulfilled, (state, action) => {
+        const payload = action.payload as any;
+        const profile = payload?.user || payload;
         state.user = {
           ...state.user,
-          ...action.payload,
+          ...profile,
         } as User;
+        if (profile?.account_id) {
+          apiService.setAccountId(profile.account_id);
+        }
       })
       .addCase(authActions.login.rejected, (state, action) => {
         state.uiFlags.isLoggingIn = false;
@@ -187,5 +198,6 @@ export const {
   setCurrentUserAvailability,
   clearAuthError,
   clearMfaToken,
+  updateAuthHeaders,
 } = authSlice.actions;
 export default authSlice.reducer;

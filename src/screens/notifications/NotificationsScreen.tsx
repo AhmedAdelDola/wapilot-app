@@ -25,8 +25,8 @@ import { useInboxListStateContext } from '@/context';
 import { resetNotifications } from '@/store/notification/notificationSlice';
 import i18n from '@/i18n';
 import { selectSortOrder } from '@/store/notification/notificationFilterSlice';
-import { InboxSortTypes } from '@/store/notification/notificationTypes';
-import { ArchiveBoxIcon } from '@/svg-icons';
+import { InboxSortTypes, NotificationFilterType } from '@/store/notification/notificationTypes';
+import { InboxEmptyIcon } from '@/svg-icons';
 import { FilterChips, EmptyState } from '@/components-next';
 
 const AnimatedFlashlist = Animated.createAnimatedComponent(FlashList<Notification>);
@@ -37,11 +37,17 @@ const FILTER_OPTIONS = [
   { id: 'all', label: 'All' },
 ];
 
+const FILTER_EMPTY_MESSAGES: Record<NotificationFilterType, { title: string; subtitle: string }> = {
+  new: { title: 'You are up to date!', subtitle: 'There are no new notifications.' },
+  archived: { title: 'No archived notifications', subtitle: 'There are no archived notifications to show.' },
+  all: { title: 'No notifications', subtitle: 'There are no notifications to show.' },
+};
+
 const InboxList = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [isFlashListReady, setFlashListReady] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState('archived');
+  const [selectedFilter, setSelectedFilter] = useState<NotificationFilterType>('new');
 
   const isNotificationsLoading = useAppSelector(selectIsLoadingNotifications);
   const isAllNotificationsFetched = useAppSelector(selectIsAllNotificationsFetched);
@@ -77,17 +83,26 @@ const InboxList = () => {
     clearAndFetchNotifications(sortOrder);
   }, []);
 
-  const clearAndFetchNotifications = useCallback(async (sortOrder: InboxSortTypes) => {
-    setPageNumber(1);
-    await dispatch(resetNotifications());
-    fetchNotifications(sortOrder);
-  }, []);
+  const clearAndFetchNotifications = useCallback(
+    async (sortOrder: InboxSortTypes, filterType: NotificationFilterType = selectedFilter) => {
+      setPageNumber(1);
+      await dispatch(resetNotifications());
+      fetchNotifications(sortOrder, 1, filterType);
+    },
+    [selectedFilter],
+  );
 
   const fetchNotifications = useCallback(
-    async (sortOrder: InboxSortTypes, page: number = 1) => {
-      dispatch(notificationActions.fetchNotifications({ page, sort_order: sortOrder }));
+    async (
+      sortOrder: InboxSortTypes,
+      page: number = 1,
+      filterType: NotificationFilterType = selectedFilter,
+    ) => {
+      dispatch(
+        notificationActions.fetchNotifications({ page, sort_order: sortOrder, filterType }),
+      );
     },
-    [],
+    [selectedFilter],
   );
 
   const onChangePageNumber = () => {
@@ -112,6 +127,15 @@ const InboxList = () => {
     });
   }, [clearAndFetchNotifications, sortOrder]);
 
+  const handleFilterSelect = useCallback(
+    (filterId: string) => {
+      const filterType = filterId as NotificationFilterType;
+      setSelectedFilter(filterType);
+      clearAndFetchNotifications(sortOrder, filterType);
+    },
+    [sortOrder, clearAndFetchNotifications],
+  );
+
   const { openedRowIndex } = useInboxListStateContext();
 
   const handleRender: ListRenderItem<Notification> = ({ item, index }) => {
@@ -134,6 +158,7 @@ const InboxList = () => {
   });
 
   const shouldShowEmptyLoader = isNotificationsLoading && notifications.length === 0;
+  const emptyMsg = FILTER_EMPTY_MESSAGES[selectedFilter];
 
   return shouldShowEmptyLoader ? (
     <Animated.View
@@ -150,12 +175,12 @@ const InboxList = () => {
       <FilterChips
         options={FILTER_OPTIONS}
         selectedId={selectedFilter}
-        onSelect={setSelectedFilter}
+        onSelect={handleFilterSelect}
       />
       <EmptyState
-        icon={<ArchiveBoxIcon size={64} color="#9CA3AF" />}
-        title="Empty Archive!"
-        subtitle="There are no archived notifications"
+        icon={<InboxEmptyIcon size={64} color="#374151" />}
+        title={emptyMsg.title}
+        subtitle={emptyMsg.subtitle}
       />
     </Animated.ScrollView>
   ) : (
@@ -172,7 +197,7 @@ const InboxList = () => {
         <FilterChips
           options={FILTER_OPTIONS}
           selectedId={selectedFilter}
-          onSelect={setSelectedFilter}
+          onSelect={handleFilterSelect}
         />
       }
       ListFooterComponent={ListFooterComponent}
@@ -191,7 +216,7 @@ const NotificationsScreen = () => {
         barStyle={'dark-content'}
       />
       <View style={tailwind.style('px-5 pt-4 pb-2')}>
-        <Text style={tailwind.style('text-[28px] font-inter-580-24 text-gray-950')}>
+        <Text style={tailwind.style('text-2xl font-bold text-gray-950')}>
           Notifications
         </Text>
       </View>
