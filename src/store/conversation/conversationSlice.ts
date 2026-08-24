@@ -47,7 +47,6 @@ const isOutdatedConversationUpdate = (
 ) => {
   const existingUpdatedAt = existingConversation?.updatedAt;
   const incomingUpdatedAt = incomingConversation.updatedAt;
-
   return (
     typeof existingUpdatedAt === 'number' &&
     typeof incomingUpdatedAt === 'number' &&
@@ -62,7 +61,6 @@ const shouldKeepLocalStatusMarker = (
   const localStatusUpdatedAt = existingConversation?.localStatusUpdatedAt;
   const existingUpdatedAt = existingConversation?.updatedAt;
   const incomingUpdatedAt = incomingConversation.updatedAt;
-
   return (
     typeof localStatusUpdatedAt === 'number' &&
     typeof existingUpdatedAt === 'number' &&
@@ -90,7 +88,6 @@ const preserveLocalStatus = (
   if (!existingConversation) {
     return incomingConversation;
   }
-
   if (!shouldKeepLocalStatusMarker(existingConversation, incomingConversation)) {
     return {
       ...incomingConversation,
@@ -98,7 +95,6 @@ const preserveLocalStatus = (
       localStatusPreviousStatus: undefined,
     };
   }
-
   if (!shouldPreserveLocalStatus(existingConversation, incomingConversation)) {
     return {
       ...incomingConversation,
@@ -106,7 +102,6 @@ const preserveLocalStatus = (
       localStatusPreviousStatus: existingConversation.localStatusPreviousStatus,
     };
   }
-
   return {
     ...incomingConversation,
     status: existingConversation.status,
@@ -133,7 +128,6 @@ const conversationSlice = createSlice({
         if (isOutdatedConversationUpdate(existingConversation, conversation)) {
           return;
         }
-
         const { messages, ...conversationAttributes } = preserveLocalStatus(
           existingConversation,
           conversation,
@@ -148,31 +142,24 @@ const conversationSlice = createSlice({
     },
     addOrUpdateMessage: (state, action) => {
       const message = action.payload as PendingMessage | Message;
-
       const { conversationId } = message;
       if (!conversationId) {
         return;
       }
-
       const conversation = state.entities[conversationId];
-
       if (!conversation) {
         return;
       }
-      // If the message type is incoming, set the can reply to true
       if (message.messageType === MESSAGE_TYPES.INCOMING) {
         conversation.canReply = true;
       }
       if (!conversation.messages) {
         conversation.messages = [];
       }
-      // Check message is already present in the conversation
       const pendingMessageIndex = findPendingMessageIndex(conversation, message);
       if (pendingMessageIndex !== -1) {
         conversation.messages[pendingMessageIndex] = message as Message;
-      }
-      // If the message is not present in the conversation, add it
-      else {
+      } else {
         conversation.messages.push(message as Message);
       }
       conversation.timestamp = message.createdAt;
@@ -185,7 +172,6 @@ const conversationSlice = createSlice({
       ) {
         conversation.unreadCount = (conversation.unreadCount || 0) + 1;
       }
-      // Update lastNonActivityMessage for conversation list preview
       if ((message as Message).messageType !== MESSAGE_TYPES.ACTIVITY) {
         conversation.lastNonActivityMessage = message as Message;
       }
@@ -214,10 +200,6 @@ const conversationSlice = createSlice({
         const transformedConversations = conversationsToUpsert.map(conversation =>
           preserveLocalStatus(state.entities[conversation.id], conversation),
         );
-        // Page 1 is a fresh load (e.g. switching inbox / tab / assignee):
-        // replace the whole list so the new server order is authoritative and
-        // stale conversations from a previous filter don't linger at the bottom.
-        // Page 2+ appends via upsertMany for infinite scroll.
         if (page === 1) {
           conversationAdapter.setAll(state, transformedConversations);
         } else {
@@ -230,7 +212,7 @@ const conversationSlice = createSlice({
       .addCase(conversationActions.fetchConversationsMeta.fulfilled, (state, { payload }) => {
         state.meta = payload;
       })
-      .addCase(conversationActions.fetchConversations.rejected, (state, { error }) => {
+      .addCase(conversationActions.fetchConversations.rejected, state => {
         state.isLoadingConversations = false;
       })
       .addCase(conversationActions.fetchConversation.pending, state => {
@@ -243,15 +225,14 @@ const conversationSlice = createSlice({
           state.isConversationFetching = false;
           return;
         }
-
         conversationAdapter.upsertOne(
           state,
           preserveLocalStatus(state.entities[conversation.id], conversation),
         );
         state.isConversationFetching = false;
-        state.isAllMessagesFetched = false;
-        state.isAllMessagesFetchedByConversation ||= {};
-        state.isAllMessagesFetchedByConversation[conversation.id] = false;
+        // NOTE: Do NOT reset isAllMessagesFetchedByConversation here.
+        // Doing so forces a full message re-fetch and re-scroll every time
+        // we refresh metadata (e.g. after snooze / assign / resolve).
       })
       .addCase(conversationActions.fetchConversation.rejected, state => {
         state.isConversationFetching = false;
@@ -265,30 +246,25 @@ const conversationSlice = createSlice({
         if (!state.entities[conversationId]) {
           return;
         }
-        const conversation = state.entities[conversationId];
+        const conversation = state.entities[conversationId]!;
         const { afterId } = action.meta.arg;
-
         if (afterId) {
-          // Search navigation: merge messages, deduplicate by ID, and sort
-          // descending (newest first) to match the array order that normal
-          // pagination produces via unshift — lastMessageId() relies on this.
+          // Search navigation: merge, deduplicate, sort ascending by time
           const existingIds = new Set(conversation.messages.map(m => m.id));
           const newMessages = messages.filter(m => !existingIds.has(m.id));
           conversation.messages.push(...newMessages);
-          const sorted = [...conversation.messages].sort((a, b) => b.createdAt - a.createdAt);
+          const sorted = [...conversation.messages].sort(
+            (a, b) => Number(a.createdAt) - Number(b.createdAt),
+          );
           conversation.messages.splice(0, conversation.messages.length, ...sorted);
-          // Reset so older-message pagination isn't blocked after search nav
-          state.isAllMessagesFetched = false;
           state.isAllMessagesFetchedByConversation ||= {};
           state.isAllMessagesFetchedByConversation[conversationId] = false;
         } else {
-          // Normal pagination: prepend older messages
+          // Normal top-scroll pagination: prepend older messages
           conversation.messages.unshift(...messages);
-          state.isAllMessagesFetched = messages.length < 20 || false;
           state.isAllMessagesFetchedByConversation ||= {};
           state.isAllMessagesFetchedByConversation[conversationId] = messages.length < 20;
         }
-
         conversation.meta = {
           ...conversation.meta,
           ...responseMeta,
@@ -298,7 +274,7 @@ const conversationSlice = createSlice({
       .addCase(conversationActions.fetchPreviousMessages.rejected, state => {
         state.isLoadingMessages = false;
       })
-      .addCase(conversationActions.toggleConversationStatus.pending, (state, action) => {
+      .addCase(conversationActions.toggleConversationStatus.pending, state => {
         state.isChangingConversationStatus = true;
       })
       .addCase(conversationActions.toggleConversationStatus.fulfilled, (state, { payload }) => {
@@ -315,6 +291,34 @@ const conversationSlice = createSlice({
       })
       .addCase(conversationActions.toggleConversationStatus.rejected, state => {
         state.isChangingConversationStatus = false;
+      })
+      .addCase(conversationActions.assignConversation.fulfilled, (state, action) => {
+        const { conversationId, assigneeId } = action.meta.arg;
+        const conversation = state.entities[conversationId];
+        if (!conversation) {
+          return;
+        }
+        if (!assigneeId || assigneeId === 0) {
+          conversation.meta = {
+            ...conversation.meta,
+            assignee: null,
+          };
+        } else {
+          const raw = action.payload as any;
+          const agent = raw?.data?.payload || raw?.payload || raw?.meta?.assignee || raw;
+          if (agent && agent.id) {
+            conversation.meta = {
+              ...conversation.meta,
+              assignee: {
+                ...(conversation.meta?.assignee || {}),
+                id: agent.id,
+                name: agent.name || agent.available_name || '',
+                email: agent.email || '',
+                thumbnail: agent.thumbnail || agent.avatar_url || '',
+              } as any,
+            };
+          }
+        }
       })
       .addCase(conversationActions.muteConversation.fulfilled, (state, action) => {
         const { conversationId } = action.payload;

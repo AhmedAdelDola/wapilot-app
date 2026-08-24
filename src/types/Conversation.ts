@@ -71,8 +71,8 @@ export interface ConversationAdditionalAttributes {
 }
 export interface ConversationMeta {
   sender: Contact;
-  assignee: Agent;
-  team: Team | null;
+  assignee?: Agent | null;
+  team?: Team | null;
   hmacVerified: boolean | null;
   channel: Channel;
 }

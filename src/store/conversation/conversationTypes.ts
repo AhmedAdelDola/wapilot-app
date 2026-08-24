@@ -48,7 +48,7 @@ export interface ToggleConversationStatusPayload {
   conversationId: number;
   payload: {
     status: ConversationStatus;
-    snoozed_until: number | null;
+    snoozed_until?: number | null;
   };
 }
 

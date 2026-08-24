@@ -31,6 +31,10 @@ type ConversationDetailSubCellProps = Pick<
   timestamp: number;
   lastMessage?: Message | null;
   inbox: Inbox | null;
+  channelType?: string;
+  medium?: string;
+  provider?: string;
+  lifecycleStage?: { name: string; icon?: string } | null;
   appliedSla: SLA | null;
   appliedSlaConversationDetails?:
     | {
@@ -64,6 +68,10 @@ export const ConversationItemDetail = memo((props: ConversationDetailSubCellProp
     slaPolicyId,
     lastMessage,
     inbox,
+    channelType,
+    medium,
+    provider,
+    lifecycleStage,
     appliedSla,
     appliedSlaConversationDetails,
     additionalAttributes,
@@ -104,11 +112,19 @@ export const ConversationItemDetail = memo((props: ConversationDetailSubCellProp
         </AnimatedNativeView>
         <AnimatedNativeView style={tailwind.style('flex flex-row items-center gap-2')}>
           {hasPriority ? <PriorityIndicator {...{ priority }} /> : null}
-          {inbox && <ChannelIndicator inbox={inbox} additionalAttributes={additionalAttributes} />}
+          {(inbox || channelType) && (
+            <ChannelIndicator
+              inbox={inbox}
+              channelType={channelType}
+              medium={medium}
+              provider={provider}
+              additionalAttributes={additionalAttributes}
+            />
+          )}
           <LastActivityTime timestamp={timestamp} />
         </AnimatedNativeView>
       </AnimatedNativeView>
-      {hasLabels || hasSLA ? (
+      {hasLabels || hasSLA || lifecycleStage ? (
         <AnimatedNativeView style={tailwind.style('flex flex-col items-center gap-1')}>
           <AnimatedNativeView
             style={tailwind.style('flex flex-row w-full justify-between items-center gap-2')}>
@@ -127,6 +143,16 @@ export const ConversationItemDetail = memo((props: ConversationDetailSubCellProp
           <AnimatedNativeView
             style={tailwind.style('flex flex-row h-6 justify-between items-center gap-2')}>
             <AnimatedNativeView style={tailwind.style('flex flex-row flex-1 gap-2 items-center')}>
+              {lifecycleStage ? (
+                <NativeView
+                  style={tailwind.style(
+                    'flex-row items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-100',
+                  )}>
+                  <Text style={tailwind.style('text-[11px] text-slate-700 font-inter-medium-24')}>
+                    {lifecycleStage.icon || '🌱'} {lifecycleStage.name}
+                  </Text>
+                </NativeView>
+              ) : null}
               {hasSLA && (
                 <SLAIndicator
                   slaPolicyId={slaPolicyId}

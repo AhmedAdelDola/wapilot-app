@@ -78,11 +78,6 @@ const handleReceived = (data: any) => {
         type: 'conversation/updateConversation',
         payload: conversation,
       });
-      try {
-        store.dispatch(conversationActions.fetchConversationsMeta({ status: 'all', assigneeType: 'all' } as any) as any);
-      } catch {
-        // ignore
-      }
       break;
     }
 

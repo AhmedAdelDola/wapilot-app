@@ -35,6 +35,7 @@ export const selectIsAllConversationsFetched = createSelector(
   state => state.isAllConversationsFetched,
 );
 
+
 export const selectIsAllMessagesFetched = (conversationId: number) =>
   createSelector(
     selectConversationsState,
@@ -63,8 +64,8 @@ export const getFilteredConversations = createDraftSafeSelector(
     };
 
     const comparator: SortComparator = {
-      latest: (a, b) => b.lastActivityAt - a.lastActivityAt,
-      sort_on_created_at: (a, b) => a.createdAt - b.createdAt,
+      latest: (a, b) => (Number(b.lastActivityAt) || 0) - (Number(a.lastActivityAt) || 0),
+      sort_on_created_at: (a, b) => (Number(a.createdAt) || 0) - (Number(b.createdAt) || 0),
       sort_on_priority: (a, b) => {
         const priorityA = a.priority || 'low';
         const priorityB = b.priority || 'low';
@@ -87,11 +88,9 @@ export const getFilteredConversations = createDraftSafeSelector(
     if (assigneeType === 'me') {
       return sortedConversations.filter(conversation => {
         const { assignee } = conversation.meta;
-
         const shouldFilter = shouldApplyFilters(conversation, filters);
-        const isAssignedToMe = assignee && assignee.id === userId;
-        const isChatMine = isAssignedToMe && shouldFilter;
-        return isChatMine;
+        const isAssignedToMe = assignee && Number(assignee.id) === Number(userId);
+        return isAssignedToMe && shouldFilter;
       });
     }
     if (assigneeType === 'unassigned') {
@@ -109,19 +108,30 @@ export const getFilteredConversations = createDraftSafeSelector(
   },
 );
 
+const parseMessageTimestamp = (val: any): number => {
+  if (!val) return 0;
+  if (typeof val === 'number') return val > 1e11 ? val : val * 1000;
+  if (typeof val === 'string') {
+    const n = Number(val);
+    if (!isNaN(n) && n > 0) return n > 1e11 ? n : n * 1000;
+    const d = new Date(val).getTime();
+    return !isNaN(d) ? d : 0;
+  }
+  return 0;
+};
+
 export const getMessagesByConversationId = createDraftSafeSelector(
   [
     (state: RootState, params: { conversationId: number }) =>
       selectConversationById(state, params.conversationId),
   ],
   conversation => {
-    if (!conversation) {
+    if (!conversation || !conversation.messages) {
       return [];
     }
-    // Memoize the sorted and filtered messages using createSelector
     return conversation.messages
       .slice()
-      .sort((a, b) => a.createdAt - b.createdAt)
+      .sort((a, b) => parseMessageTimestamp(a.createdAt) - parseMessageTimestamp(b.createdAt))
       .filter((message, index, self) => index === self.findIndex(m => m.id === message.id));
   },
 );
@@ -132,8 +142,8 @@ export const getLastEmailInSelectedChat = createDraftSafeSelector(
       selectConversationById(state, params.conversationId),
   ],
   conversation => {
-    if (!conversation) {
-      return [];
+    if (!conversation || !conversation.messages) {
+      return null;
     }
     const lastEmail = [...conversation.messages].reverse().find(message => {
       const { contentAttributes, messageType } = message;
@@ -145,7 +155,7 @@ export const getLastEmailInSelectedChat = createDraftSafeSelector(
       }
       return false;
     });
-    return lastEmail;
+    return lastEmail || null;
   },
 );
 

@@ -64,6 +64,7 @@ import { clearAllConversations } from '@/store/conversation/conversationSlice';
 import { selectUserId } from '@/store/auth/authSelectors';
 import { clearAllContacts } from '@/store/contact/contactSlice';
 import { clearAssignableAgents } from '@/store/assignable-agent/assignableAgentSlice';
+import { profileService, LifecycleStage } from '@/services/profileService';
 
 import i18n from '@/i18n';
 import ActionBottomSheet from '@/navigation/tabs/ActionBottomSheet';
@@ -91,6 +92,7 @@ const ConversationList = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   // This is used for pagination
   const [pageNumber, setPageNumber] = useState(1);
+  const [lifecycleStages, setLifecycleStages] = useState<LifecycleStage[]>([]);
   const userId = useAppSelector(selectUserId);
 
   // This is used to store the index of the item that is currently selected
@@ -101,16 +103,17 @@ const ConversationList = () => {
   // This is used to check if all the conversations are fetched
   const isAllConversationsFetched = useAppSelector(selectIsAllConversationsFetched);
 
-  const handleRender = useCallback(({ item, index }: FlashListRenderItemType) => {
-    return (
+  const handleRender = useCallback(
+    ({ item, index }: FlashListRenderItemType) => (
       <ConversationItemContainer
         index={index}
         conversationItem={item}
         openedRowIndex={openedRowIndex as SharedValue<number | null>}
+        lifecycleStages={lifecycleStages}
       />
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    ),
+    [lifecycleStages, openedRowIndex],
+  );
 
   const filters = useAppSelector(selectFilters);
   const previousFilters = useRef(filters);
@@ -118,6 +121,13 @@ const ConversationList = () => {
   // Reset last active timestamp when the conversation screen is opened
   useEffect(() => {
     AsyncStorage.removeItem(LAST_ACTIVE_TIMESTAMP_KEY);
+  }, []);
+
+  useEffect(() => {
+    profileService
+      .listLifecycleStages()
+      .then(stages => setLifecycleStages(stages || []))
+      .catch(() => setLifecycleStages([]));
   }, []);
 
   useEffect(() => {

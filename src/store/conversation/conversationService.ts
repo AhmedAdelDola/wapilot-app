@@ -80,9 +80,17 @@ export class ConversationService {
     if (inboxId && Number(inboxId) > 0) {
       params.inbox_id = inboxId;
     }
-    const response = await apiService.get('conversations/meta', { params });
-    const meta = response.data.meta || response.data;
-    return transformConversationListMeta(meta);
+    try {
+      const response = await apiService.get('conversations/meta', { params });
+      const meta = response.data.meta || response.data;
+      return transformConversationListMeta(meta);
+    } catch {
+      return {
+        mineCount: 0,
+        unassignedCount: 0,
+        allCount: 0,
+      };
+    }
   }
 
   static async fetchConversation(conversationId: number): Promise<ConversationResponse> {
@@ -138,13 +146,13 @@ export class ConversationService {
     conversationId,
     payload,
   }: ToggleConversationStatusPayload): Promise<ToggleConversationStatusResponse> {
-    const response = await apiService.post<ToggleConversationStatusAPIResponse>(
+    const response = await apiService.post<any>(
       `conversations/${conversationId}/toggle_status`,
       payload,
     );
-    const {
-      payload: { current_status: currentStatus, snoozed_until: snoozedUntil },
-    } = response.data;
+    const data = response?.data?.payload || response?.data?.data || response?.data || {};
+    const currentStatus = data.current_status || payload.status || 'open';
+    const snoozedUntil = data.snoozed_until !== undefined ? data.snoozed_until : (payload.snoozed_until ?? null);
     return {
       conversationId,
       currentStatus,

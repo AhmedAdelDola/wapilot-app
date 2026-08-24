@@ -57,6 +57,37 @@ const ASSIGNEE_MAP: Record<string, AssigneeTypes> = {
   unassigned: 'unassigned',
 };
 
+const normalizeLifecycleStage = (value: unknown) =>
+  String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, ' ');
+
+const conversationMatchesLifecycleStage = (conversation: Conversation, stage: LifecycleStage) => {
+  const sender = conversation.meta?.sender as any;
+  const conversationData = conversation as any;
+  const stageId =
+    sender?.lifecycle_stage_id ??
+    sender?.lifecycleStageId ??
+    sender?.customAttributes?.lifecycle_stage_id ??
+    sender?.custom_attributes?.lifecycle_stage_id ??
+    conversationData.lifecycle_stage_id ??
+    conversationData.customAttributes?.lifecycle_stage_id ??
+    conversationData.custom_attributes?.lifecycle_stage_id;
+  const stageName =
+    sender?.lifecycleStage?.name ??
+    sender?.lifecycle_stage?.name ??
+    sender?.customAttributes?.lifecycle_stage ??
+    sender?.custom_attributes?.lifecycle_stage ??
+    conversationData.customAttributes?.lifecycle_stage ??
+    conversationData.custom_attributes?.lifecycle_stage;
+
+  return (
+    (stageId !== undefined && stageId !== null && String(stageId) === String(stage.id)) ||
+    normalizeLifecycleStage(stageName) === normalizeLifecycleStage(stage.name)
+  );
+};
+
 const MenuIcon = ({ stroke = '#111827' }: { stroke?: string }) => (
   <Svg width="22" height="22" viewBox="0 0 24 24" fill="none">
     <Path
@@ -152,7 +183,7 @@ const InboxScreen = () => {
         const stageId = selectedSidebar.replace('stage_', '');
         const stageObj = lifecycleStages.find(s => String(s.id) === stageId);
         if (stageObj) {
-          return (conv.labels || []).some(l => l.toLowerCase().includes(stageObj.name.toLowerCase()));
+          return conversationMatchesLifecycleStage(conv, stageObj);
         }
       }
       return true;
@@ -252,10 +283,11 @@ const InboxScreen = () => {
           index={index}
           conversationItem={item}
           openedRowIndex={openedRowIndex}
+          lifecycleStages={lifecycleStages}
         />
       </Pressable>
     ),
-    [handleNavigateToChat, openedRowIndex],
+    [handleNavigateToChat, lifecycleStages, openedRowIndex],
   );
 
   const ListFooterComponent = () => {
@@ -374,9 +406,7 @@ const InboxScreen = () => {
             ]}
           />
         ),
-        count: allConversations.filter(c =>
-          (c.labels || []).some(l => l.toLowerCase().includes(stage.name.toLowerCase())),
-        ).length,
+        count: allConversations.filter(c => conversationMatchesLifecycleStage(c, stage)).length,
       })),
     },
   ];

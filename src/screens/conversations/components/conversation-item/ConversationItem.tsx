@@ -35,7 +35,11 @@ export type ConversationItemProps = {
   inbox: Inbox | null;
   lastMessage?: Message | null;
   inboxId: number;
+  channelType?: string;
+  medium?: string;
+  provider?: string;
   assignee: Agent | null;
+  lifecycleStage?: { name: string; icon?: string } | null;
 
   // SLA related
   slaPolicyId?: number | null;
@@ -75,7 +79,11 @@ export const ConversationItem = memo(
     inbox,
     lastMessage,
     inboxId,
+    channelType,
+    medium,
+    provider,
     assignee,
+    lifecycleStage,
     slaPolicyId = null,
     appliedSla = null,
     appliedSlaConversationDetails = {},
@@ -106,6 +114,9 @@ export const ConversationItem = memo(
             inbox,
             lastMessage,
             inboxId,
+            channelType,
+            medium,
+            provider,
             appliedSla,
             appliedSlaConversationDetails,
             additionalAttributes,
@@ -113,6 +124,7 @@ export const ConversationItem = memo(
             currentState,
             allLabels,
             typingText,
+            lifecycleStage,
           }}
         />
       </NativeView>

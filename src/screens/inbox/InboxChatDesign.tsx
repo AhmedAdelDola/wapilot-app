@@ -12,19 +12,22 @@ import {
   RefreshControl,
   ActivityIndicator,
   KeyboardAvoidingView,
+  Keyboard,
   Platform,
   Image,
   Linking,
   useWindowDimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path, Circle, Rect, Line, Polyline, Polygon } from 'react-native-svg';
 import { Audio } from 'expo-av';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useSharedValue } from 'react-native-reanimated';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { conversationActions } from '@/store/conversation/conversationActions';
+import { updateConversation } from '@/store/conversation/conversationSlice';
 import {
   selectAllConversations,
   selectConversationsLoading,
@@ -68,14 +71,31 @@ import { ChatMentionSuggestions, extractMentionQuery, insertMention } from './ch
 import { ChatSearchSheet } from './chat-design/components/ChatSearchSheet';
 import { useChatTyping } from './chat-design/hooks/useChatTyping';
 import { getMessageText } from './chat-design/utils/chatMessageUtils';
+import { ConversationParticipantService } from '@/store/conversation-participant/conversationParticipantService';
+import { Swipeable } from '@/components-next/common';
 
 // ---------- Date & Time Helpers ----------
 const getConversationTimestamp = (item?: any): number => {
   if (!item) return 0;
   const candidates: number[] = [];
   const push = (v: any) => {
-    const n = Number(v);
-    if (!isNaN(n) && n > 0) candidates.push(n > 1e11 ? n : n * 1000);
+    if (!v) return;
+    if (typeof v === 'number' && !isNaN(v) && v > 0) {
+      candidates.push(v > 1e11 ? v : v * 1000);
+      return;
+    }
+    if (typeof v === 'string') {
+      const n = Number(v);
+      if (!isNaN(n) && n > 0) {
+        candidates.push(n > 1e11 ? n : n * 1000);
+        return;
+      }
+      const d = new Date(v).getTime();
+      if (!isNaN(d) && d > 0) {
+        candidates.push(d);
+        return;
+      }
+    }
   };
   push(item.lastActivityAt);
   push(item.last_activity_at);
@@ -92,7 +112,7 @@ const getConversationTimestamp = (item?: any): number => {
   push(item.createdAt);
   push(item.created_at);
   // Return the MOST RECENT timestamp available so a conversation always
-  // lands in its correct position instead of falling to the bottom.
+  // lands in its correct position at the top instead of falling to the bottom.
   return candidates.length > 0 ? Math.max(...candidates) : 0;
 };
 
@@ -416,12 +436,12 @@ const FilterChip = ({ label, active, onClick }: { label: string; active: boolean
 };
 
 // ---------- Sheet wrapper (bottom) ----------
-const BottomSheet = ({ children, onClose }: { children: React.ReactNode; onClose: () => void }) => {
+const BottomSheet = ({ children, onClose, bottomOffset = 0 }: { children: React.ReactNode; onClose: () => void; bottomOffset?: number }) => {
   const { isDark } = useTheme();
   return (
     <View style={{ position: 'absolute', inset: 0, zIndex: 50 }} onStartShouldSetResponder={() => true} onResponderRelease={onClose}>
       <View style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)' }} />
-      <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: isDark ? '#1e293b' : 'white', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingBottom: 32 }} onStartShouldSetResponder={() => true}>
+      <View style={{ position: 'absolute', bottom: bottomOffset, left: 0, right: 0, backgroundColor: isDark ? '#1e293b' : 'white', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingBottom: 32 }} onStartShouldSetResponder={() => true}>
         <View style={{ width: 40, height: 4, backgroundColor: isDark ? '#475569' : '#d1d5db', borderRadius: 999, alignSelf: 'center', marginTop: 12, marginBottom: 8 }} />
         {children}
       </View>
@@ -580,6 +600,14 @@ const matchesStage = (c: any, stageName: string, stageId?: number): boolean => {
   const sLower = stageName.toLowerCase().trim();
   const sKey = sLower.replace(/\s+/g, '_');
   const sFirst = sLower.split(/\s+/)[0];
+  const senderStage = c.meta?.sender?.lifecycleStage ?? c.meta?.sender?.lifecycle_stage;
+
+  if (
+    (stageId && String(senderStage?.id) === String(stageId)) ||
+    (senderStage?.name && senderStage.name.toLowerCase().trim() === sLower)
+  ) {
+    return true;
+  }
 
   if (Array.isArray(c.labels) && c.labels.length > 0) {
     const hasMatch = c.labels.some((l: any) => {
@@ -733,6 +761,7 @@ const matchesStage = (c: any, stageName: string, stageId?: number): boolean => {
           apiLabels && apiLabels.length > 0 ? (
             apiLabels.map(lbl => {
               const count = conversations.filter(c => Array.isArray(c.labels) && c.labels.some((l: any) => typeof l === 'string' && l.toLowerCase() === lbl.title.toLowerCase())).length;
+              const labelColor = lbl.color || '#10b981';
               return (
                 <Pressable
                   key={lbl.id}
@@ -740,14 +769,31 @@ const matchesStage = (c: any, stageName: string, stageId?: number): boolean => {
                     onSelect(`label_${lbl.title}`, lbl.title);
                     onClose();
                   }}
-                  style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1, paddingRight: 8 }}>
-                    <View style={{ width: 10, height: 10, borderRadius: 999, backgroundColor: lbl.color || '#10b981' }} />
-                    <Text style={{ color: textSecondary, fontSize: 14, fontWeight: '500', flexShrink: 1 }} numberOfLines={1}>
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginHorizontal: 16,
+                    marginVertical: 3,
+                  }}>
+                  <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                    gap: 4,
+                    height: 18,
+                    backgroundColor: isDark ? labelColor + '28' : labelColor + '18',
+                    borderWidth: 1,
+                    borderColor: isDark ? labelColor + '60' : labelColor + '40',
+                    borderRadius: 5,
+                    paddingHorizontal: 5,
+                  }}>
+                    <View style={{ width: 5, height: 5, borderRadius: 999, backgroundColor: labelColor }} />
+                    <Text style={{ color: isDark ? '#ffffff' : labelColor, fontSize: 10, fontWeight: '600', flexShrink: 1 }} numberOfLines={1}>
                       {lbl.title}
                     </Text>
                   </View>
-                  <Text style={{ color: '#9ca3af', fontSize: 14, fontWeight: '500' }}>{count}</Text>
+                  <Text style={{ color: '#9ca3af', fontSize: 14, fontWeight: '500', marginLeft: 8 }}>{count}</Text>
                 </Pressable>
               );
             })
@@ -790,6 +836,8 @@ const matchesStage = (c: any, stageName: string, stageId?: number): boolean => {
 export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: number; onBack: () => void }) => {
   const dispatch = useAppDispatch();
   const { width: screenWidth } = useWindowDimensions();
+  const navigation = useNavigation();
+  const route = useRoute<any>();
   const stageSheetMaxHeight = Math.min(420, Math.max(260, screenWidth * 0.72));
   const scrollViewRef = React.useRef<ScrollView>(null);
   const messagePositionsRef = React.useRef<Record<number, number>>({});
@@ -802,13 +850,18 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
   const isAllMessagesFetched = useAppSelector(selectIsAllMessagesFetched(conversationId));
   const conversation = useAppSelector(state => selectConversationById(state, conversationId));
   const messages = useAppSelector(state => getMessagesByConversationId(state, { conversationId }));
-  const [sheet, setSheet] = useState<null | 'menu' | 'search' | 'attachment' | 'assign' | 'stage' | 'snooze' | 'shortcut' | 'workflow' | 'labels'>(null);
+  const [sheet, setSheet] = useState<null | 'menu' | 'search' | 'attachment' | 'assign' | 'stage' | 'snooze' | 'shortcut' | 'workflow' | 'labels' | 'collaborators'>(
+    route.params?.openSheet || (route.params?.openMenu ? 'menu' : null),
+  );
   const [message, setMessage] = useState('');
   const [quotedMessage, setQuotedMessage] = useState<Message | null>(null);
   const [highlightedMessageId, setHighlightedMessageId] = useState<number | null>(null);
   const [assignSearch, setAssignSearch] = useState('');
   const [shortcutSearch, setShortcutSearch] = useState('');
   const [labelSearch, setLabelSearch] = useState('');
+  const [collaboratorSearch, setCollaboratorSearch] = useState('');
+  const [collaboratorIds, setCollaboratorIds] = useState<number[]>([]);
+  const [collaboratorAgents, setCollaboratorAgents] = useState<ApiAgent[]>([]);
   const [loadingOlder, setLoadingOlder] = useState(false);
   const firstLabel = conversation?.labels?.[0] || '';
   const [stage, setStage] = useState(
@@ -817,12 +870,26 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
       : 'New Lead',
   );
   const [stageEmoji, setStageEmoji] = useState('🌱');
-  const [showContactDetails, setShowContactDetails] = useState(false);
+  const [showContactDetails, setShowContactDetails] = useState(Boolean(route.params?.openContact));
   const [fileViewer, setFileViewer] = useState<{ uri: string; name: string } | null>(null);
   const [isPrivate, setIsPrivate] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const recordingRef = React.useRef<Audio.Recording | null>(null);
+  const [customSnoozeOpen, setCustomSnoozeOpen] = useState(false);
+  const [customSnoozeDateText, setCustomSnoozeDateText] = useState('');
+  const [customSnoozeTimeText, setCustomSnoozeTimeText] = useState('');
+
+  React.useEffect(() => {
+    if (route.params?.openMenu) {
+      setSheet('menu');
+      (navigation as any).setParams({ openMenu: undefined });
+    }
+    if (route.params?.openSheet) {
+      setSheet(route.params.openSheet);
+      (navigation as any).setParams({ openSheet: undefined });
+    }
+  }, [navigation, route.params?.openMenu]);
   const hapticTrigger = useHaptic('selection');
   const locale = useAppSelector(selectLocale);
   const isArabic = locale?.startsWith('ar') ?? false;
@@ -853,6 +920,39 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
       // Fall back to the embedded viewer below.
     }
     setFileViewer({ uri, name });
+  }, []);
+
+  // Android/Fabric can retain the reduced KeyboardAvoidingView height after
+  // dismissal. Re-mounting it resets the composer to its original position.
+  const [keyboardAvoiderKey, setKeyboardAvoiderKey] = useState(0);
+  const [chatKeyboardHeight, setChatKeyboardHeight] = useState(0);
+
+  React.useEffect(() => {
+    const showSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      event => {
+        setChatKeyboardHeight(event.endCoordinates.height);
+        setTimeout(() => {
+          scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 50);
+      },
+    );
+    const hideSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => {
+        setChatKeyboardHeight(0);
+        setKeyboardAvoiderKey(key => key + 1);
+        // The re-mounted ScrollView starts at its top; restore the current
+        // conversation position after the layout has settled.
+        setTimeout(() => {
+          scrollViewRef.current?.scrollToEnd({ animated: false });
+        }, 100);
+      },
+    );
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
   }, []);
 
   React.useEffect(() => {
@@ -889,11 +989,39 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
     }
   };
 
+  const [isInitialLoadDone, setIsInitialLoadDone] = useState(false);
+
   React.useEffect(() => {
+    initialScrolledRef.current = false;
+    setIsInitialLoadDone(false);
     dispatch(conversationActions.fetchConversation(conversationId));
-    dispatch(conversationActions.fetchPreviousMessages({ conversationId, beforeId: null } as any));
+    dispatch(conversationActions.fetchPreviousMessages({ conversationId, beforeId: null } as any))
+      .unwrap()
+      .catch(() => {})
+      .finally(() => {
+        setIsInitialLoadDone(true);
+        setTimeout(() => {
+          scrollViewRef.current?.scrollToEnd({ animated: false });
+        }, 30);
+        setTimeout(() => {
+          scrollViewRef.current?.scrollToEnd({ animated: false });
+        }, 150);
+      });
     dispatch(conversationActions.markMessageRead({ conversationId }) as any);
   }, [conversationId]);
+
+  const prevLastMsgIdRef = React.useRef<number | string | null>(null);
+  React.useEffect(() => {
+    if (messages.length > 0) {
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg && lastMsg.id !== prevLastMsgIdRef.current) {
+        prevLastMsgIdRef.current = lastMsg.id;
+        setTimeout(() => {
+          scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 80);
+      }
+    }
+  }, [messages]);
 
   const [apiStages, setApiStages] = useState<LifecycleStage[]>([]);
   const [apiLabels, setApiLabels] = useState<ApiLabel[]>([]);
@@ -950,10 +1078,32 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
         conversationId,
         labels: newLabels,
       });
+      if (conversation) {
+        dispatch(updateConversation({ ...conversation, labels: newLabels }));
+      }
       showToast({ message: exists ? `Removed "${labelTitle}"` : `Added "${labelTitle}"` });
-      dispatch(conversationActions.fetchConversation(conversationId));
     } catch (e) {
       console.log('Error updating conversation labels:', e);
+    }
+  };
+
+  const handleCustomSnoozeSubmit = async () => {
+    const snoozedUntil = new Date(`${customSnoozeDateText}T${customSnoozeTimeText}:00`);
+    if (Number.isNaN(snoozedUntil.getTime()) || snoozedUntil.getTime() <= Date.now()) {
+      showToast({ message: isArabic ? 'اختر تاريخًا ووقتًا صحيحين في المستقبل' : 'Choose a valid future date and time' });
+      return;
+    }
+    try {
+      await dispatch(
+        conversationActions.toggleConversationStatus({
+          conversationId,
+          payload: { status: 'snoozed', snoozed_until: Math.floor(snoozedUntil.getTime() / 1000) },
+        }),
+      ).unwrap();
+      setCustomSnoozeOpen(false);
+      setSheet(null);
+    } catch {
+      showToast({ message: isArabic ? 'تعذر تأجيل المحادثة' : 'Failed to snooze conversation' });
     }
   };
 
@@ -969,7 +1119,6 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
         }),
       ).unwrap();
       showToast({ message: 'Assigned to you' });
-      dispatch(conversationActions.fetchConversation(conversationId));
     } catch (e) {
       console.log('Error assigning conversation to me:', e);
     }
@@ -986,7 +1135,6 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
         }),
       ).unwrap();
       showToast({ message: 'Conversation unassigned' });
-      dispatch(conversationActions.fetchConversation(conversationId));
     } catch (e) {
       console.log('Error unassigning conversation:', e);
     }
@@ -1003,11 +1151,35 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
         }),
       ).unwrap();
       showToast({ message: `Assigned to ${agentName}` });
-      dispatch(conversationActions.fetchConversation(conversationId));
     } catch (e) {
       console.log('Error assigning agent:', e);
     }
   };
+
+  const openCollaborators = async () => {
+    setCollaboratorSearch('');
+    setCollaboratorAgents(assignableAgents);
+    setSheet('collaborators');
+    try {
+      const result = await ConversationParticipantService.index({ conversationId });
+      setCollaboratorIds(result.participants.map(participant => participant.id));
+    } catch (e) {
+      console.log('Error loading collaborators:', e);
+    }
+  };
+
+  const handleSaveCollaborators = async () => {
+    try {
+      await ConversationParticipantService.update({ conversationId, userIds: collaboratorIds });
+      showToast({ message: 'Collaborators updated' });
+      setSheet(null);
+    } catch (e) {
+      console.log('Error updating collaborators:', e);
+      showToast({ message: 'Failed to update collaborators' });
+    }
+  };
+
+  const contactId = conversation?.meta?.sender?.id;
 
   React.useEffect(() => {
     profileService
@@ -1015,18 +1187,6 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
       .then(stages => {
         if (stages && Array.isArray(stages) && stages.length > 0) {
           setApiStages(stages);
-          // Sync current stage emoji with fetched stages
-          if (firstLabel) {
-            const fl = firstLabel.toLowerCase();
-            const match = stages.find(s => {
-              const sn = s.name.toLowerCase();
-              return sn === fl || sn.replace(/\s+/g, '_') === fl || sn.split(/\s+/)[0] === fl;
-            });
-            if (match) {
-              setStage(match.name);
-              setStageEmoji(match.icon || '🌱');
-            }
-          }
         }
       })
       .catch(() => {});
@@ -1049,6 +1209,38 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
       })
       .catch(() => {});
   }, []);
+
+  // Fetch and sync contact's actual lifecycle stage
+  React.useEffect(() => {
+    if (!contactId) return;
+    Promise.all([
+      contactService.getContact(contactId),
+      profileService.listLifecycleStages(),
+    ])
+      .then(([contact, stages]) => {
+        if (stages && Array.isArray(stages) && stages.length > 0) {
+          setApiStages(stages);
+        }
+        const rawStageId = (contact as any)?.lifecycle_stage_id ?? (contact as any)?.custom_attributes?.lifecycle_stage_id;
+        const rawStageName = (contact as any)?.custom_attributes?.lifecycle_stage;
+
+        if (stages && stages.length > 0) {
+          const match = stages.find(s =>
+            (rawStageId && String(s.id) === String(rawStageId)) ||
+            (rawStageName && (s.name.toLowerCase() === String(rawStageName).toLowerCase() || s.name.toLowerCase().replace(/\s+/g, '_') === String(rawStageName).toLowerCase()))
+          );
+          if (match) {
+            setStage(match.name);
+            setStageEmoji(match.icon || '🌱');
+            return;
+          }
+        }
+        if (rawStageName) {
+          setStage(String(rawStageName).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+        }
+      })
+      .catch(() => {});
+  }, [contactId]);
 
   React.useEffect(() => {
     if (conversation?.inboxId) {
@@ -1181,30 +1373,36 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
 
   const lifecycleStages =
     apiStages.length > 0
-      ? apiStages.map(s => ({ emoji: s.icon || '🌱', label: s.name }))
+      ? apiStages.map(s => ({ id: s.id, emoji: s.icon || '🌱', label: s.name }))
       : [
-          { emoji: '🆕', label: 'New Lead' },
-          { emoji: '🔥', label: 'Hot Lead' },
-          { emoji: '💵', label: 'Payment' },
-          { emoji: '😍', label: 'Customer' },
+          { id: 1, emoji: '🆕', label: 'New Lead' },
+          { id: 2, emoji: '🔥', label: 'Hot Lead' },
+          { id: 3, emoji: '💵', label: 'Payment' },
+          { id: 4, emoji: '😍', label: 'Customer' },
         ];
 
-  const lifecycleLabelKeys = new Set(
-    [...lifecycleStages.map(item => item.label), 'Cold Lead'].map(item => item.toLowerCase().replace(/\s+/g, '_')),
-  );
-
-  const updateLifecycleStage = async (selectedStage?: { emoji: string; label: string }) => {
-    const currentLabels = Array.isArray(conversation?.labels) ? conversation.labels : [];
-    const labelsWithoutStage = currentLabels.filter(label => {
-      const key = String(label).toLowerCase().replace(/\s+/g, '_');
-      return !lifecycleLabelKeys.has(key);
-    });
-    const nextLabels = selectedStage
-      ? [...labelsWithoutStage, selectedStage.label.toLowerCase().replace(/\s+/g, '_')]
-      : labelsWithoutStage;
-
+  const updateLifecycleStage = async (selectedStage?: { id?: number; emoji: string; label: string }) => {
     try {
-      await ConversationService.addOrUpdateConversationLabels({ conversationId, labels: nextLabels });
+      if (contactId) {
+        if (selectedStage) {
+          await contactService.updateContact(contactId, {
+            lifecycle_stage_id: selectedStage.id ?? null,
+            custom_attributes: {
+              lifecycle_stage: selectedStage.label,
+              ...(selectedStage.id ? { lifecycle_stage_id: selectedStage.id } : {}),
+            },
+          });
+        } else {
+          await contactService.updateContact(contactId, {
+            lifecycle_stage_id: null,
+            custom_attributes: {
+              lifecycle_stage: null,
+              lifecycle_stage_id: null,
+            },
+          });
+        }
+      }
+
       if (selectedStage) {
         setStage(selectedStage.label);
         setStageEmoji(selectedStage.emoji);
@@ -1212,22 +1410,52 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
         setStage('New Lead');
         setStageEmoji('🌱');
       }
-      dispatch(conversationActions.fetchConversation(conversationId));
-    } catch {
+
+      // Update Redux state locally so sender has the new lifecycle stage info
+      if (conversation) {
+        const currentSender = conversation.meta?.sender;
+        if (currentSender) {
+          const updatedSender = {
+            ...currentSender,
+            lifecycle_stage_id: selectedStage?.id ?? null,
+            lifecycleStage: selectedStage
+              ? { id: selectedStage.id, name: selectedStage.label, icon: selectedStage.emoji }
+              : null,
+            customAttributes: {
+              ...(currentSender.customAttributes || {}),
+              lifecycle_stage: selectedStage ? selectedStage.label : undefined,
+              lifecycle_stage_id: selectedStage?.id ?? undefined,
+            },
+          };
+          dispatch(
+            updateConversation({
+              ...conversation,
+              meta: {
+                ...conversation.meta,
+                sender: updatedSender,
+              },
+            }),
+          );
+        }
+      }
+      showToast({ message: selectedStage ? `Stage: ${selectedStage.label}` : 'Stage cleared' });
+    } catch (e) {
+      console.log('Error updating lifecycle stage:', e);
       showToast({ message: isArabic ? 'تعذر تحديث المرحلة' : 'Unable to update lifecycle stage' });
     } finally {
       setSheet(null);
     }
   };
 
+  const insets = useSafeAreaInsets();
   const { isDark } = useTheme();
   const bgColor = isDark ? '#0f172a' : '#ffffff';
   const textPrimary = isDark ? '#f8fafc' : '#111827';
   const textSecondary = isDark ? '#94a3b8' : '#374151';
   const borderColor = isDark ? '#1e293b' : '#f3f4f6';
-  const inputContainerBg = isDark ? '#1e293b' : '#fffbeb';
-  const inputBorderColor = isDark ? '#334155' : '#fcd34d';
-  const toolbarBorderColor = isDark ? '#334155' : '#fde68a';
+  const inputContainerBg = isDark ? '#1e293b' : '#ffffff';
+  const inputBorderColor = isDark ? '#334155' : '#e2e8f0';
+  const toolbarBorderColor = isDark ? '#334155' : '#f1f5f9';
 
   if (showContactDetails) {
     return <ContactDetailsScreen conversation={conversation as Conversation} onBack={() => setShowContactDetails(false)} />;
@@ -1235,31 +1463,44 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
 
 
   return (
-    <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: bgColor }}>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: bgColor }}>
       <StatusBar translucent backgroundColor={bgColor} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <KeyboardAvoidingView
+        key={keyboardAvoiderKey}
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}>
+        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}>
         {/* Header row 1 */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingTop: 16, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: borderColor }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <Pressable onPress={onBack} hitSlop={8}><ArrowLeft color={textPrimary} /></Pressable>
-            <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }} onPress={() => setShowContactDetails(true)}>
-              {conversation?.meta?.sender?.thumbnail ? (
-                <Image
-                  source={{ uri: conversation.meta.sender.thumbnail }}
-                  style={{ width: 36, height: 36, borderRadius: 999 }}
-                />
-              ) : (
-                <View style={{ width: 36, height: 36, borderRadius: 999, backgroundColor: '#d97706', alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ fontSize: 16, fontWeight: '700', color: '#fff' }}>
-                    {name.charAt(0).toUpperCase()}
-                  </Text>
-                </View>
-              )}
-              <Text style={{ fontWeight: '600', color: textPrimary, fontSize: 16 }}>{name}</Text>
-            </Pressable>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Pressable
+                onPress={() => {
+                  if (conversation?.meta?.sender?.thumbnail) {
+                    setFileViewer({ uri: conversation.meta.sender.thumbnail, name });
+                  } else {
+                    setShowContactDetails(true);
+                  }
+                }}
+                hitSlop={4}>
+                {conversation?.meta?.sender?.thumbnail ? (
+                  <Image
+                    source={{ uri: conversation.meta.sender.thumbnail }}
+                    style={{ width: 36, height: 36, borderRadius: 999 }}
+                  />
+                ) : (
+                  <View style={{ width: 36, height: 36, borderRadius: 999, backgroundColor: '#d97706', alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 16, fontWeight: '700', color: '#fff' }}>
+                      {name.charAt(0).toUpperCase()}
+                    </Text>
+                  </View>
+                )}
+              </Pressable>
+              <Pressable onPress={() => setShowContactDetails(true)} hitSlop={4}>
+                <Text style={{ fontWeight: '600', color: textPrimary, fontSize: 16 }}>{name}</Text>
+              </Pressable>
+            </View>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
             <Pressable hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 2, padding: 4 }}>
@@ -1275,11 +1516,17 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
               }}
               onPress={async () => {
                 const nextStatus = conversation?.status === 'resolved' ? 'open' : 'resolved';
-                await ConversationService.toggleConversationStatus({
-                  conversationId,
-                  payload: { status: nextStatus },
-                } as any);
-                dispatch(conversationActions.fetchConversation(conversationId));
+                try {
+                  await dispatch(
+                    conversationActions.toggleConversationStatus({
+                      conversationId,
+                      payload: { status: nextStatus },
+                    }),
+                  ).unwrap();
+                  showToast({ message: nextStatus === 'resolved' ? 'Conversation resolved' : 'Conversation reopened' });
+                } catch {
+                  showToast({ message: 'Failed to update status' });
+                }
               }}>
               <ResolveIcon color={conversation?.status === 'resolved' ? '#22c55e' : (isDark ? '#94a3b8' : '#6b7280')} />
             </Pressable>
@@ -1311,34 +1558,97 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
             <ChevronDown color={isDark ? '#94a3b8' : '#6b7280'} />
           </Pressable>
 
-          <Pressable hitSlop={8} style={{ marginLeft: 4, padding: 4 }} onPress={() => setSheet('snooze')}><SnoozeIcon color={isDark ? '#94a3b8' : '#6b7280'} /></Pressable>
+          <Pressable
+            hitSlop={8}
+            style={{
+              marginLeft: 4,
+              padding: 5,
+              borderRadius: 8,
+              backgroundColor: conversation?.status === 'snoozed'
+                ? (isDark ? '#1e3a8a' : '#dbeafe')
+                : 'transparent',
+              borderWidth: conversation?.status === 'snoozed' ? 1 : 0,
+              borderColor: conversation?.status === 'snoozed'
+                ? (isDark ? '#2563eb' : '#93c5fd')
+                : 'transparent',
+            }}
+            onPress={() => setSheet('snooze')}>
+            <SnoozeIcon color={conversation?.status === 'snoozed' ? '#2563eb' : (isDark ? '#94a3b8' : '#6b7280')} />
+          </Pressable>
         </View>
+
+        {conversation?.status === 'snoozed' && (
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingHorizontal: 14,
+              paddingVertical: 8,
+              backgroundColor: isDark ? '#172554' : '#eff6ff',
+              borderBottomWidth: 1,
+              borderBottomColor: isDark ? '#1e3a8a' : '#bfdbfe',
+            }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
+              <SnoozeIcon color="#2563eb" />
+              <Text style={{ fontSize: 12.5, color: isDark ? '#93c5fd' : '#1e40af', fontWeight: '600' }} numberOfLines={1}>
+                {isArabic
+                  ? (conversation?.snoozedUntil ? `مؤجلة حتى ${formatChatTime(conversation.snoozedUntil, isArabic)}` : 'مؤجلة حتى الرد القادم')
+                  : (conversation?.snoozedUntil ? `Snoozed until ${formatChatTime(conversation.snoozedUntil, isArabic)}` : 'Snoozed until next reply')}
+              </Text>
+            </View>
+            <Pressable
+              hitSlop={8}
+              onPress={async () => {
+                hapticTrigger?.();
+                try {
+                  await dispatch(
+                    conversationActions.toggleConversationStatus({
+                      conversationId,
+                      payload: { status: 'open' },
+                    }),
+                  ).unwrap();
+                  showToast({ message: isArabic ? 'تم إلغاء التأجيل وفتح المحادثة' : 'Conversation reopened' });
+                } catch (e) {
+                  showToast({ message: isArabic ? 'تعذر فتح المحادثة' : 'Failed to reopen' });
+                }
+              }}
+              style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, backgroundColor: '#2563eb' }}>
+              <Text style={{ color: '#ffffff', fontSize: 12, fontWeight: '700' }}>
+                {isArabic ? 'إلغاء التأجيل' : 'Reopen'}
+              </Text>
+            </Pressable>
+          </View>
+        )}
 
         {/* Chat area */}
         <ScrollView
           ref={scrollViewRef}
           style={{ flex: 1, paddingHorizontal: 16 }}
           contentContainerStyle={{ paddingTop: 16, paddingBottom: 24 }}
-          refreshControl={
-            <RefreshControl
-              refreshing={loadingOlder}
-              onRefresh={loadPreviousMessages}
-              tintColor={isDark ? '#60a5fa' : '#2563eb'}
-              colors={[isDark ? '#60a5fa' : '#2563eb']}
-            />
-          }
           onScroll={({ nativeEvent }) => {
             currentScrollYRef.current = nativeEvent.contentOffset.y;
-            if (nativeEvent.contentOffset.y <= 25 && !loadingOlder && !isAllMessagesFetched) {
+            if (
+              initialScrolledRef.current &&
+              isInitialLoadDone &&
+              nativeEvent.contentOffset.y <= 30 &&
+              !loadingOlder &&
+              !isAllMessagesFetched
+            ) {
               loadPreviousMessages();
             }
           }}
           scrollEventThrottle={100}
           onContentSizeChange={(_w, newHeight) => {
             if (!initialScrolledRef.current && messages.length > 0) {
-              initialScrolledRef.current = true;
+              if (isInitialLoadDone) {
+                initialScrolledRef.current = true;
+              }
               prevScrollHeightRef.current = newHeight;
               scrollViewRef.current?.scrollToEnd({ animated: false });
+              requestAnimationFrame(() => {
+                scrollViewRef.current?.scrollToEnd({ animated: false });
+              });
               return;
             }
 
@@ -1371,33 +1681,40 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
             </View>
           )}
 
-          {/* Top Conversation Header */}
-          <View style={{ alignItems: 'center', marginTop: 8, marginBottom: 16, paddingHorizontal: 20 }}>
-            <View
-              style={{
-                width: 52,
-                height: 52,
-                borderRadius: 999,
-                backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: 8,
-                borderWidth: 1.5,
-                borderColor: isDark ? '#334155' : '#e2e8f0',
-              }}>
-              {conversation?.meta?.sender?.thumbnail ? (
-                <Image source={{ uri: conversation.meta.sender.thumbnail }} style={{ width: 48, height: 48, borderRadius: 999 }} />
-              ) : (
-                <Text style={{ fontSize: 20, fontWeight: '700', color: isDark ? '#60a5fa' : '#2563eb' }}>
-                  {name.charAt(0).toUpperCase()}
-                </Text>
-              )}
+          {/* Top Conversation Header - ONLY shown when all older messages are fetched (start of conversation) */}
+          {isAllMessagesFetched && (
+            <View style={{ alignItems: 'center', marginTop: 8, marginBottom: 16, paddingHorizontal: 20 }}>
+              <Pressable
+                onPress={() => {
+                  if (conversation?.meta?.sender?.thumbnail) {
+                    setFileViewer({ uri: conversation.meta.sender.thumbnail, name });
+                  }
+                }}
+                style={{
+                  width: 52,
+                  height: 52,
+                  borderRadius: 999,
+                  backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 8,
+                  borderWidth: 1.5,
+                  borderColor: isDark ? '#334155' : '#e2e8f0',
+                }}>
+                {conversation?.meta?.sender?.thumbnail ? (
+                  <Image source={{ uri: conversation.meta.sender.thumbnail }} style={{ width: 48, height: 48, borderRadius: 999 }} />
+                ) : (
+                  <Text style={{ fontSize: 20, fontWeight: '700', color: isDark ? '#60a5fa' : '#2563eb' }}>
+                    {name.charAt(0).toUpperCase()}
+                  </Text>
+                )}
+              </Pressable>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: textPrimary, marginBottom: 2 }}>{name}</Text>
+              <Text style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#64748b', textAlign: 'center' }}>
+                Conversation with <Text style={{ fontWeight: '600', color: textPrimary }}>{name}</Text>
+              </Text>
             </View>
-            <Text style={{ fontSize: 15, fontWeight: '700', color: textPrimary, marginBottom: 2 }}>{name}</Text>
-            <Text style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#64748b', textAlign: 'center' }}>
-              Conversation with <Text style={{ fontWeight: '600', color: textPrimary }}>{name}</Text>
-            </Text>
-          </View>
+          )}
 
           {messages.length === 0 ? (
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 32 }}>
@@ -1520,7 +1837,13 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                       marginTop: 8,
                     }}>
                     {!isOutgoing && (
-                      <View
+                      <Pressable
+                        onPress={() => {
+                          const uri = (m as any).sender?.thumbnail || (m as any).sender?.avatar_url || conversation?.meta?.sender?.thumbnail;
+                          if (uri) {
+                            setFileViewer({ uri, name: (m as any).sender?.name || name });
+                          }
+                        }}
                         style={{
                           width: 28,
                           height: 28,
@@ -1540,7 +1863,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                             {name.charAt(0).toUpperCase()}
                           </Text>
                         )}
-                      </View>
+                      </Pressable>
                     )}
                     <Pressable
                       onLongPress={() => setQuotedMessage(m)}
@@ -1655,10 +1978,11 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
           borderTopWidth: 1,
           borderTopColor: isPrivate
             ? (isDark ? '#92400e' : '#fde68a')
-            : (isDark ? '#1e293b' : '#e5e7eb'),
+            : (isDark ? '#1e293b' : '#e2e8f0'),
           backgroundColor: isPrivate
             ? (isDark ? '#1c1400' : '#fffdf0')
             : inputContainerBg,
+          paddingBottom: Math.max(insets.bottom, 8),
         }}>
           {!isPrivate && conversation?.canReply === false ? (
             <View style={{ marginHorizontal: 16, marginTop: 8, borderRadius: 8, backgroundColor: isDark ? '#451a03' : '#fff7ed', paddingHorizontal: 10, paddingVertical: 8 }}>
@@ -1785,12 +2109,12 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
             alignItems: 'center',
             gap: 12,
             paddingHorizontal: 16,
-            paddingBottom: 12,
+            paddingBottom: 4,
             paddingTop: 4,
             borderTopWidth: 1,
             borderTopColor: isPrivate
               ? (isDark ? '#451a03' : '#fef3c7')
-              : toolbarBorderColor,
+              : (isDark ? '#334155' : '#f1f5f9'),
           }}>
             {/* Toggle icon — switches between message & note */}
             <Pressable
@@ -1811,7 +2135,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                 : <ChatBlue color="#3b82f6" />
               }
             </Pressable>
-            <View style={{ width: 1, height: 20, backgroundColor: isPrivate ? (isDark ? '#451a03' : '#fde68a') : toolbarBorderColor }} />
+            <View style={{ width: 1, height: 20, backgroundColor: isPrivate ? (isDark ? '#451a03' : '#fde68a') : (isDark ? '#334155' : '#e2e8f0') }} />
             <Pressable hitSlop={8} style={{ width: 24, height: 24 }} onPress={() => setSheet('attachment')}>
               <AttachmentIcon stroke={isPrivate ? (isDark ? '#a16207' : '#d97706') : '#2563eb'} />
             </Pressable>
@@ -1825,18 +2149,22 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
         </View>
       </KeyboardAvoidingView>
 
-      <Modal visible={Boolean(fileViewer)} animationType="slide" onRequestClose={() => setFileViewer(null)}>
-        <SafeAreaView style={{ flex: 1, backgroundColor: bgColor }}>
-          <View style={{ height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: borderColor }}>
-            <Pressable onPress={() => setFileViewer(null)} hitSlop={8}>
-              <Text style={{ color: '#0d9488', fontSize: 16, fontWeight: '700' }}>Close</Text>
+      <Modal visible={Boolean(fileViewer)} transparent animationType="fade" onRequestClose={() => setFileViewer(null)}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.95)' }}>
+          <View style={{ height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 }}>
+            <Pressable onPress={() => setFileViewer(null)} hitSlop={12} style={{ padding: 8, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.15)' }}>
+              <XIcon color="#ffffff" />
             </Pressable>
-            <Text style={{ flex: 1, marginHorizontal: 16, color: textPrimary, fontSize: 15, fontWeight: '600' }} numberOfLines={1}>{fileViewer?.name}</Text>
-            <View style={{ width: 42 }} />
+            <Text style={{ flex: 1, marginHorizontal: 16, color: '#ffffff', fontSize: 16, fontWeight: '600', textAlign: 'center' }} numberOfLines={1}>
+              {fileViewer?.name}
+            </Text>
+            <View style={{ width: 40 }} />
           </View>
           {fileViewer ? (
-            /\.(png|jpe?g|gif|webp|heic)(?:\?|$)/i.test(fileViewer.uri) ? (
-              <Image source={{ uri: fileViewer.uri }} style={{ flex: 1 }} resizeMode="contain" />
+            fileViewer.uri.startsWith('http') || fileViewer.uri.startsWith('file') || fileViewer.uri.startsWith('content') || fileViewer.uri.startsWith('data:') ? (
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 12 }}>
+                <Image source={{ uri: fileViewer.uri }} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
+              </View>
             ) : (
               <WebView source={{ uri: fileViewer.uri }} style={{ flex: 1 }} startInLoadingState />
             )
@@ -1846,24 +2174,27 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
 
       {/* ===== Modals ===== */}
       {sheet === 'menu' && (
-        <BottomSheet onClose={() => setSheet(null)}>
+        <BottomSheet onClose={() => { setCustomSnoozeOpen(false); setSheet(null); }} bottomOffset={customSnoozeOpen ? chatKeyboardHeight : 0}>
           {[
-            { icon: <SearchIcon color={textPrimary} />, label: isArabic ? 'بحث في المحادثة' : 'Search in chat', onPress: () => setSheet('search') },
             {
-              icon: (
-                <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                  <Path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" stroke={textPrimary} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                  <Line x1={7} y1={7} x2={7.01} y2={7} stroke={textPrimary} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                </Svg>
-              ),
-              label: 'Conversation Labels',
-              onPress: () => setSheet('labels'),
+              icon: <ResolveIcon color={textPrimary} />,
+              label: isArabic ? 'إغلاق المحادثة' : 'Close Conversation',
+              onPress: async () => {
+                setSheet(null);
+                await dispatch(conversationActions.toggleConversationStatus({
+                  conversationId,
+                  payload: { status: 'resolved' },
+                }));
+              },
             },
-            { icon: <WorkflowIcon color={textPrimary} />, label: 'Ongoing Workflow', onPress: () => setSheet('workflow') },
-            { icon: <ShortcutIcon color={textPrimary} />, label: 'Select Shortcut', onPress: () => setSheet('shortcut') },
-            { icon: <BlockSlash color={textPrimary} />, label: 'Block Contact', onPress: () => setSheet(null) },
+            { icon: <LifecycleIcon color={textPrimary} />, label: isArabic ? 'اختيار مرحلة العميل' : 'Select Lifecycle Stage', onPress: () => setSheet('stage') },
+            { icon: <UserCircleIcon color={textPrimary} />, label: isArabic ? 'تعيين مستخدم' : 'Assign User', onPress: () => setSheet('assign') },
+            { icon: <TeamIcon color={textPrimary} />, label: isArabic ? 'المتعاونون' : 'Collaborators', onPress: openCollaborators },
+            { icon: <ShortcutIcon color={textPrimary} />, label: isArabic ? 'اختيار اختصار' : 'Select Shortcut', onPress: () => setSheet('shortcut') },
+            { icon: <SnoozeIcon color={textPrimary} />, label: isArabic ? 'تأجيل المحادثة' : 'Snooze Conversation', onPress: () => setSheet('snooze') },
+            { icon: <UserCircleIcon color={textPrimary} />, label: isArabic ? 'عرض تفاصيل العميل' : 'View Contact Details', onPress: () => { setSheet(null); setShowContactDetails(true); } },
           ].map((item, i) => (
-            <Pressable key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 16, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: i === 4 ? 0 : 1, borderBottomColor: borderColor }} onPress={item.onPress}>
+            <Pressable key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 16, paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: i === 6 ? 0 : 1, borderBottomColor: borderColor }} onPress={item.onPress}>
               <View>{item.icon}</View>
               <Text style={{ fontSize: 16, fontWeight: '500', color: textPrimary }}>{item.label}</Text>
             </Pressable>
@@ -2029,27 +2360,235 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
       )}
 
       {sheet === 'snooze' && (
-        <View style={{ position: 'absolute', inset: 0, zIndex: 50, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 }} onStartShouldSetResponder={() => true} onResponderRelease={() => setSheet(null)}>
-          <View style={{ backgroundColor: isDark ? '#1e293b' : 'white', borderRadius: 16, padding: 24, width: '100%', borderWidth: 1, borderColor: borderColor }} onStartShouldSetResponder={() => true}>
-            <Text style={{ fontSize: 20, fontWeight: 'bold', color: textPrimary, textAlign: 'center', marginBottom: 8 }}>Snooze Conversation</Text>
-            <Text style={{ fontSize: 14, fontWeight: '600', color: textSecondary, textAlign: 'center', marginBottom: 12 }}>
-              This action will snooze conversation with contact <Text style={{ fontWeight: 'bold', color: textPrimary }}>{name}.</Text>
+        <BottomSheet onClose={() => setSheet(null)}>
+          <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <SnoozeIcon color="#2563eb" />
+                <Text style={{ fontSize: 18, fontWeight: '700', color: textPrimary }}>
+                  {isArabic ? 'تأجيل المحادثة' : 'Snooze Conversation'}
+                </Text>
+              </View>
+              <Pressable onPress={() => setSheet(null)} hitSlop={8}>
+                <XIcon color={textPrimary} />
+              </Pressable>
+            </View>
+            <Text style={{ fontSize: 13, color: textSecondary, marginBottom: 16 }}>
+              {isArabic
+                ? `سيتم إخفاء المحادثة مع ${name} مؤقتاً حتى الوقت المحدد أو حتى يرسل العميل رداً جديداً.`
+                : `Temporarily snooze conversation with ${name} until selected time or until next customer reply.`}
             </Text>
-            <Text style={{ fontSize: 16, fontWeight: 'bold', color: textPrimary, textAlign: 'center', marginBottom: 16 }}>Snooze until:</Text>
-            <View style={{ gap: 12 }}>
-              {['PICK DATE & TIME', '30 MINUTES SAT, 03:32 PM', '1 HOURS SAT, 04:02 PM', '3 HOURS SAT, 06:02 PM', 'LATER TODAY SAT, 06:00 PM', 'LATER THIS WEEK MON, 08:00 AM', 'THIS WEEKEND SAT, 08:00 AM', 'NEXT WEEK SAT, 08:00 AM', 'CANCEL'].map((opt, i) => (
-                <Pressable key={i} onPress={async () => {
-                  if (opt !== 'CANCEL') {
-                    await ConversationService.toggleConversationStatus({ conversationId, payload: { status: 'snoozed' } } as any);
-                  }
-                  setSheet(null);
-                }}>
-                  <Text style={{ color: '#0d9488', fontWeight: '600', textAlign: 'center', fontSize: 14 }}>{opt}</Text>
+
+            <View style={{ gap: 8, paddingBottom: 24 }}>
+              {conversation?.status === 'snoozed' && (
+                <Pressable
+                  onPress={async () => {
+                    hapticTrigger?.();
+                    setSheet(null);
+                    try {
+                      await dispatch(
+                        conversationActions.toggleConversationStatus({
+                          conversationId,
+                          payload: { status: 'open' },
+                        }),
+                      ).unwrap();
+                      showToast({
+                        message: isArabic ? 'تم إلغاء التأجيل وفتح المحادثة' : 'Conversation reopened',
+                      });
+                    } catch (e) {
+                      showToast({ message: isArabic ? 'تعذر فتح المحادثة' : 'Failed to reopen' });
+                    }
+                  }}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 12,
+                    paddingHorizontal: 14,
+                    paddingVertical: 12,
+                    borderRadius: 12,
+                    backgroundColor: isDark ? '#064e3b' : '#ecfdf5',
+                    borderWidth: 1.5,
+                    borderColor: '#10b981',
+                    marginBottom: 4,
+                  }}>
+                  <Text style={{ fontSize: 20 }}>✨</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 14, fontWeight: '700', color: isDark ? '#6ee7b7' : '#047857', marginBottom: 2 }}>
+                      {isArabic ? 'إلغاء التأجيل وفتح المحادثة' : 'Reopen Conversation (Un-snooze)'}
+                    </Text>
+                    <Text style={{ fontSize: 12, color: isDark ? '#a7f3d0' : '#065f46' }}>
+                      {isArabic ? 'إعادة المحادثة فوراً إلى صندوق المحادثات المفتوحة' : 'Move conversation back to open inbox immediately'}
+                    </Text>
+                  </View>
+                </Pressable>
+              )}
+              {[
+                {
+                  id: 'next_reply',
+                  label: isArabic ? 'حتى الرد التالي' : 'Until Next Reply',
+                  desc: isArabic ? 'يتم إلغاء التأجيل بمجرد وصول رسالة من العميل' : 'Snooze until the customer responds',
+                  icon: '💬',
+                  snoozedUntil: null,
+                },
+                {
+                  id: 'tomorrow',
+                  label: isArabic ? 'غداً صباحاً (9:00 ص)' : 'Tomorrow Morning (9:00 AM)',
+                  desc: isArabic ? 'تأجيل حتى صباح الغد' : 'Snooze until 9:00 AM tomorrow',
+                  icon: '☀️',
+                  getTimestamp: () => {
+                    const d = new Date();
+                    d.setDate(d.getDate() + 1);
+                    d.setHours(9, 0, 0, 0);
+                    return Math.floor(d.getTime() / 1000);
+                  },
+                },
+                {
+                  id: '2_hours',
+                  label: isArabic ? 'بعد ساعتين' : 'In 2 Hours',
+                  desc: isArabic ? 'تأجيل لمدة ساعتين' : 'Snooze for 2 hours',
+                  icon: '⏱️',
+                  getTimestamp: () => Math.floor((Date.now() + 2 * 3600 * 1000) / 1000),
+                },
+                {
+                  id: 'next_week',
+                  label: isArabic ? 'الأسبوع القادم (الإثنين 9:00 ص)' : 'Next Week (Monday 9:00 AM)',
+                  desc: isArabic ? 'تأجيل حتى بداية الأسبوع القادم' : 'Snooze until next Monday',
+                  icon: '📅',
+                  getTimestamp: () => {
+                    const d = new Date();
+                    d.setDate(d.getDate() + ((1 + 7 - d.getDay()) % 7 || 7));
+                    d.setHours(9, 0, 0, 0);
+                    return Math.floor(d.getTime() / 1000);
+                  },
+                },
+              ].map(opt => (
+                <Pressable
+                  key={opt.id}
+                  onPress={async () => {
+                    hapticTrigger?.();
+                    setSheet(null);
+                    const snoozedUntil = 'getTimestamp' in opt && opt.getTimestamp ? opt.getTimestamp() : null;
+                    try {
+                      await dispatch(
+                        conversationActions.toggleConversationStatus({
+                          conversationId,
+                          payload: {
+                            status: 'snoozed',
+                            snoozed_until: snoozedUntil,
+                          },
+                        }),
+                      ).unwrap();
+                      showToast({
+                        message: isArabic ? `تم تأجيل المحادثة: ${opt.label}` : `Conversation snoozed: ${opt.label}`,
+                      });
+                    } catch (e) {
+                      showToast({ message: isArabic ? 'تعذر تأجيل المحادثة' : 'Failed to snooze conversation' });
+                    }
+                  }}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 12,
+                    paddingHorizontal: 14,
+                    paddingVertical: 12,
+                    borderRadius: 12,
+                    backgroundColor: isDark ? '#1e293b' : '#f8fafc',
+                    borderWidth: 1,
+                    borderColor: borderColor,
+                  }}>
+                  <Text style={{ fontSize: 20 }}>{opt.icon}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 14, fontWeight: '600', color: textPrimary, marginBottom: 2 }}>
+                      {opt.label}
+                    </Text>
+                    <Text style={{ fontSize: 12, color: textSecondary }}>
+                      {opt.desc}
+                    </Text>
+                  </View>
                 </Pressable>
               ))}
+              <Pressable
+                onPress={() => {
+                  const initialDate = new Date(Date.now() + 60 * 60 * 1000);
+                  setCustomSnoozeDateText(initialDate.toISOString().slice(0, 10));
+                  setCustomSnoozeTimeText(initialDate.toTimeString().slice(0, 5));
+                  setCustomSnoozeOpen(true);
+                }}
+                style={{ paddingHorizontal: 14, paddingVertical: 12, borderRadius: 12, backgroundColor: isDark ? '#134e4a' : '#ecfdf5', borderWidth: 1, borderColor: '#14b8a6' }}>
+                <Text style={{ color: '#0d9488', fontSize: 14, fontWeight: '700', textAlign: 'center' }}>{isArabic ? 'اختيار تاريخ ووقت' : 'Pick Date & Time'}</Text>
+              </Pressable>
+              {customSnoozeOpen && (
+                <View style={{ gap: 8, marginTop: 8 }}>
+                  <TextInput
+                    value={customSnoozeDateText}
+                    onChangeText={setCustomSnoozeDateText}
+                    placeholder="YYYY-MM-DD"
+                    placeholderTextColor={isDark ? '#94a3b8' : '#9ca3af'}
+                    keyboardType="numbers-and-punctuation"
+                    style={{ color: textPrimary, backgroundColor: isDark ? '#334155' : '#f3f4f6', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, textAlign: 'center' }}
+                  />
+                  <TextInput
+                    value={customSnoozeTimeText}
+                    onChangeText={setCustomSnoozeTimeText}
+                    placeholder="HH:MM"
+                    placeholderTextColor={isDark ? '#94a3b8' : '#9ca3af'}
+                    keyboardType="numbers-and-punctuation"
+                    style={{ color: textPrimary, backgroundColor: isDark ? '#334155' : '#f3f4f6', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, textAlign: 'center' }}
+                  />
+                  <Pressable onPress={handleCustomSnoozeSubmit} style={{ paddingVertical: 11, borderRadius: 8, backgroundColor: '#14b8a6' }}>
+                    <Text style={{ color: '#ffffff', fontSize: 14, fontWeight: '700', textAlign: 'center' }}>{isArabic ? 'تأكيد التأجيل' : 'Confirm Snooze'}</Text>
+                  </Pressable>
+                </View>
+              )}
             </View>
           </View>
-        </View>
+        </BottomSheet>
+      )}
+
+      {sheet === 'collaborators' && (
+        <BottomSheet onClose={() => setSheet(null)}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
+            <Pressable onPress={() => setSheet(null)}><XIcon color={textPrimary} /></Pressable>
+            <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>Collaborators</Text>
+            <Pressable onPress={handleSaveCollaborators}><Text style={{ color: '#3b82f6', fontWeight: '600', fontSize: 14 }}>Done</Text></Pressable>
+          </View>
+          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#334155' : '#f3f4f6', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
+            <SearchIcon color={isDark ? '#94a3b8' : '#6b7280'} />
+            <TextInput
+              value={collaboratorSearch}
+              onChangeText={setCollaboratorSearch}
+              placeholder="Search collaborators..."
+              placeholderTextColor={isDark ? '#94a3b8' : '#9ca3af'}
+              style={{ flex: 1, color: textPrimary, fontSize: 14, paddingVertical: 6 }}
+            />
+          </View>
+          <ScrollView style={{ maxHeight: 280 }}>
+            {collaboratorAgents
+              .filter(agent => !collaboratorSearch.trim() || (agent.name || agent.available_name || '').toLowerCase().includes(collaboratorSearch.toLowerCase()))
+              .map(agent => {
+                const isSelected = collaboratorIds.includes(agent.id);
+                return (
+                  <Pressable
+                    key={agent.id}
+                    onPress={() => setCollaboratorIds(ids => isSelected ? ids.filter(id => id !== agent.id) : [...ids, agent.id])}
+                    style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: borderColor }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                      {agent.thumbnail ? (
+                        <Image source={{ uri: agent.thumbnail }} style={{ width: 32, height: 32, borderRadius: 999 }} />
+                      ) : (
+                        <View style={{ width: 32, height: 32, borderRadius: 999, backgroundColor: '#14b8a6', alignItems: 'center', justifyContent: 'center' }}>
+                          <Text style={{ color: '#ffffff', fontWeight: '700' }}>{(agent.name || agent.available_name || 'A').charAt(0).toUpperCase()}</Text>
+                        </View>
+                      )}
+                      <Text style={{ color: textPrimary, fontWeight: '500', fontSize: 14 }}>{agent.name || agent.available_name}</Text>
+                    </View>
+                    {isSelected && <Text style={{ color: '#3b82f6', fontSize: 20, fontWeight: '700' }}>✓</Text>}
+                  </Pressable>
+                );
+              })}
+          </ScrollView>
+          <View style={{ height: 8 }} />
+        </BottomSheet>
       )}
 
       {sheet === 'shortcut' && (
@@ -2319,9 +2858,36 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
         email: email.trim() || undefined,
         phone_number: phone.trim() || undefined,
         lifecycle_stage_id: lifecycleStageId,
+        custom_attributes: {
+          lifecycle_stage: stageName,
+          lifecycle_stage_id: lifecycleStageId,
+        },
       });
+      if (conversation) {
+        const currentSender = conversation.meta?.sender;
+        const updatedSender = {
+          ...currentSender,
+          name: fullName || currentSender?.name,
+          email: email.trim() || currentSender?.email,
+          phoneNumber: phone.trim() || currentSender?.phoneNumber,
+          lifecycle_stage_id: lifecycleStageId,
+          customAttributes: {
+            ...(currentSender?.customAttributes || {}),
+            lifecycle_stage: stageName,
+            lifecycle_stage_id: lifecycleStageId,
+          },
+        };
+        dispatch(
+          updateConversation({
+            ...conversation,
+            meta: {
+              ...conversation.meta,
+              sender: updatedSender,
+            },
+          }),
+        );
+      }
       showToast({ message: 'Contact updated successfully' });
-      dispatch(conversationActions.fetchConversation(conversation.id));
       onBack();
     } catch (e) {
       showToast({ message: 'Failed to save contact' });
@@ -2333,12 +2899,13 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
   // Assignee actions
   const handleSelectAssignee = async (agent: ApiAgent) => {
     try {
-      await ConversationService.assignConversation({
-        conversationId: conversation.id,
-        assigneeId: agent.id,
-      });
+      await dispatch(
+        conversationActions.assignConversation({
+          conversationId: conversation.id,
+          assigneeId: agent.id,
+        }),
+      ).unwrap();
       setSelectedAssignee({ id: agent.id, name: agent.name || agent.available_name, thumbnail: agent.thumbnail });
-      dispatch(conversationActions.fetchConversation(conversation.id));
       showToast({ message: `Assigned to ${agent.name || agent.available_name}` });
     } catch {
       showToast({ message: 'Failed to assign agent' });
@@ -2349,12 +2916,13 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
 
   const handleUnassign = async () => {
     try {
-      await ConversationService.assignConversation({
-        conversationId: conversation.id,
-        assigneeId: 0,
-      });
+      await dispatch(
+        conversationActions.assignConversation({
+          conversationId: conversation.id,
+          assigneeId: 0,
+        }),
+      ).unwrap();
       setSelectedAssignee(null);
-      dispatch(conversationActions.fetchConversation(conversation.id));
       showToast({ message: 'Conversation unassigned' });
     } catch {
       showToast({ message: 'Failed to unassign' });
@@ -2384,7 +2952,9 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
         conversationId: conversation.id,
         labels: nextLabels,
       });
-      dispatch(conversationActions.fetchConversation(conversation.id));
+      if (conversation) {
+        dispatch(updateConversation({ ...conversation, labels: nextLabels }));
+      }
     } catch {
       showToast({ message: 'Failed to update labels' });
     }
@@ -2821,12 +3391,31 @@ const InboxScreenDesign = () => {
   const [showSort, setShowSort] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [actionConversation, setActionConversation] = useState<Conversation | null>(null);
+  const [snoozeConversation, setSnoozeConversation] = useState<Conversation | null>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [customPickerMode, setCustomPickerMode] = useState(false);
+  const [customDateText, setCustomDateText] = useState('');
+  const [customTimeText, setCustomTimeText] = useState('');
 
   const [page, setPage] = useState(1);
   const pageRef = React.useRef(1);
   const hasMoreRef = React.useRef(true);
   const isFetchingMoreRef = React.useRef(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  React.useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', event => {
+      setKeyboardHeight(event.endCoordinates.height);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardHeight(0);
+    });
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   const [apiLifecycleStages, setApiLifecycleStages] = useState<LifecycleStage[]>([]);
   const [apiLabels, setApiLabels] = useState<ApiLabel[]>([]);
@@ -2851,6 +3440,7 @@ const InboxScreenDesign = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [serverSearchResults, setServerSearchResults] = useState<Conversation[]>([]);
   const [isSearchingServer, setIsSearchingServer] = useState(false);
+  const openedRowIndex = useSharedValue<number | null>(null);
 
   const fetchConversationsFromApi = React.useCallback(
     async (pageNumber = 1) => {
@@ -2864,16 +3454,6 @@ const InboxScreenDesign = () => {
       }
 
       const apiStatus = tab === 'all' ? 'all' : tab === 'closed' ? 'resolved' : tab;
-
-      if (pageNumber === 1) {
-        dispatch(
-          conversationActions.fetchConversationsMeta({
-            status: apiStatus,
-            assigneeType,
-            inboxId: targetInboxId,
-          } as any),
-        );
-      }
 
       const result = await dispatch(
         conversationActions.fetchConversations({
@@ -2985,6 +3565,16 @@ const InboxScreenDesign = () => {
         const targetLabel = activeItem.replace('label_', '').toLowerCase();
         return Array.isArray(item.labels) && item.labels.some((l: any) => typeof l === 'string' && l.toLowerCase() === targetLabel);
       }
+      if (activeItem.startsWith('stage_')) {
+        const stageId = activeItem.replace('stage_', '');
+        const selectedStage = apiLifecycleStages.find(stage => String(stage.id) === stageId);
+        const senderStage = (item.meta?.sender as any)?.lifecycleStage ?? (item.meta?.sender as any)?.lifecycle_stage;
+        const senderStageId = senderStage?.id ?? (item.meta?.sender as any)?.lifecycleStageId ?? (item.meta?.sender as any)?.lifecycle_stage_id;
+        return (
+          String(senderStageId ?? '') === stageId ||
+          Boolean(selectedStage && senderStage?.name?.toLowerCase() === selectedStage.name.toLowerCase())
+        );
+      }
       return true;
     });
 
@@ -2993,7 +3583,7 @@ const InboxScreenDesign = () => {
       const bTime = Number(getConversationTimestamp(b)) || 0;
       return sortBy === 'oldest' ? aTime - bTime : bTime - aTime;
     });
-  }, [allConversations, tab, activeItem, userId, sortBy]);
+  }, [allConversations, tab, activeItem, userId, sortBy, apiLifecycleStages]);
 
   const filteredConversations = useMemo(() => {
     if (!searchQuery.trim()) return conversations.slice();
@@ -3018,7 +3608,36 @@ const InboxScreenDesign = () => {
   const borderColor = isDark ? '#1e293b' : '#f3f4f6';
   const inputBg = isDark ? '#1e293b' : '#f3f4f6';
 
-  const renderConversationItem = ({ item }: { item: Conversation }) => {
+  const openConversationAction = (action: string) => {
+    if (!actionConversation) return;
+    const conversationId = actionConversation.id;
+    setActionConversation(null);
+    (navigation as any).navigate('ChatScreen', action === 'contact'
+      ? { conversationId, openContact: true }
+      : { conversationId, openSheet: action });
+  };
+
+  const handleCustomSnoozeSubmit = async () => {
+    if (!snoozeConversation) return;
+    const next = new Date(`${customDateText}T${customTimeText}:00`);
+    if (Number.isNaN(next.getTime()) || next.getTime() <= Date.now()) {
+      showToast({ message: isArabic ? 'اختر تاريخًا ووقتًا صحيحين في المستقبل' : 'Choose a valid future date and time' });
+      return;
+    }
+    try {
+      await dispatch(conversationActions.toggleConversationStatus({
+        conversationId: snoozeConversation.id,
+        payload: { status: 'snoozed', snoozed_until: Math.floor(next.getTime() / 1000) },
+      })).unwrap();
+      setSnoozeConversation(null);
+    } catch {
+      showToast({ message: isArabic ? 'تعذر تأجيل المحادثة' : 'Failed to snooze conversation' });
+    } finally {
+      setCustomPickerMode(false);
+    }
+  };
+
+  const renderConversationItem = ({ item, index }: { item: Conversation; index: number }) => {
     const cname = getContactName(item.meta?.sender);
     const clastMsg = item.lastNonActivityMessage?.content || (item.messages && item.messages.length > 0 ? item.messages[item.messages.length - 1]?.content : null) || (isArabic ? 'لا يوجد محتوى' : 'No message content');
     const cassignee = item.meta?.assignee;
@@ -3026,10 +3645,21 @@ const InboxScreenDesign = () => {
     const ctime = formatChatTime(getConversationTimestamp(item), isArabic);
     const isTyping = Boolean(typingRecords && typingRecords[item.id] && typingRecords[item.id].length > 0);
     const inbox = inboxesMap[item.inboxId] || inboxesMap[(item as any).inbox_id];
-    const channelIcon = getChannelIcon(inbox?.channelType || item.meta?.channel || '', inbox?.medium || '', '');
+    const senderData = item.meta?.sender as any;
+    const isWhatsAppConversation = Object.keys({
+      ...(senderData?.customAttributes || {}),
+      ...(senderData?.custom_attributes || {}),
+    }).some(key => key.toLowerCase().includes('whatsapp'));
+    const channelIcon = getChannelIcon(
+      inbox?.channelType || item.meta?.channel || '',
+      inbox?.medium || (isWhatsAppConversation ? 'whatsapp' : ''),
+      '',
+    );
 
     // 1. Lifecycle Stage
+    const lifecycleStageFromApi = senderData?.lifecycleStage ?? senderData?.lifecycle_stage;
     const caStage =
+      (lifecycleStageFromApi?.name ?? lifecycleStageFromApi?.id) ||
       item.customAttributes?.lifecycle_stage ||
       item.customAttributes?.stage ||
       (item as any).custom_attributes?.lifecycle_stage ||
@@ -3041,7 +3671,10 @@ const InboxScreenDesign = () => {
     let stageName = 'New Lead';
     let stageEmoji = '🌱';
 
-    if (caStage) {
+    if (lifecycleStageFromApi?.name) {
+      stageName = lifecycleStageFromApi.name;
+      stageEmoji = lifecycleStageFromApi.icon || '🌱';
+    } else if (caStage) {
       const sLower = String(caStage).toLowerCase().trim();
       const match = apiLifecycleStages.find(
         s => s.name.toLowerCase() === sLower || String(s.id) === sLower || s.name.toLowerCase().replace(/\s+/g, '_') === sLower
@@ -3060,7 +3693,55 @@ const InboxScreenDesign = () => {
     // 2. Labels
     const convLabels = Array.isArray(item.labels) ? item.labels.filter(Boolean) : [];
 
+    const handleSwipeSnooze = () => setSnoozeConversation(item);
+
+    const handleSwipeClose = async () => {
+      try {
+        await dispatch(conversationActions.toggleConversationStatus({
+          conversationId: item.id,
+          payload: { status: 'resolved' },
+        })).unwrap();
+        showToast({ message: isArabic ? 'تم إغلاق المحادثة' : 'Conversation closed' });
+      } catch {
+        showToast({ message: isArabic ? 'تعذر إغلاق المحادثة' : 'Failed to close conversation' });
+      }
+    };
+
     return (
+      <Swipeable
+        index={index}
+        openedRowIndex={openedRowIndex}
+        spacing={8}
+        leftElement={(
+          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <SnoozeIcon color="#ffffff" />
+            <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: '600', marginTop: 2 }}>Snooze</Text>
+          </View>
+        )}
+        rightElement={(
+          <View style={{ flexDirection: 'row', alignItems: 'stretch', height: '100%' }}>
+            <Pressable
+              onPress={event => {
+                event.stopPropagation();
+                setActionConversation(item);
+              }}
+              style={{ width: 44, alignItems: 'center', justifyContent: 'center', backgroundColor: '#202020' }}>
+              <MoreIcon color="#ffffff" />
+              <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: '600', marginTop: 2 }}>More</Text>
+            </Pressable>
+            <View style={{ width: 44, alignItems: 'center', justifyContent: 'center' }}>
+              <ResolveIcon color="#ffffff" />
+              <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: '600', marginTop: 2 }}>Close</Text>
+            </View>
+          </View>
+        )}
+        handleLeftElementPress={handleSwipeSnooze}
+        handleOnLeftOverswiped={handleSwipeSnooze}
+        handleRightElementPress={handleSwipeClose}
+        handlePress={() => (navigation as any).navigate('ChatScreen', { conversationId: Number(item.id) })}
+        triggerOverswipeOnFlick
+        leftElementBgColor="bg-orange-600"
+        rightElementBgColor="bg-green-800">
       <Pressable
         key={String(item.id)}
         onPress={() => (navigation as any).navigate('ChatScreen', { conversationId: Number(item.id) })}
@@ -3109,7 +3790,14 @@ const InboxScreenDesign = () => {
             </View>
           </View>
           <View style={{ alignItems: 'flex-end', gap: 4 }}>
-            <Text style={{ color: textSecondary, fontSize: 12 }}>{ctime}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              {item.status === 'snoozed' && (
+                <View style={{ marginRight: 2 }}>
+                  <SnoozeIcon color="#2563eb" />
+                </View>
+              )}
+              <Text style={{ color: textSecondary, fontSize: 12 }}>{ctime}</Text>
+            </View>
             {item.unreadCount > 0 && (
               <View style={{ backgroundColor: '#22c55e', borderRadius: 999, paddingHorizontal: 6, paddingVertical: 2 }}>
                 <Text style={{ color: 'white', fontSize: 11, fontWeight: '700' }}>{item.unreadCount}</Text>
@@ -3138,15 +3826,15 @@ const InboxScreenDesign = () => {
                     flexDirection: 'row',
                     alignItems: 'center',
                     gap: 4,
-                    height: 22,
-                    backgroundColor: dotColor + '18',
+                    height: 18,
+                    backgroundColor: isDark ? dotColor + '28' : dotColor + '18',
                     borderWidth: 1,
-                    borderColor: dotColor + '40',
-                    borderRadius: 6,
-                    paddingHorizontal: 7,
+                    borderColor: isDark ? dotColor + '60' : dotColor + '40',
+                    borderRadius: 5,
+                    paddingHorizontal: 5,
                   }}>
-                  <View style={{ width: 6, height: 6, borderRadius: 999, backgroundColor: dotColor }} />
-                  <Text style={{ color: isDark ? '#f8fafc' : dotColor, fontSize: 11, fontWeight: '600' }} numberOfLines={1}>
+                  <View style={{ width: 5, height: 5, borderRadius: 999, backgroundColor: dotColor }} />
+                  <Text style={{ color: isDark ? '#ffffff' : dotColor, fontSize: 10, fontWeight: '600' }} numberOfLines={1}>
                     {lbl}
                   </Text>
                 </View>
@@ -3171,6 +3859,7 @@ const InboxScreenDesign = () => {
           )}
         </View>
       </Pressable>
+      </Swipeable>
     );
   };
 
@@ -3209,7 +3898,7 @@ const InboxScreenDesign = () => {
               </Text>
             </View>
           ) : (
-            filteredConversations.map(item => renderConversationItem({ item }))
+            filteredConversations.map((item, index) => renderConversationItem({ item, index }))
           )}
         </ScrollView>
       </SafeAreaView>
@@ -3281,7 +3970,7 @@ const InboxScreenDesign = () => {
             }}
             scrollEventThrottle={100}
             contentContainerStyle={{ paddingBottom: 80 }}>
-            {filteredConversations.map(item => renderConversationItem({ item }))}
+            {filteredConversations.map((item, index) => renderConversationItem({ item, index }))}
             {isLoadingMore && (
               <View style={{ paddingVertical: 18, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}>
                 <ActivityIndicator size="small" color="#2563eb" />
@@ -3309,6 +3998,114 @@ const InboxScreenDesign = () => {
               </View>
             </View>
           </View>
+        )}
+
+        {actionConversation && (
+          <BottomSheet onClose={() => setActionConversation(null)}>
+            {[
+              {
+                icon: <ResolveIcon color={textPrimary} />,
+                label: isArabic ? 'إغلاق المحادثة' : 'Close Conversation',
+                onPress: async () => {
+                  await dispatch(conversationActions.toggleConversationStatus({
+                    conversationId: actionConversation.id,
+                    payload: { status: 'resolved' },
+                  }));
+                  setActionConversation(null);
+                },
+              },
+              { icon: <LifecycleIcon color={textPrimary} />, label: isArabic ? 'اختيار مرحلة العميل' : 'Select Lifecycle Stage', onPress: () => openConversationAction('stage') },
+              { icon: <UserCircleIcon color={textPrimary} />, label: isArabic ? 'تعيين مستخدم' : 'Assign User', onPress: () => openConversationAction('assign') },
+              { icon: <TeamIcon color={textPrimary} />, label: isArabic ? 'المتعاونون' : 'Collaborators', onPress: () => openConversationAction('collaborators') },
+              { icon: <ShortcutIcon color={textPrimary} />, label: isArabic ? 'اختيار اختصار' : 'Select Shortcut', onPress: () => openConversationAction('shortcut') },
+              {
+                icon: <SnoozeIcon color={textPrimary} />,
+                label: isArabic ? 'تأجيل المحادثة' : 'Snooze Conversation',
+                onPress: () => { setSnoozeConversation(actionConversation); setActionConversation(null); },
+              },
+              { icon: <UserCircleIcon color={textPrimary} />, label: isArabic ? 'عرض تفاصيل العميل' : 'View Contact Details', onPress: () => openConversationAction('contact') },
+            ].map((action, index, actions) => (
+              <Pressable
+                key={action.label}
+                onPress={action.onPress}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 16, paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: index === actions.length - 1 ? 0 : 1, borderBottomColor: borderColor }}>
+                {action.icon}
+                <Text style={{ color: textPrimary, fontSize: 14, fontWeight: '500' }}>{action.label}</Text>
+              </Pressable>
+            ))}
+          </BottomSheet>
+        )}
+
+        {snoozeConversation && (
+          <BottomSheet
+            onClose={() => setSnoozeConversation(null)}
+            bottomOffset={customPickerMode ? keyboardHeight : 0}>
+            <Text style={{ color: textPrimary, fontSize: 17, fontWeight: '700', textAlign: 'center', paddingHorizontal: 20, paddingVertical: 14 }}>
+              {isArabic ? 'تأجيل المحادثة' : 'Snooze Conversation'}
+            </Text>
+            <Text style={{ color: textSecondary, fontSize: 13, textAlign: 'center', paddingHorizontal: 24, paddingBottom: 12 }}>
+              {isArabic ? 'اختر موعد إعادة فتح المحادثة' : 'Choose when to reopen this conversation'}
+            </Text>
+            {[
+              { label: isArabic ? 'عند الرد القادم' : 'Until Next Reply', timestamp: null },
+              { label: isArabic ? 'بعد ساعتين' : 'In 2 Hours', timestamp: Date.now() + 2 * 60 * 60 * 1000 },
+              { label: isArabic ? 'غدًا صباحًا' : 'Tomorrow Morning', timestamp: (() => { const date = new Date(); date.setDate(date.getDate() + 1); date.setHours(9, 0, 0, 0); return date.getTime(); })() },
+              { label: isArabic ? 'الأسبوع القادم' : 'Next Week', timestamp: (() => { const date = new Date(); date.setDate(date.getDate() + ((1 + 7 - date.getDay()) % 7 || 7)); date.setHours(9, 0, 0, 0); return date.getTime(); })() },
+            ].map(option => (
+              <Pressable
+                key={option.label}
+                onPress={async () => {
+                  try {
+                    await dispatch(conversationActions.toggleConversationStatus({
+                      conversationId: snoozeConversation.id,
+                      payload: { status: 'snoozed', snoozed_until: option.timestamp ? Math.floor(option.timestamp / 1000) : null },
+                    })).unwrap();
+                    setSnoozeConversation(null);
+                  } catch {
+                    showToast({ message: isArabic ? 'تعذر تأجيل المحادثة' : 'Failed to snooze conversation' });
+                  }
+                }}
+                style={{ paddingHorizontal: 20, paddingVertical: 14, borderTopWidth: 1, borderTopColor: borderColor }}>
+                <Text style={{ color: '#14b8a6', fontSize: 14, fontWeight: '600', textAlign: 'center' }}>{option.label}</Text>
+              </Pressable>
+            ))}
+            <Pressable
+              onPress={() => {
+                const tomorrow = new Date(Date.now() + 60 * 60 * 1000);
+                setCustomDateText(tomorrow.toISOString().slice(0, 10));
+                setCustomTimeText(tomorrow.toTimeString().slice(0, 5));
+                setCustomPickerMode(true);
+              }}
+              style={{ marginHorizontal: 20, marginTop: 4, marginBottom: 8, paddingVertical: 12, borderRadius: 8, backgroundColor: isDark ? '#134e4a' : '#ecfdf5', borderWidth: 1, borderColor: '#14b8a6' }}>
+              <Text style={{ color: '#0d9488', fontSize: 14, fontWeight: '700', textAlign: 'center' }}>{isArabic ? 'اختيار تاريخ ووقت' : 'Pick Date & Time'}</Text>
+            </Pressable>
+            {customPickerMode && (
+              <View style={{ marginHorizontal: 20, marginBottom: 8, gap: 8 }}>
+                <TextInput
+                  value={customDateText}
+                  onChangeText={setCustomDateText}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor={isDark ? '#94a3b8' : '#9ca3af'}
+                  keyboardType="numbers-and-punctuation"
+                  style={{ color: textPrimary, backgroundColor: isDark ? '#334155' : '#f3f4f6', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, textAlign: 'center' }}
+                />
+                <TextInput
+                  value={customTimeText}
+                  onChangeText={setCustomTimeText}
+                  placeholder="HH:MM"
+                  placeholderTextColor={isDark ? '#94a3b8' : '#9ca3af'}
+                  keyboardType="numbers-and-punctuation"
+                  style={{ color: textPrimary, backgroundColor: isDark ? '#334155' : '#f3f4f6', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, textAlign: 'center' }}
+                />
+                <Pressable onPress={handleCustomSnoozeSubmit} style={{ paddingVertical: 11, borderRadius: 8, backgroundColor: '#14b8a6' }}>
+                  <Text style={{ color: '#ffffff', fontSize: 14, fontWeight: '700', textAlign: 'center' }}>{isArabic ? 'تأكيد التأجيل' : 'Confirm Snooze'}</Text>
+                </Pressable>
+              </View>
+            )}
+            <Pressable onPress={() => setSnoozeConversation(null)} style={{ paddingHorizontal: 20, paddingVertical: 14 }}>
+              <Text style={{ color: textSecondary, fontSize: 13, textAlign: 'center' }}>{isArabic ? 'إلغاء' : 'Cancel'}</Text>
+            </Pressable>
+          </BottomSheet>
         )}
 
         {/* Sort Bottom Sheet */}

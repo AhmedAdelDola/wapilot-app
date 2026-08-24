@@ -170,6 +170,12 @@ class APIService {
         return response;
       },
       async (error: AxiosError) => {
+        if (error.response?.status === 429) {
+          // Rate limited (429) - log gentle warning instead of error spam
+          console.warn('API Rate Limit (429):', error.config?.url);
+          return Promise.reject(error);
+        }
+
         console.error('API Error:', error.response?.status, error.config?.url);
         console.error('API Error Details:', error.response?.data);
         

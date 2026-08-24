@@ -19,6 +19,7 @@ import { selectContactById } from '@/store/contact/contactSelectors';
 import { selectTypingUsersByConversationId } from '@/store/conversation/conversationTypingSlice';
 import { conversationActions } from '@/store/conversation/conversationActions';
 import { selectAllLabels } from '@/store/label/labelSelectors';
+import { LifecycleStage } from '@/services/profileService';
 
 import { isContactTyping, getLastMessage, getTypingUsersText } from '@/utils';
 import { Icon, Swipeable } from '@/components-next/common';
@@ -33,6 +34,7 @@ type ConversationItemContainerProps = {
   conversationItem: Conversation;
   index: number;
   openedRowIndex: SharedValue<number | null>;
+  lifecycleStages?: LifecycleStage[];
 };
 
 const ReadComponent = React.memo(() => {
@@ -63,7 +65,7 @@ const StatusComponent = React.memo(() => {
 });
 
 export const ConversationItemContainer = memo((props: ConversationItemContainerProps) => {
-  const { conversationItem, index, openedRowIndex } = props;
+  const { conversationItem, index, openedRowIndex, lifecycleStages = [] } = props;
   const {
     meta: {
       sender: { name: senderName, thumbnail: senderThumbnail, id: contactId },
@@ -103,6 +105,48 @@ export const ConversationItemContainer = memo((props: ConversationItemContainerP
   const typingText = useMemo(() => getTypingUsersText({ users: typingUsers }), [typingUsers]);
 
   const lastMessage = getLastMessage(conversationItem);
+  const senderData = conversationItem.meta?.sender as any;
+  const contactData = contact as any;
+  const rawLifecycleStageId =
+    contactData?.lifecycle_stage_id ??
+    contactData?.customAttributes?.lifecycle_stage_id ??
+    contactData?.custom_attributes?.lifecycle_stage_id ??
+    senderData?.lifecycle_stage_id ??
+    senderData?.customAttributes?.lifecycle_stage_id ??
+    senderData?.custom_attributes?.lifecycle_stage_id;
+  const rawLifecycleStageName =
+    contactData?.customAttributes?.lifecycle_stage ??
+    contactData?.custom_attributes?.lifecycle_stage ??
+    senderData?.customAttributes?.lifecycle_stage ??
+    senderData?.custom_attributes?.lifecycle_stage;
+  const lifecycleStageFromApi =
+    contactData?.lifecycleStage ??
+    contactData?.lifecycle_stage ??
+    senderData?.lifecycleStage ??
+    senderData?.lifecycle_stage;
+  const lifecycleStage = useMemo(() => {
+    if (lifecycleStageFromApi?.name) {
+      return {
+        name: lifecycleStageFromApi.name,
+        icon: lifecycleStageFromApi.icon || '🌱',
+      };
+    }
+    const normalizedName = String(rawLifecycleStageName ?? '')
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_-]+/g, ' ');
+    const stage = lifecycleStages.find(candidate =>
+      String(candidate.id) === String(rawLifecycleStageId) ||
+      candidate.name.trim().toLowerCase().replace(/[\s_-]+/g, ' ') === normalizedName,
+    );
+    if (stage) return { name: stage.name, icon: stage.icon };
+    if (normalizedName) return { name: String(rawLifecycleStageName).replace(/_/g, ' '), icon: '🌱' };
+    return null;
+  }, [lifecycleStageFromApi, lifecycleStages, rawLifecycleStageId, rawLifecycleStageName]);
+  const isWhatsAppConversation = Object.keys({
+    ...(senderData?.customAttributes || {}),
+    ...(senderData?.custom_attributes || {}),
+  }).some(key => key.toLowerCase().includes('whatsapp'));
 
   const markMessageReadOrUnread = useCallback(() => {
     if (unreadCount > 0) {
@@ -148,6 +192,9 @@ export const ConversationItemContainer = memo((props: ConversationItemContainerP
     labels,
     timestamp,
     inbox: inbox || null,
+    channelType: (inbox?.channelType || conversationItem.meta?.channel || '') as string,
+    medium: inbox?.medium || (isWhatsAppConversation ? 'whatsapp' : ''),
+    provider: inbox?.provider || '',
     lastNonActivityMessage,
     lastMessage,
     inboxId,
@@ -162,6 +209,7 @@ export const ConversationItemContainer = memo((props: ConversationItemContainerP
     additionalAttributes,
     allLabels,
     typingText: typingText as string | undefined,
+    lifecycleStage,
   };
 
   return (

@@ -9,12 +9,19 @@ import { ConversationAdditionalAttributes } from '@/types/Conversation';
 import { Channel } from '@/types';
 
 type ChannelIndicatorProps = {
-  inbox: Inbox;
+  inbox?: Inbox | null;
   additionalAttributes?: ConversationAdditionalAttributes;
+  channelType?: Channel | string;
+  medium?: string;
+  provider?: string;
 };
 
 export const ChannelIndicator = (props: ChannelIndicatorProps) => {
-  const { channelType = '', medium = '' } = props.inbox || {};
+  const { channelType: inboxChannelType = '', medium: inboxMedium = '' } = props.inbox || {};
+  const channelType = inboxChannelType || props.channelType || '';
+  const medium = [inboxMedium, props.medium, props.provider, props.inbox?.provider]
+    .filter(Boolean)
+    .join(' ');
   const { type = '' } = props.additionalAttributes || {};
 
   return (

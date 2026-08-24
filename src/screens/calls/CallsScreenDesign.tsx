@@ -530,12 +530,6 @@ const CallsScreenDesign = () => {
 
   const loadData = useCallback(() => {
     dispatch(
-      conversationActions.fetchConversationsMeta({
-        status: 'all',
-        assigneeType: activeItem === 'mine' ? 'me' : activeItem === 'unassigned' ? 'unassigned' : 'all',
-      } as any),
-    );
-    dispatch(
       conversationActions.fetchConversations({
         status: 'all',
         assigneeType: activeItem === 'mine' ? 'me' : activeItem === 'unassigned' ? 'unassigned' : 'all',
