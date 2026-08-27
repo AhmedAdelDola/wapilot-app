@@ -1,0 +1,95 @@
+{
+  "info": {
+    "id": "ses_fc29c72ddffeQzbsHCvWze78i3",
+    "slug": "gentle-mountain",
+    "projectID": "global",
+    "directory": "C:\\Users\\USER\\Desktop\\projects\\wapilot-app",
+    "path": "Users/USER/Desktop/projects/wapilot-app",
+    "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+    },
+    "cost": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "reasoning": 0,
+      "cache": {
+        "read": 0,
+        "write": 0
+      }
+    },
+    "title": "CRM directory discussion",
+    "agent": "build",
+    "model": {
+      "id": "mimo-v2.5-free",
+      "providerID": "opencode",
+      "variant": "default"
+    },
+    "version": "1.18.23",
+    "time": {
+      "created": 1787736329506,
+      "updated": 1787736329888
+    }
+  },
+  "messages": [
+    {
+      "info": {
+        "id": "msg_03d638def0011uTFhQ85hVYMlr",
+        "sessionID": "ses_fc29c72ddffeQzbsHCvWze78i3",
+        "role": "user",
+        "time": {
+          "created": 1787736329764
+        },
+        "summary": {
+          "diffs": []
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "opencode",
+          "modelID": "mimo-v2.5-free"
+        }
+      },
+      "parts": [
+        {
+          "id": "prt_03d638df1001uN0qAliHj49aZ3",
+          "sessionID": "ses_fc29c72ddffeQzbsHCvWze78i3",
+          "messageID": "msg_03d638def0011uTFhQ85hVYMlr",
+          "type": "text",
+          "text": "C:\\crm"
+        }
+      ]
+    },
+    {
+      "info": {
+        "id": "msg_03d638e53001NFIUYSUcGRsejH",
+        "sessionID": "ses_fc29c72ddffeQzbsHCvWze78i3",
+        "role": "assistant",
+        "time": {
+          "created": 1787736329811
+        },
+        "parentID": "msg_03d638def0011uTFhQ85hVYMlr",
+        "modelID": "mimo-v2.5-free",
+        "providerID": "opencode",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "C:\\Users\\USER\\Desktop\\projects\\wapilot-app",
+          "root": "/"
+        },
+        "cost": 0,
+        "tokens": {
+          "input": 0,
+          "output": 0,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        }
+      },
+      "parts": []
+    }
+  ]
+}

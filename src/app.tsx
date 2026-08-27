@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { Alert, BackHandler } from 'react-native';
 import { PersistGate } from 'redux-persist/integration/react';
-import { store, persistor } from './store';
-import { AppNavigator } from '@/navigation';
-import { AppErrorBoundary } from '@/components-next/error-boundary';
+import { store, persistor } from '@/viewmodels/store';
+import { AppNavigator } from '@/views/navigation';
+import { AppErrorBoundary } from '@/views/components/error-boundary';
 
 import i18n from '@/i18n';
 

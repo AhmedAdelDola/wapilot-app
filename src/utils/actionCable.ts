@@ -1,11 +1,11 @@
 import { AppState } from 'react-native';
-import { getStore } from '@/store/storeAccessor';
+import { getStore } from '@/viewmodels/store/storeAccessor';
 import {
   transformConversation,
   transformMessage,
   transformNotification,
 } from '@/utils/camelCaseKeys';
-import { conversationActions } from '@/store/conversation/conversationActions';
+import { conversationActions } from '@/viewmodels/store/conversation/conversationActions';
 
 const PRESENCE_INTERVAL = 20000;
 const RECONNECT_BASE = 1000;
@@ -34,8 +34,6 @@ const handleReceived = (data: any) => {
 
   const accountId = (store.getState().auth.user as any)?.account_id;
   if (payload.account_id && accountId && Number(payload.account_id) !== Number(accountId)) return;
-
-  console.log(`[ActionCable] ⚡ Event received: ${event}`, payload?.id || payload?.conversation_id || '');
 
   switch (event) {
     case 'message.created': {
@@ -179,11 +177,6 @@ const subscribe = () => {
     user_id: savedParams.userId,
   });
 
-  console.log('[ActionCable] Subscribing with identifier:', JSON.stringify({
-    channel: CHANNEL,
-    account_id: savedParams.accountId,
-    user_id: savedParams.userId,
-  }));
   send({ command: 'subscribe', identifier });
 
   if (presenceTimer) clearInterval(presenceTimer);
@@ -209,15 +202,9 @@ const connect = () => {
   isConnecting = true;
   const url = savedParams.webSocketUrl;
 
-  console.log('[ActionCable] ========================================');
-  console.log('[ActionCable] Connecting to:', url);
-  console.log('[ActionCable] Account ID:', savedParams.accountId);
-  console.log('[ActionCable] User ID:', savedParams.userId);
-  console.log('[ActionCable] ========================================');
   ws = new WebSocket(url);
 
   ws.onopen = () => {
-    console.log('[ActionCable] ✅ WebSocket OPEN - connection established');
     isConnecting = false;
     reconnectDelay = RECONNECT_BASE;
     subscribe();
@@ -228,13 +215,11 @@ const connect = () => {
       const msg = JSON.parse(event.data);
 
       if (msg.type === 'welcome') {
-        console.log('[ActionCable] ✅ Welcome received');
         return;
       }
       if (msg.type === 'ping') return;
 
       if (msg.type === 'confirm_subscription') {
-        console.log('[ActionCable] ✅ Subscribed to', CHANNEL);
         return;
       }
 
@@ -257,7 +242,6 @@ const connect = () => {
   };
 
   ws.onclose = (event) => {
-    console.log('[ActionCable] 🔌 Closed:', event.code, event.reason);
     isConnecting = false;
     cleanup();
 
@@ -295,7 +279,6 @@ const disconnect = () => {
 AppState.addEventListener('change', (nextAppState) => {
   if (nextAppState === 'active' && savedParams) {
     if (!ws || ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
-      console.log('[ActionCable] App active - reconnecting WebSocket...');
       connect();
     }
   }

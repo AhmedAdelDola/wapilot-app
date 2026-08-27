@@ -1,4 +1,4 @@
-import { TypingUser } from '@/types';
+import { TypingUser } from '@/models/types';
 
 export const isContactTyping = (typingUsers: TypingUser[], userId: number) => {
   return typingUsers.some(user => user.id === userId && user.type === 'contact');

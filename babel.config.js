@@ -10,6 +10,11 @@ module.exports = function (api) {
           extensions: ['.ios.js', '.android.js', '.js', '.ts', '.tsx', '.json'],
           alias: {
             '@': './src',
+            '@models': './src/models',
+            '@viewmodels': './src/viewmodels',
+            '@views': './src/views',
+            '@components': './src/views/components',
+            '@screens': './src/views/screens',
           },
         },
       ],

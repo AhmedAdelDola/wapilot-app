@@ -1,6 +1,6 @@
 import { fromUnixTime, formatDistanceToNow, isSameDay, format } from 'date-fns';
 import i18n from '@/i18n';
-import { UnixTimestamp } from '@/types';
+import { UnixTimestamp } from '@/models/types';
 
 export const formatRelativeTime = (time: number) => {
   const unixTime = fromUnixTime(time);

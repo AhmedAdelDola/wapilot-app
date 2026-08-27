@@ -14,11 +14,11 @@ import {
   CustomAttribute,
   CannedResponse,
   Macro,
-} from '@/types';
-import type { Inbox } from '@/types/Inbox';
-import type { NotificationMeta, Notification } from '@/types/Notification';
-import { NotificationCreatedResponse } from '@/store/notification/notificationTypes';
-import { NotificationRemovedResponse } from '@/store/notification/notificationTypes';
+} from '@/models/types';
+import type { Inbox } from '@/models/types/Inbox';
+import type { NotificationMeta, Notification } from '@/models/types/Notification';
+import { NotificationCreatedResponse } from '@/viewmodels/store/notification/notificationTypes';
+import { NotificationRemovedResponse } from '@/viewmodels/store/notification/notificationTypes';
 
 export const transformConversation = (conversation: any): Conversation => {
   return camelcaseKeys(conversation, { deep: true }) as unknown as Conversation;

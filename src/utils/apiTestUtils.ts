@@ -1,4 +1,4 @@
-import { apiService } from '@/services/APIService';
+import { apiService } from '@/models/services/APIService';
 import { API_CONFIG, API_PARAMS, API_BODIES } from '@/config/apiConfig';
 
 /**

@@ -11,7 +11,7 @@ import {
   SMSFilledIcon,
 } from '@/svg-icons';
 
-import { Channel, InboxTypes } from '@/types';
+import { Channel, InboxTypes } from '@/models/types';
 import { LineFilledIcon } from '@/svg-icons/channels/Line';
 
 const WhatsAppChannelIcon = () => (

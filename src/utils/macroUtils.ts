@@ -1,4 +1,4 @@
-import { Agent, Label, Team } from '@/types';
+import { Agent, Label, Team } from '@/models/types';
 
 export const MACRO_ACTION_TYPES = [
   {

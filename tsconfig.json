@@ -5,6 +5,11 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
+      "@models/*": ["src/models/*"],
+      "@viewmodels/*": ["src/viewmodels/*"],
+      "@views/*": ["src/views/*"],
+      "@components/*": ["src/views/components/*"],
+      "@screens/*": ["src/views/screens/*"],
       "*": ["src/*"]
     }
   },
@@ -22,9 +27,6 @@
     "**/*.spec.tsx",
     "**/*.test.ts",
     "**/*.test.tsx",
-    "src/components",
-    "src/types/types",
-    "src/context/context",
     "src/utils/apiTestUtils.ts"
   ]
 }

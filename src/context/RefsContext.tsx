@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import PagerView from 'react-native-pager-view';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { FlashList, FlashListRef } from '@shopify/flash-list';
-import { Message } from '@/types';
+import { Message } from '@/models/types';
 
 interface RefsContextType {
   userAvailabilityStatusSheetRef: React.RefObject<BottomSheetModal | null>;

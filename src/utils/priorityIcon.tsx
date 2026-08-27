@@ -1,5 +1,5 @@
 import { HighIcon, MediumIcon, LowIcon, UrgentIcon } from '@/svg-icons/priority-icons';
-import { ConversationPriority } from '@/types';
+import { ConversationPriority } from '@/models/types';
 
 export const getPriorityIcon = (priority: ConversationPriority) => {
   switch (priority) {

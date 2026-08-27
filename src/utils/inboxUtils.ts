@@ -1,5 +1,5 @@
 import { INBOX_TYPES, INBOX_FEATURES } from '@/constants';
-import { Inbox } from '@/types/Inbox';
+import { Inbox } from '@/models/types/Inbox';
 
 // This is a single source of truth for inbox features
 // This is used to check if a feature is available for a particular inbox or not

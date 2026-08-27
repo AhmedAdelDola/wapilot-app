@@ -1,4 +1,4 @@
-import type { Inbox } from '@/types/Inbox';
+import type { Inbox } from '@/models/types/Inbox';
 import type {
   NormalizedTemplate,
   NormalizedTemplateButton,
@@ -11,7 +11,7 @@ import type {
   TwilioProcessedParams,
   WhatsAppMessageTemplate,
   WhatsAppProcessedParams,
-} from '@/types/MessageTemplate';
+} from '@/models/types/MessageTemplate';
 import {
   MEDIA_FORMATS,
   extractVariables,
@@ -32,7 +32,7 @@ export {
   isSendableTemplate,
   renderTemplatePreview,
 } from '@chatwoot/utils';
-export type { TemplateFormState, PreviewSegment } from '@/types/MessageTemplate';
+export type { TemplateFormState, PreviewSegment } from '@/models/types/MessageTemplate';
 
 const VARIABLE_REGEX = /{{([^}]+)}}/g;
 

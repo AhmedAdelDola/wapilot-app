@@ -1,6 +1,6 @@
 import { useColorScheme } from 'react-native';
 import { useAppSelector } from '@/hooks';
-import { selectTheme } from '@/store/settings/settingsSelectors';
+import { selectTheme } from '@/viewmodels/store/settings/settingsSelectors';
 import { designSystem, ThemeColors, ThemeMode } from './designSystem';
 
 export type UseThemeReturn = {

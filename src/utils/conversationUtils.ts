@@ -21,6 +21,7 @@ export const findPendingMessageIndex = (conversation: any, message: any): number
   const messages = conversation?.messages || [];
   return messages.findIndex(
     (existing: any) =>
-      (message?.echoId && existing.echoId === message.echoId) || existing.id === message?.id,
+      (message?.echoId && existing.echoId === message.echoId) ||
+      (message?.id != null && existing.id != null && String(existing.id) === String(message.id)),
   );
 };

@@ -1,7 +1,7 @@
 import { MESSAGE_TYPES, MESSAGE_STATUS } from '@/constants';
-import { SendMessagePayload } from '@/store/conversation/conversationTypes';
-import type { PendingMessage, MessageBuilderPayload } from '@/store/conversation/conversationTypes';
-import type { Conversation, Message } from '@/types';
+import { SendMessagePayload } from '@/viewmodels/store/conversation/conversationTypes';
+import type { PendingMessage, MessageBuilderPayload } from '@/viewmodels/store/conversation/conversationTypes';
+import type { Conversation, Message } from '@/models/types';
 import { formatDate } from './dateTimeUtils';
 
 export const getLastMessage = (conversation: Conversation): Message | null => {

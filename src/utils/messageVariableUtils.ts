@@ -1,5 +1,5 @@
-import { Conversation } from '@/types';
-import { Contact } from '@/types';
+import { Conversation } from '@/models/types';
+import { Contact } from '@/models/types';
 
 import {
   getMessageVariables,
