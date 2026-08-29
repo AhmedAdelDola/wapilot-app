@@ -13,6 +13,9 @@ import type {
   SetActiveAccountPayload,
   SsoAuthPayload,
   SsoAuthResponse,
+  GoogleLoginPayload,
+  ChangePasswordPayload,
+  ChangePasswordResponse,
 } from './authTypes';
 import { handleApiError } from './authUtils';
 import I18n from '@/i18n';
@@ -69,5 +72,16 @@ export const authActions = {
     'auth/loginWithSso',
     AuthService.loginWithSso,
     I18n.t('ERRORS.AUTH'),
+  ),
+
+  loginWithGoogle: createAuthThunk<LoginResponse, GoogleLoginPayload>(
+    'auth/loginWithGoogle',
+    AuthService.loginWithGoogle,
+    I18n.t('ERRORS.AUTH'),
+  ),
+
+  changePassword: createAuthThunk<ChangePasswordResponse, ChangePasswordPayload>(
+    'auth/changePassword',
+    AuthService.changePassword,
   ),
 };

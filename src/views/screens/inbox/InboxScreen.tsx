@@ -31,12 +31,13 @@ import { conversationService } from '@/models/services/conversationService';
 import { profileService, LifecycleStage } from '@/models/services/profileService';
 import { FilterChips, EmptyState, Sidebar, FAB, Icon } from '@/views/components';
 import { ConversationItemContainer } from '@/views/screens/conversations/components';
-import { EmptyConversationsIcon, SearchIcon, ChatIcon, SelfAssign, UnassignedIcon, LabelTag } from '@/svg-icons';
+import { EmptyConversationsIcon, SearchIcon, ChatIcon, SelfAssign, UnassignedIcon, LabelTag, UserCircleIcon } from '@/svg-icons';
 import { getChannelIcon } from '@/utils';
 import type { Conversation, Label, Channel } from '@/models/types';
 import type { Inbox } from '@/models/types/Inbox';
 import type { ConversationPayload } from '@/viewmodels/store/conversation/conversationTypes';
 import type { AssigneeTypes, ConversationStatus } from '@/models/types/common/ConversationStatus';
+import AddContactScreen from '@/views/screens/contacts/AddContactScreen';
 
 const STATUS_FILTER_OPTIONS = [
   { id: 'all', label: 'All' },
@@ -109,6 +110,7 @@ const InboxScreen = () => {
   // Filter state
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedSidebar, setSelectedSidebar] = useState('all');
+  const [showAddContact, setShowAddContact] = useState(false);
 
   // List & pagination state
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -428,6 +430,10 @@ const InboxScreen = () => {
 
   const shouldShowEmptyLoader = isConversationsLoading && allConversations.length === 0;
 
+  if (showAddContact) {
+    return <AddContactScreen onBack={() => setShowAddContact(false)} />;
+  }
+
   const renderContent = () => {
     if (shouldShowEmptyLoader) {
       return (
@@ -487,24 +493,27 @@ const InboxScreen = () => {
         )}>
         <View style={tailwind.style('flex-1')}>
           {/* Header */}
-          <View style={tailwind.style('flex-row items-center justify-between px-4 py-3 border-b border-gray-100')}>
-            <Pressable onPress={() => drawerRef.current?.openDrawer()} hitSlop={16}>
-              <View style={tailwind.style('w-9 h-9 rounded-lg bg-gray-50 items-center justify-center')}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 20, paddingBottom: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <Pressable onPress={() => drawerRef.current?.openDrawer()} hitSlop={8}>
                 <MenuIcon />
-              </View>
-            </Pressable>
-
-            <Text style={tailwind.style('text-[18px] font-inter-580-24 text-gray-950 flex-1 text-center px-2')} numberOfLines={1}>
-              {getSelectedTitle()}
-            </Text>
-
-            <Pressable
-              onPress={() => navigation.dispatch(StackActions.push('SearchScreen'))}
-              hitSlop={16}>
-              <View style={tailwind.style('w-9 h-9 rounded-lg bg-gray-50 items-center justify-center')}>
-                <Icon icon={<SearchIcon stroke="#111827" />} size={20} />
-              </View>
-            </Pressable>
+              </Pressable>
+              <Text style={{ fontSize: 20, fontWeight: '600', color: isDark ? '#f8fafc' : '#111827' }} numberOfLines={1}>
+                {getSelectedTitle()}
+              </Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20 }}>
+              <Pressable
+                onPress={() => navigation.dispatch(StackActions.push('SearchScreen'))}
+                hitSlop={8}>
+                <SearchIcon stroke={isDark ? '#f8fafc' : '#111827'} />
+              </Pressable>
+              <Pressable
+                onPress={() => setShowAddContact(true)}
+                hitSlop={8}>
+                <Icon icon={<UserCircleIcon color={isDark ? '#f8fafc' : '#111827'} />} size={22} />
+              </Pressable>
+            </View>
           </View>
 
           {/* Filter Chips */}

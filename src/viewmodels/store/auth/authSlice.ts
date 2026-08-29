@@ -10,6 +10,8 @@ export interface AuthState {
     isLoggingIn: boolean;
     isResettingPassword: boolean;
     isVerifyingMfa: boolean;
+    isChangingPassword: boolean;
+    resetPasswordSuccess: boolean;
   };
   headers: AuthHeaders | null;
   error: string | null;
@@ -22,6 +24,8 @@ const initialState: AuthState = {
     isLoggingIn: false,
     isResettingPassword: false,
     isVerifyingMfa: false,
+    isChangingPassword: false,
+    resetPasswordSuccess: false,
   },
   headers: null,
   error: null,
@@ -44,6 +48,8 @@ export const authSlice = createSlice({
         isLoggingIn: false,
         isResettingPassword: false,
         isVerifyingMfa: false,
+        isChangingPassword: false,
+        resetPasswordSuccess: false,
       };
     },
     clearAuthError: state => {
@@ -146,10 +152,12 @@ export const authSlice = createSlice({
       })
       .addCase(authActions.resetPassword.fulfilled, (state, action) => {
         state.uiFlags.isResettingPassword = false;
+        state.uiFlags.resetPasswordSuccess = true;
         state.error = null;
       })
       .addCase(authActions.resetPassword.rejected, (state, action) => {
         state.uiFlags.isResettingPassword = false;
+        state.error = action.payload?.errors[0] ?? null;
       })
       .addCase(authActions.updateAvailability.fulfilled, (state, action) => {
         state.user = {
@@ -187,6 +195,34 @@ export const authSlice = createSlice({
       })
       .addCase(authActions.loginWithSso.rejected, (state, action) => {
         state.uiFlags.isLoggingIn = false;
+        state.error = action.payload?.errors[0] ?? null;
+      })
+      .addCase(authActions.loginWithGoogle.pending, state => {
+        state.uiFlags.isLoggingIn = true;
+        state.error = null;
+      })
+      .addCase(authActions.loginWithGoogle.fulfilled, (state, action) => {
+        state.user = action.payload.user;
+        state.headers = action.payload.headers;
+        state.uiFlags.isLoggingIn = false;
+        state.error = null;
+        state.mfaToken = null;
+        apiService.setAccountId(action.payload.user.account_id);
+      })
+      .addCase(authActions.loginWithGoogle.rejected, (state, action) => {
+        state.uiFlags.isLoggingIn = false;
+        state.error = action.payload?.errors[0] ?? null;
+      })
+      .addCase(authActions.changePassword.pending, state => {
+        state.uiFlags.isChangingPassword = true;
+        state.error = null;
+      })
+      .addCase(authActions.changePassword.fulfilled, state => {
+        state.uiFlags.isChangingPassword = false;
+        state.error = null;
+      })
+      .addCase(authActions.changePassword.rejected, (state, action) => {
+        state.uiFlags.isChangingPassword = false;
         state.error = action.payload?.errors[0] ?? null;
       });
   },

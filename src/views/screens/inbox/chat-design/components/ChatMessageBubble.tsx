@@ -1,7 +1,6 @@
-import React from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
-import type { Message } from '@/models/types';
-import { MESSAGE_TYPES } from '@/constants';
+import React, { useCallback, useMemo } from 'react';
+import { Clipboard, Image, Linking, Pressable, Text, View } from 'react-native';
+import type { Message, ImageMetadata } from '@/models/types';
 import { ChatDeliveryStatus } from './ChatDeliveryStatus';
 import { ChatReplyPreview } from './ChatReplyPreview';
 import { formatMessageDate, formatMessageTime } from '../utils/chatDateUtils';
@@ -11,9 +10,76 @@ import type { PlayBackType } from 'react-native-audio-recorder-player';
 import { AttachmentIcon, LockIcon } from '@/svg-icons';
 import { showToast } from '@/utils/toastUtils';
 
-// Simple Arabic text detection
+// ── Helpers ──────────────────────────────────────────────────────────
+
 const isArabicString = (text: string): boolean =>
   /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(text);
+
+const URL_REGEX = /(https?:\/\/[^\s]+)/g;
+
+const getSenderName = (sender?: any): string => {
+  if (!sender) return '';
+  return sender.name || sender.availableName || sender.available_name || '';
+};
+
+const getSenderThumbnail = (sender?: any): string | null => {
+  if (!sender) return null;
+  return sender.thumbnail || sender.avatar_url || null;
+};
+
+// ── Colors ───────────────────────────────────────────────────────────
+
+const C = {
+  outgoing: {
+    bg: '#2563eb',
+    text: '#ffffff',
+    time: 'rgba(255,255,255,0.75)',
+    avatarBg: '#dcfce7',
+    avatarText: '#15803d',
+  },
+  incoming: {
+    bgLight: '#ffffff',
+    bgDark: '#1e293b',
+    textLight: '#0f172a',
+    textDark: '#f8fafc',
+    border: '#e2e8f0',
+    borderDark: '#334155',
+    time: '#9ca3af',
+    avatarBg: '#dbeafe',
+    avatarText: '#2563eb',
+    avatarBgDark: '#1e3a5f',
+  },
+  private: {
+    bgLight: '#fffbeb',
+    bgDark: '#271904',
+    borderLight: '#fef08a',
+    borderDark: '#78350f',
+    accent: '#f59e0b',
+    textLight: '#78350f',
+    textDark: '#fef3c7',
+    labelLight: '#d97706',
+    labelDark: '#fbbf24',
+    timeLight: '#b45309',
+    timeDark: '#a16207',
+  },
+  date: {
+    bgLight: '#f1f5f9',
+    bgDark: '#1e293b',
+    borderLight: '#e2e8f0',
+    borderDark: '#334155',
+    textLight: '#64748b',
+    textDark: '#94a3b8',
+  },
+  activity: {
+    textLight: '#64748b',
+    textDark: '#94a3b8',
+    timeLight: '#9ca3af',
+    timeDark: '#64748b',
+  },
+  highlight: '#60a5fa',
+};
+
+// ── Props ────────────────────────────────────────────────────────────
 
 export type ChatMessageBubbleProps = {
   message: Message;
@@ -32,41 +98,279 @@ export type ChatMessageBubbleProps = {
   onRetryMessage?: (msg: Message) => void;
 };
 
+// ── Date Header ──────────────────────────────────────────────────────
+
+const DateHeader = React.memo(({ date, isDark, isArabic }: { date: number; isDark: boolean; isArabic: boolean }) => (
+  <View style={{ alignItems: 'center', marginVertical: 12 }} accessibilityRole="text">
+    <View
+      style={{
+        backgroundColor: isDark ? C.date.bgDark : C.date.bgLight,
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        borderRadius: 999,
+        borderWidth: 1,
+        borderColor: isDark ? C.date.borderDark : C.date.borderLight,
+      }}>
+      <Text style={{ color: isDark ? C.date.textDark : C.date.textLight, fontSize: 11, fontWeight: '600' }}>
+        {formatMessageDate(date, isArabic)}
+      </Text>
+    </View>
+  </View>
+));
+
+// ── Activity Message ─────────────────────────────────────────────────
+
+const ActivityMessage = React.memo(
+  ({ text, time, isDark }: { text: string; time: string; isDark: boolean }) => (
+    <View
+      style={{ alignItems: 'center', justifyContent: 'center', marginVertical: 6, paddingHorizontal: 24 }}
+      accessibilityRole="text"
+      accessibilityLabel={`Activity: ${text}`}>
+      <Text style={{ fontSize: 12, color: isDark ? C.activity.textDark : C.activity.textLight, textAlign: 'center', lineHeight: 18 }}>
+        {text}
+        {time ? (
+          <Text style={{ fontSize: 11, color: isDark ? C.activity.timeDark : C.activity.timeLight }}>
+            {' · '}{time}
+          </Text>
+        ) : null}
+      </Text>
+    </View>
+  ),
+);
+
+// ── Private Note ─────────────────────────────────────────────────────
+
+const PrivateNote = React.memo(
+  ({
+    messageText,
+    time,
+    isDark,
+    isRTL,
+    senderName,
+    attachments,
+    onOpenFileViewer,
+  }: {
+    messageText: string;
+    time: string;
+    isDark: boolean;
+    isRTL: boolean;
+    senderName: string;
+    attachments: ImageMetadata[];
+    onOpenFileViewer?: (uri: string, name: string) => void;
+  }) => (
+    <View
+      style={{ width: '100%', flexDirection: 'row', justifyContent: 'flex-end', marginTop: 6, marginBottom: 2, paddingHorizontal: 8 }}
+      accessibilityRole="text"
+      accessibilityLabel={`Private note from ${senderName}`}>
+      <View
+        style={{
+          backgroundColor: isDark ? C.private.bgDark : C.private.bgLight,
+          borderWidth: 1,
+          borderColor: isDark ? C.private.borderDark : C.private.borderLight,
+          borderLeftWidth: 3.5,
+          borderLeftColor: C.private.accent,
+          borderRadius: 14,
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          maxWidth: '85%',
+        }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <LockIcon size={12} color={isDark ? C.private.labelDark : C.private.labelLight} />
+            <Text style={{ fontSize: 11, fontWeight: '700', color: isDark ? C.private.labelDark : C.private.labelLight, letterSpacing: 0.2 }}>
+              Private Note{senderName ? ` · ${senderName}` : ''}
+            </Text>
+          </View>
+          {time ? <Text style={{ color: isDark ? C.private.timeDark : C.private.timeLight, fontSize: 10 }}>{time}</Text> : null}
+        </View>
+
+        {attachments.length > 0 &&
+          attachments.map((att, aIdx) => (
+            <MessageAttachmentView key={aIdx} attachment={att} isDark={isDark} isOutgoing onOpenFile={onOpenFileViewer || (() => {})} />
+          ))}
+
+        {messageText ? (
+          <View style={{ paddingVertical: 2, paddingHorizontal: 2 }}>
+            <Text selectable style={{ color: isDark ? C.private.textDark : C.private.textLight, fontSize: 15, lineHeight: 22, textAlign: isRTL ? 'right' : 'left' }}>
+              {messageText}
+            </Text>
+          </View>
+        ) : null}
+      </View>
+    </View>
+  ),
+);
+
+// ── Avatar ───────────────────────────────────────────────────────────
+
+const Avatar = React.memo(
+  ({
+    sender,
+    isOutgoing,
+    isDark,
+    contactName,
+    onPress,
+  }: {
+    sender?: any;
+    isOutgoing: boolean;
+    isDark: boolean;
+    contactName: string;
+    onPress?: () => void;
+  }) => {
+    const thumbnail = getSenderThumbnail(sender);
+    const name = getSenderName(sender);
+    const initial = (name || contactName || 'A').charAt(0).toUpperCase();
+
+    return (
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="image"
+        accessibilityLabel={`Avatar of ${name || contactName}`}
+        style={{
+          width: 28,
+          height: 28,
+          borderRadius: 999,
+          overflow: 'hidden',
+          backgroundColor: isOutgoing
+            ? isDark
+              ? C.outgoing.avatarBg.replace('#dc', '#14')
+              : C.outgoing.avatarBg
+            : isDark
+            ? C.incoming.avatarBgDark
+            : C.incoming.avatarBg,
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+        }}>
+        {thumbnail ? (
+          <Image source={{ uri: thumbnail }} style={{ width: 28, height: 28 }} />
+        ) : (
+          <Text
+            style={{
+              fontSize: 12,
+              fontWeight: '700',
+              color: isOutgoing ? C.outgoing.avatarText : C.incoming.avatarText,
+            }}>
+            {initial}
+          </Text>
+        )}
+      </Pressable>
+    );
+  },
+);
+
+// ── Time & Status ────────────────────────────────────────────────────
+
+const TimeAndStatus = React.memo(
+  ({
+    time,
+    isOutgoing,
+    isDark,
+    message,
+    onRetry,
+  }: {
+    time: string;
+    isOutgoing: boolean;
+    isDark: boolean;
+    message: Message;
+    onRetry?: () => void;
+  }) => (
+    <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', alignSelf: 'flex-end', marginTop: 6, gap: 3 }}>
+      <Text style={{ color: isOutgoing ? C.outgoing.time : C.incoming.time, fontSize: 10.5 }}>{time}</Text>
+      <ChatDeliveryStatus message={message} isOutgoing={isOutgoing} isDark={isDark} onRetry={onRetry || (() => {})} />
+    </View>
+  ),
+);
+
+// ── Linkified Text ───────────────────────────────────────────────────
+
+const LinkifiedText = React.memo(
+  ({
+    text,
+    color,
+    fontSize,
+    lineHeight,
+    textAlign,
+  }: {
+    text: string;
+    color: string;
+    fontSize?: number;
+    lineHeight?: number;
+    textAlign?: 'left' | 'right' | 'center';
+  }) => {
+    const parts = useMemo(() => {
+      const segments: { text: string; isLink: boolean; url?: string }[] = [];
+      let lastIndex = 0;
+      let match: RegExpExecArray | null;
+
+      URL_REGEX.lastIndex = 0;
+      while ((match = URL_REGEX.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+          segments.push({ text: text.slice(lastIndex, match.index), isLink: false });
+        }
+        segments.push({ text: match[0], isLink: true, url: match[0] });
+        lastIndex = match.index + match[0].length;
+      }
+      if (lastIndex < text.length) {
+        segments.push({ text: text.slice(lastIndex), isLink: false });
+      }
+      return segments;
+    }, [text]);
+
+    if (parts.length <= 1) {
+      return (
+        <Text selectable style={{ color, fontSize: fontSize || 15, lineHeight: lineHeight || 22, textAlign }}>
+          {text}
+        </Text>
+      );
+    }
+
+    return (
+      <Text selectable style={{ color, fontSize: fontSize || 15, lineHeight: lineHeight || 22, textAlign }}>
+        {parts.map((part, i) =>
+          part.isLink ? (
+            <Text key={i} style={{ color: '#60a5fa', textDecorationLine: 'underline' }} onPress={() => Linking.openURL(part.url!)}>
+              {part.text}
+            </Text>
+          ) : (
+            <Text key={i}>{part.text}</Text>
+          ),
+        )}
+      </Text>
+    );
+  },
+);
+
+// ── Message Attachment View ──────────────────────────────────────────
+
 export const MessageAttachmentView = ({
   attachment,
   isDark,
   isOutgoing,
   onOpenFile,
 }: {
-  attachment: any;
+  attachment: ImageMetadata;
   isDark: boolean;
   isOutgoing: boolean;
   onOpenFile: (uri: string, name: string) => void;
 }) => {
-  const uri =
-    attachment.dataUrl ||
-    attachment.fileUrl ||
-    attachment.file_url ||
-    attachment.thumbUrl ||
-    attachment.thumb_url;
+  const uri = attachment.dataUrl || attachment.thumbUrl;
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
   const [duration, setDuration] = React.useState(0);
 
-  const togglePlayback = async () => {
+  const togglePlayback = useCallback(async () => {
     try {
       if (isPlaying) {
         await pausePlayer();
         setIsPlaying(false);
         return;
       }
-
       if (duration > 0 && progress > 0) {
         await resumePlayer();
         setIsPlaying(true);
         return;
       }
-
       const playbackStatus = (event: { status?: AudioStatus; data?: PlayBackType }) => {
         if (event.status === AudioStatus.STOPPED) {
           setIsPlaying(false);
@@ -82,44 +386,39 @@ export const MessageAttachmentView = ({
           setProgress(0);
         }
       };
-
       await startPlayer(uri, playbackStatus);
       setIsPlaying(true);
     } catch {
       showToast({ message: 'Unable to play this voice message' });
     }
-  };
+  }, [isPlaying, duration, progress, uri]);
 
   if (!uri) return null;
 
-  const fileType = String(
-    attachment.fileType || attachment.file_type || attachment.contentType || '',
-  ).toLowerCase();
-  const fileName = attachment.fileName || attachment.file_name || attachment.name || 'Attachment';
-  const isImage =
-    fileType === 'image' ||
-    fileType.startsWith('image/') ||
-    /\.(png|jpe?g|gif|webp|heic)$/i.test(uri);
-  const isAudio =
-    fileType === 'audio' ||
-    fileType.startsWith('audio/') ||
-    /\.(aac|m4a|mp3|wav|ogg|webm)$/i.test(uri);
+  const fileType = String(attachment.fileType || '').toLowerCase();
+  const fileName = attachment.fallbackTitle || 'Attachment';
+  const isImage = fileType === 'image' || /\.(png|jpe?g|gif|webp|heic)$/i.test(uri);
+  const isAudio = fileType === 'audio' || /\.(aac|m4a|mp3|wav|ogg|webm)$/i.test(uri);
 
   if (isImage) {
     return (
-      <Pressable onPress={() => onOpenFile(uri, fileName)}>
-        <Image
-          source={{ uri }}
-          style={{ width: 220, height: 150, borderRadius: 10, marginBottom: 6 }}
-          resizeMode="cover"
-        />
+      <Pressable onPress={() => onOpenFile(uri, fileName)} accessibilityRole="image" accessibilityLabel={fileName}>
+        <Image source={{ uri }} style={{ width: 220, height: 150, borderRadius: 10, marginBottom: 6 }} resizeMode="cover" />
       </Pressable>
     );
   }
 
+  const formatTime = (ms: number) => {
+    const mins = Math.floor(ms / 60000);
+    const secs = String(Math.floor((ms / 1000) % 60)).padStart(2, '0');
+    return `${mins}:${secs}`;
+  };
+
   return (
     <Pressable
       onPress={() => (isAudio ? togglePlayback() : onOpenFile(uri, fileName))}
+      accessibilityRole="button"
+      accessibilityLabel={isAudio ? (isPlaying ? 'Pause voice message' : 'Play voice message') : fileName}
       style={{
         flexDirection: 'row',
         alignItems: 'center',
@@ -129,11 +428,7 @@ export const MessageAttachmentView = ({
         padding: 10,
         marginBottom: 6,
         borderRadius: 12,
-        backgroundColor: isOutgoing
-          ? 'rgba(255,255,255,0.18)'
-          : isDark
-          ? '#334155'
-          : '#f1f5f9',
+        backgroundColor: isOutgoing ? 'rgba(255,255,255,0.18)' : isDark ? '#334155' : '#f1f5f9',
       }}>
       <View
         style={{
@@ -145,9 +440,7 @@ export const MessageAttachmentView = ({
           backgroundColor: isAudio ? '#0d9488' : 'transparent',
         }}>
         {isAudio ? (
-          <Text style={{ color: '#ffffff', fontSize: 15, marginLeft: isPlaying ? 0 : 2 }}>
-            {isPlaying ? 'Ⅱ' : '▶'}
-          </Text>
+          <Text style={{ color: '#ffffff', fontSize: 15, marginLeft: isPlaying ? 0 : 2 }}>{isPlaying ? 'Ⅱ' : '▶'}</Text>
         ) : (
           <AttachmentIcon stroke={isOutgoing ? '#ffffff' : '#0d9488'} />
         )}
@@ -156,13 +449,7 @@ export const MessageAttachmentView = ({
         {isAudio ? (
           <>
             <View style={{ height: 20, justifyContent: 'center' }}>
-              <View
-                style={{
-                  height: 4,
-                  borderRadius: 999,
-                  overflow: 'hidden',
-                  backgroundColor: isOutgoing ? 'rgba(255,255,255,0.35)' : '#cbd5e1',
-                }}>
+              <View style={{ height: 4, borderRadius: 999, overflow: 'hidden', backgroundColor: isOutgoing ? 'rgba(255,255,255,0.35)' : '#cbd5e1' }}>
                 <View
                   style={{
                     height: '100%',
@@ -173,30 +460,12 @@ export const MessageAttachmentView = ({
                 />
               </View>
             </View>
-            <Text
-              style={{
-                color: isOutgoing ? 'rgba(255,255,255,0.85)' : isDark ? '#cbd5e1' : '#64748b',
-                fontSize: 10,
-              }}>
-              {duration > 0
-                ? (() => {
-                    const currentMins = Math.floor((progress * duration) / 60000);
-                    const currentSecs = String(Math.floor(((progress * duration) / 1000) % 60)).padStart(2, '0');
-                    const totalMins = Math.floor(duration / 60000);
-                    const totalSecs = String(Math.floor((duration / 1000) % 60)).padStart(2, '0');
-                    return `${currentMins}:${currentSecs} / ${totalMins}:${totalSecs}`;
-                  })()
-                : 'Voice message'}
+            <Text style={{ color: isOutgoing ? 'rgba(255,255,255,0.85)' : isDark ? '#cbd5e1' : '#64748b', fontSize: 10 }}>
+              {duration > 0 ? `${formatTime(progress * duration)} / ${formatTime(duration)}` : 'Voice message'}
             </Text>
           </>
         ) : (
-          <Text
-            style={{
-              color: isOutgoing ? '#ffffff' : isDark ? '#f8fafc' : '#1f2937',
-              fontSize: 13,
-              fontWeight: '600',
-            }}
-            numberOfLines={2}>
+          <Text style={{ color: isOutgoing ? '#ffffff' : isDark ? '#f8fafc' : '#1f2937', fontSize: 13, fontWeight: '600' }} numberOfLines={2}>
             {fileName}
           </Text>
         )}
@@ -204,6 +473,8 @@ export const MessageAttachmentView = ({
     </Pressable>
   );
 };
+
+// ── Main Bubble Component ────────────────────────────────────────────
 
 export const ChatMessageBubble = React.memo(
   ({
@@ -228,336 +499,136 @@ export const ChatMessageBubble = React.memo(
     const time = formatMessageTime(m.createdAt);
     const messageText = getMessageText(m);
     const isRTL = isArabicString(messageText);
+    const senderName = getSenderName(m.sender);
+    const senderThumbnail = getSenderThumbnail(m.sender);
+
+    const replyMessage = useMemo(() => {
+      const replyId = m.contentAttributes?.inReplyTo;
+      return replyId ? messageMap?.get(replyId) : undefined;
+    }, [m.contentAttributes?.inReplyTo, messageMap]);
+
+    const handleLongPress = useCallback(() => onSetQuotedMessage?.(m), [m, onSetQuotedMessage]);
+
+    const handleCopy = useCallback(() => {
+      Clipboard.setString(messageText);
+      showToast({ message: 'Message copied' });
+    }, [messageText]);
+
+    const handleAvatarPress = useCallback(() => {
+      if (senderThumbnail && onOpenFileViewer) {
+        onOpenFileViewer(senderThumbnail, senderName || contactName);
+      }
+    }, [senderThumbnail, senderName, contactName, onOpenFileViewer]);
+
+    const handleRetry = useCallback(() => onRetryMessage?.(m), [m, onRetryMessage]);
+
+    const handleScrollToReply = useCallback(() => {
+      if (replyMessage) onScrollToMessage?.(replyMessage.id);
+    }, [replyMessage, onScrollToMessage]);
+
+    const handleLayout = useCallback(
+      ({ nativeEvent }: { nativeEvent: { layout: { y: number } } }) => {
+        onLayout?.(m.id, nativeEvent.layout.y);
+      },
+      [m.id, onLayout],
+    );
+
+    // ── Date Header ──
+    if (showDateHeader) {
+      return (
+        <View style={{ width: '100%' }} accessibilityRole="text">
+          <DateHeader date={m.createdAt} isDark={isDark} isArabic={isArabic} />
+        </View>
+      );
+    }
+
+    // ── Activity ──
+    if (isActivity) {
+      return (
+        <View style={{ width: '100%' }} accessibilityRole="text">
+          <ActivityMessage text={messageText} time={time} isDark={isDark} />
+        </View>
+      );
+    }
+
+    // ── Private Note ──
+    if (isPrivateMsg) {
+      return (
+        <View style={{ width: '100%' }}>
+          <PrivateNote
+            messageText={messageText}
+            time={time}
+            isDark={isDark}
+            isRTL={isRTL}
+            senderName={senderName}
+            attachments={m.attachments || []}
+            onOpenFileViewer={onOpenFileViewer}
+          />
+        </View>
+      );
+    }
+
+    // ── Regular Message ──
+    const bubbleBg = isOutgoing ? C.outgoing.bg : isDark ? C.incoming.bgDark : C.incoming.bgLight;
+    const textColor = isOutgoing ? C.outgoing.text : isDark ? C.incoming.textDark : C.incoming.textLight;
 
     return (
-      <View style={{ width: '100%' }}>
-        {showDateHeader && (
-          <View style={{ alignItems: 'center', marginVertical: 12 }}>
-            <View
-              style={{
-                backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
-                paddingHorizontal: 12,
-                paddingVertical: 4,
-                borderRadius: 999,
-                borderWidth: 1,
-                borderColor: isDark ? '#334155' : '#e2e8f0',
-              }}>
-              <Text
-                style={{
-                  color: isDark ? '#94a3b8' : '#64748b',
-                  fontSize: 11,
-                  fontWeight: '600',
-                }}>
-                {formatMessageDate(m.createdAt, isArabic)}
-              </Text>
-            </View>
-          </View>
-        )}
+      <View
+        onLayout={onLayout ? handleLayout : undefined}
+        style={{ width: '100%', flexDirection: 'row', justifyContent: isOutgoing ? 'flex-end' : 'flex-start', alignItems: 'flex-end', gap: 6, marginTop: 5, paddingHorizontal: 8 }}>
+        {!isOutgoing && <Avatar sender={m.sender} isOutgoing={false} isDark={isDark} contactName={contactName} onPress={handleAvatarPress} />}
 
-        {isActivity && (
-          <View
-            style={{
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginVertical: 6,
-              paddingHorizontal: 24,
-            }}>
-            <Text
-              style={{
-                fontSize: 12,
-                color: isDark ? '#94a3b8' : '#64748b',
-                textAlign: 'center',
-                lineHeight: 18,
-              }}>
-              {messageText}
-              {time ? (
-                <Text style={{ fontSize: 11, color: isDark ? '#64748b' : '#9ca3af' }}>
-                  {' '}
-                  · {time}
-                </Text>
-              ) : null}
+        <Pressable
+          onLongPress={handleLongPress}
+          delayLongPress={300}
+          accessibilityRole="text"
+          accessibilityLabel={`Message from ${senderName || contactName}: ${messageText}`}
+          style={{
+            ...(messageText.length > 10 ? { flex: 1 } : {}),
+            maxWidth: '65%',
+            alignSelf: isOutgoing ? 'flex-end' : 'flex-start',
+            backgroundColor: bubbleBg,
+            borderWidth: isOutgoing ? 0 : 1,
+            borderColor: isDark ? C.incoming.borderDark : C.incoming.border,
+            borderRadius: 16,
+            borderBottomRightRadius: isOutgoing ? 4 : 16,
+            borderBottomLeftRadius: isOutgoing ? 16 : 4,
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+          }}>
+          {replyMessage && (
+            <ChatReplyPreview
+              replyMessage={replyMessage}
+              isOutgoing={isOutgoing}
+              isDark={isDark}
+              onPress={handleScrollToReply}
+            />
+          )}
+
+          {!isOutgoing && senderName ? (
+            <Text style={{ fontSize: 11, fontWeight: '600', color: isDark ? '#60a5fa' : '#2563eb', marginBottom: 2 }}>
+              {senderName}
             </Text>
-          </View>
-        )}
+          ) : null}
 
-        {!isActivity && isPrivateMsg && (
-          <View
-            style={{
-              width: '100%',
-              flexDirection: 'row',
-              justifyContent: 'flex-end',
-              marginTop: 6,
-              marginBottom: 2,
-              paddingHorizontal: 8,
-            }}>
-            <View
-              style={{
-                backgroundColor: isDark ? '#271904' : '#fffbeb',
-                borderWidth: 1,
-                borderColor: isDark ? '#78350f' : '#fef08a',
-                borderLeftWidth: 3.5,
-                borderLeftColor: '#f59e0b',
-                borderRadius: 14,
-                paddingHorizontal: 12,
-                paddingVertical: 8,
-                maxWidth: '85%',
-                minWidth: 80,
-              }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 8,
-                  marginBottom: 4,
-                }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                  <LockIcon size={12} color={isDark ? '#fbbf24' : '#d97706'} />
-                  <Text
-                    style={{
-                      fontSize: 11,
-                      fontWeight: '700',
-                      color: isDark ? '#fbbf24' : '#d97706',
-                      letterSpacing: 0.2,
-                    }}>
-                    Private Note {(m as any).sender?.name ? `· ${(m as any).sender.name}` : ''}
-                  </Text>
-                </View>
-                {time ? (
-                  <Text style={{ color: isDark ? '#a16207' : '#b45309', fontSize: 10 }}>
-                    {time}
-                  </Text>
-                ) : null}
-              </View>
+          {m.attachments?.length > 0 &&
+            m.attachments.map((att, aIdx) => (
+              <MessageAttachmentView key={aIdx} attachment={att} isDark={isDark} isOutgoing={isOutgoing} onOpenFile={onOpenFileViewer || (() => {})} />
+            ))}
 
-              {(m as any).attachments?.length > 0 &&
-                (m as any).attachments.map((att: any, aIdx: number) => (
-                  <MessageAttachmentView
-                    key={aIdx}
-                    attachment={att}
-                    isDark={isDark}
-                    isOutgoing={true}
-                    onOpenFile={onOpenFileViewer || (() => {})}
-                  />
-                ))}
-
-              {messageText ? (
-                <Text
-                  style={{
-                    color: isDark ? '#fef3c7' : '#78350f',
-                    fontSize: 15,
-                    lineHeight: 22,
-                    textAlign: isRTL ? 'right' : 'left',
-                  }}>
-                  {messageText}
-                </Text>
-              ) : null}
+          {messageText ? (
+            <View style={{ flex: 1 }}>
+              <LinkifiedText text={messageText} color={textColor} textAlign={isRTL ? 'right' : 'left'} />
             </View>
-          </View>
-        )}
+          ) : null}
 
-        {!isActivity && !isPrivateMsg && (
-          <View
-            onLayout={
-              onLayout
-                ? ({ nativeEvent }) => onLayout(m.id, nativeEvent.layout.y)
-                : undefined
-            }
-            style={{
-              width: '100%',
-              flexDirection: 'row',
-              justifyContent: isOutgoing ? 'flex-end' : 'flex-start',
-              alignItems: 'flex-end',
-              gap: 6,
-              marginTop: 5,
-              paddingHorizontal: 8,
-            }}>
-            {!isOutgoing && (
-              <Pressable
-                onPress={() => {
-                  const uri =
-                    (m as any).sender?.thumbnail ||
-                    (m as any).sender?.avatar_url ||
-                    conversation?.meta?.sender?.thumbnail;
-                  if (uri && onOpenFileViewer) {
-                    onOpenFileViewer(uri, (m as any).sender?.name || contactName);
-                  }
-                }}
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 999,
-                  overflow: 'hidden',
-                  backgroundColor: isDark ? '#1e3a5f' : '#dbeafe',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}>
-                {(m as any).sender?.thumbnail || (m as any).sender?.avatar_url ? (
-                  <Image
-                    source={{
-                      uri: (m as any).sender.thumbnail || (m as any).sender.avatar_url,
-                    }}
-                    style={{ width: 28, height: 28 }}
-                  />
-                ) : (
-                  <Text style={{ fontSize: 12, fontWeight: '700', color: '#2563eb' }}>
-                    {contactName.charAt(0).toUpperCase()}
-                  </Text>
-                )}
-              </Pressable>
-            )}
+          {time ? <TimeAndStatus time={time} isOutgoing={isOutgoing} isDark={isDark} message={m} onRetry={handleRetry} /> : null}
+        </Pressable>
 
-            <Pressable
-              onLongPress={() => onSetQuotedMessage?.(m)}
-              delayLongPress={300}
-              style={{
-                maxWidth: '85%',
-                minWidth: 80,
-                backgroundColor: isOutgoing
-                  ? '#2563eb'
-                  : isDark
-                  ? '#1e293b'
-                  : '#ffffff',
-                borderWidth: isOutgoing ? 0 : 1,
-                borderColor: isDark ? '#334155' : '#e2e8f0',
-                borderRadius: 16,
-                borderBottomRightRadius: isOutgoing ? 4 : 16,
-                borderBottomLeftRadius: isOutgoing ? 16 : 4,
-                paddingHorizontal: 12,
-                paddingVertical: 8,
-              }}>
-              {/* Quoted Message Preview if replying to another message */}
-              {(() => {
-                const replyId =
-                  (m as any).contentAttributes?.inReplyTo ??
-                  (m as any).content_attributes?.in_reply_to;
-                const replyMessage = replyId ? messageMap?.get(replyId) : undefined;
-                return replyMessage ? (
-                  <ChatReplyPreview
-                    replyMessage={replyMessage}
-                    isOutgoing={isOutgoing}
-                    isDark={isDark}
-                    onPress={() => onScrollToMessage?.(replyMessage.id)}
-                  />
-                ) : null;
-              })()}
+        {isOutgoing && m.sender ? <Avatar sender={m.sender} isOutgoing isDark={isDark} contactName={contactName} /> : null}
 
-              {/* Sender name on incoming messages in group / multi-agent chats */}
-              {!isOutgoing && (m as any).sender?.name ? (
-                <Text
-                  style={{
-                    fontSize: 11,
-                    fontWeight: '600',
-                    color: isDark ? '#60a5fa' : '#2563eb',
-                    marginBottom: 2,
-                  }}>
-                  {(m as any).sender.name}
-                </Text>
-              ) : null}
-
-              {/* Attachments */}
-              {(m as any).attachments?.length > 0 &&
-                (m as any).attachments.map((att: any, aIdx: number) => (
-                  <MessageAttachmentView
-                    key={aIdx}
-                    attachment={att}
-                    isDark={isDark}
-                    isOutgoing={isOutgoing}
-                    onOpenFile={onOpenFileViewer || (() => {})}
-                  />
-                ))}
-
-              {/* Text Message Content */}
-              {messageText ? (
-                <Text
-                  style={{
-                    color: isOutgoing ? '#ffffff' : isDark ? '#f8fafc' : '#0f172a',
-                    fontSize: 15,
-                    lineHeight: 22,
-                    textAlign: isRTL ? 'right' : 'left',
-                  }}>
-                  {messageText}
-                </Text>
-              ) : null}
-
-              {/* Time & Delivery Status Checkmarks */}
-              {time ? (
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'flex-end',
-                    alignItems: 'center',
-                    alignSelf: 'flex-end',
-                    marginTop: 2,
-                    gap: 3,
-                  }}>
-                  <Text
-                    style={{
-                      color: isOutgoing ? 'rgba(255,255,255,0.75)' : '#9ca3af',
-                      fontSize: 10.5,
-                    }}>
-                    {time}
-                  </Text>
-                  <ChatDeliveryStatus
-                    message={m}
-                    isOutgoing={isOutgoing}
-                    isDark={isDark}
-                    onRetry={() => onRetryMessage?.(m)}
-                  />
-                </View>
-              ) : null}
-            </Pressable>
-
-            {isOutgoing && (m as any).sender ? (
-              <View
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 999,
-                  overflow: 'hidden',
-                  backgroundColor: isDark ? '#14532d' : '#dcfce7',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}>
-                {(m as any).sender.thumbnail || (m as any).sender.avatar_url ? (
-                  <Image
-                    source={{
-                      uri: (m as any).sender.thumbnail || (m as any).sender.avatar_url,
-                    }}
-                    style={{ width: 28, height: 28 }}
-                  />
-                ) : (
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      fontWeight: '700',
-                      color: isDark ? '#86efac' : '#15803d',
-                    }}>
-                    {((m as any).sender.name ||
-                      (m as any).sender.available_name ||
-                      'A')
-                      .charAt(0)
-                      .toUpperCase()}
-                  </Text>
-                )}
-              </View>
-            ) : null}
-
-            {highlightedMessageId === m.id && (
-              <View
-                pointerEvents="none"
-                style={{
-                  position: 'absolute',
-                  inset: -2,
-                  borderWidth: 2,
-                  borderColor: '#60a5fa',
-                  borderRadius: 18,
-                }}
-              />
-            )}
-          </View>
+        {highlightedMessageId === m.id && (
+          <View pointerEvents="none" style={{ position: 'absolute', inset: -2, borderWidth: 2, borderColor: C.highlight, borderRadius: 18 }} />
         )}
       </View>
     );

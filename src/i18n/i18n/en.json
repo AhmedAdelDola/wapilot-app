@@ -33,6 +33,7 @@
     "LOGIN": "Sign In",
     "LOGIN_LOADING": "Signing In...",
     "LOGIN_VIA_SSO": "Login via SSO",
+    "LOGIN_VIA_GOOGLE": "Continue with Google",
     "SSO_AUTH_FAILED": "SSO authentication failed. Please check your credentials and try again.",
     "SSO_INVALID_RESPONSE": "Invalid SSO response. Please try again.",
     "SSO_UNEXPECTED_ERROR": "An unexpected error occurred during SSO login. Please try again.",
@@ -566,5 +567,25 @@
     "TONE_CONFIDENT": "Confident",
     "GENERATION_FAILED": "Failed to generate content. Please try again.",
     "FOLLOW_UP_FAILED": "Failed to send follow-up. Please try again."
+  },
+  "CHANGE_PASSWORD": {
+    "TITLE": "Change password",
+    "CURRENT": "Existing Password",
+    "NEW": "New Password",
+    "CONFIRM": "Confirm New Password",
+    "CURRENT_PLACEHOLDER": "Enter current password",
+    "NEW_PLACEHOLDER": "Enter new password",
+    "CONFIRM_PLACEHOLDER": "Confirm new password",
+    "SUCCESS": "Password updated successfully",
+    "ERROR": "Failed to change password",
+    "VALIDATION": {
+      "CURRENT_REQUIRED": "Please enter your current password",
+      "NEW_MIN_LENGTH": "New password must be at least 8 characters long",
+      "NEW_UPPERCASE": "Password must include an uppercase letter",
+      "NEW_LOWERCASE": "Password must include a lowercase letter",
+      "NEW_NUMBER": "Password must include a number",
+      "NEW_SPECIAL": "Password must include a special character",
+      "CONFIRM_MISMATCH": "Passwords do not match"
+    }
   }
 }

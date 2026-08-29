@@ -9,9 +9,11 @@ import {
 } from '@gorhom/bottom-sheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
 
 import { EMAIL_REGEX } from '@/constants';
-import { EyeIcon, EyeSlash, LockIcon, TranslateIcon } from '@/svg-icons';
+import { EyeIcon, EyeSlash } from '@/svg-icons';
 import { tailwind } from '@/theme';
 import i18n from '@/i18n';
 import { resetAuth } from '@/viewmodels/store/auth/authSlice';
@@ -27,13 +29,15 @@ import {
 } from '@/views/components';
 import {
   selectInstallationUrl,
-  selectBaseUrl,
   selectLocale,
 } from '@/viewmodels/store/settings/settingsSelectors';
 import { selectIsLoggingIn } from '@/viewmodels/store/auth/authSelectors';
 import { setLocale } from '@/viewmodels/store/settings/settingsSlice';
 import { useRefsContext } from '@/context/RefsContext';
-import { SsoUtils } from '@/utils/ssoUtils';
+
+WebBrowser.maybeCompleteAuthSession();
+
+const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || '';
 
 type FormData = {
   email: string;
@@ -43,6 +47,7 @@ type FormData = {
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [showPassword, setShowPassword] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const {
     control,
     handleSubmit,
@@ -67,14 +72,18 @@ const LoginScreen = () => {
   const isLoggingIn = useAppSelector(selectIsLoggingIn);
 
   const installationUrl = useAppSelector(selectInstallationUrl);
-  const baseUrl = useAppSelector(selectBaseUrl);
   const activeLocale = useAppSelector(selectLocale);
+
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    clientId: GOOGLE_WEB_CLIENT_ID,
+    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || undefined,
+    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || undefined,
+  });
 
   useEffect(() => {
     languagesModalSheetRef.current?.dismiss({
       overshootClamping: true,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLocale]);
 
   useEffect(() => {
@@ -84,29 +93,39 @@ const LoginScreen = () => {
     }
   }, [installationUrl, navigation, dispatch]);
 
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { id_token } = response.params;
+      setGoogleLoading(true);
+      dispatch(authActions.loginWithGoogle({ id_token }))
+        .unwrap()
+        .catch(() => {})
+        .finally(() => setGoogleLoading(false));
+    }
+  }, [response, dispatch]);
+
+  const handleGoogleLogin = async () => {
+    try {
+      await promptAsync();
+    } catch {
+      // handled by useEffect
+    }
+  };
+
   const onSubmit = async (data: FormData) => {
     const { email, password } = data;
-    // Clear any existing auth state before login
     dispatch(resetAuth());
 
     try {
       const result = await dispatch(authActions.login({ email, password })).unwrap();
 
-      // Check if MFA is required in the response
       if ('mfa_required' in result && result.mfa_required) {
-        // Navigate directly to MFA screen with the token
         navigation.navigate('MFAScreen' as never);
       }
-      // If MFA not required, the auth state will be updated and
-      // the app will automatically navigate to the dashboard
     } catch {
-      // Login error is handled by Redux and displayed in the UI
+      // handled by Redux
     }
   };
-
-  // TODO: Change this condition based on EE check
-  // Show SSO login button only if installation URL contains omni.message-pro.com
-  const showSsoLogin = installationUrl.includes('omni.message-pro.com');
 
   const openResetPassword = () => {
     navigation.navigate('ResetPassword' as never);
@@ -117,23 +136,7 @@ const LoginScreen = () => {
     dispatch(setLocale(locale));
   };
 
-  const handleSsoLogin = async () => {
-    if (!installationUrl) {
-      return;
-    }
-
-    try {
-      const result = await SsoUtils.loginWithSSO(installationUrl);
-
-      if (result.type === 'success' && result.url) {
-        const ssoParams = SsoUtils.parseCallbackUrl(result.url);
-        await SsoUtils.handleSsoCallback(ssoParams, dispatch);
-      }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      // SSO login error handled silently
-    }
-  };
+  const showGoogleButton = GOOGLE_WEB_CLIENT_ID.length > 0;
 
   return (
     <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: colors.background }}>
@@ -152,13 +155,10 @@ const LoginScreen = () => {
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
               <Image
                 // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
-                source={require('@/assets/images/logo.png')}
-                style={{ width: 23, height: 23, borderRadius: 7, marginRight: 6 }}
+                source={isDark ? require('@/assets/images/logo-dark.png') : require('@/assets/images/logo-light.png')}
+                style={{ width: 140, height: 40 }}
                 resizeMode="contain"
               />
-              <Text style={{ color: colors.textPrimary, fontSize: 17, fontWeight: '800', letterSpacing: -0.4 }}>
-                message.pro
-              </Text>
             </View>
 
             <Text style={{ color: colors.textPrimary, fontSize: 17, fontWeight: '700', marginBottom: 26 }}>
@@ -180,7 +180,7 @@ const LoginScreen = () => {
                   {i18n.t('LOGIN.EMAIL')}
                 </Animated.Text>
                 <TextInput
-                  style={{ height: 44, borderRadius: 7, borderWidth: 1, borderColor: errors.email ? '#fb7185' : colors.border, color: colors.textPrimary, paddingHorizontal: 12, fontSize: 13 }}
+                  style={{ height: 44, borderRadius: 7, borderWidth: 1, borderColor: errors.email ? '#fb7185' : colors.border, backgroundColor: colors.inputBg, color: colors.textPrimary, paddingHorizontal: 12, fontSize: 13 }}
                   onBlur={onBlur}
                   onChangeText={onChange}
                   value={value}
@@ -217,7 +217,7 @@ const LoginScreen = () => {
                 </Animated.Text>
                 <View style={tailwind.style('relative')}>
                   <TextInput
-                  style={{ height: 44, borderRadius: 7, borderWidth: 1, borderColor: errors.password ? '#fb7185' : colors.border, color: colors.textPrimary, paddingLeft: 12, paddingRight: 44, fontSize: 13 }}
+                  style={{ height: 44, borderRadius: 7, borderWidth: 1, borderColor: errors.password ? '#fb7185' : colors.border, backgroundColor: colors.inputBg, color: colors.textPrimary, paddingLeft: 12, paddingRight: 44, fontSize: 13 }}
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
@@ -230,7 +230,7 @@ const LoginScreen = () => {
                 <Pressable
                     style={{ position: 'absolute', right: 13, top: 12 }}
                     onPress={() => setShowPassword(!showPassword)}>
-                    <Icon size={20} icon={showPassword ? <EyeIcon /> : <EyeSlash />} />
+                    <Icon size={20} icon={showPassword ? <EyeIcon color={colors.textTertiary} /> : <EyeSlash color={colors.textTertiary} />} />
                   </Pressable>
                 </View>
                 {errors.password && (
@@ -256,17 +256,30 @@ const LoginScreen = () => {
             {isLoggingIn ? <ActivityIndicator color={colors.textInverse} /> : <Text style={{ color: colors.textInverse, fontSize: 13, fontWeight: '800' }}>{i18n.t('LOGIN.LOGIN')}</Text>}
           </Pressable>
 
-          <View style={{ flex: 1, minHeight: 96 }} />
+          {showGoogleButton && (
+            <>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 16 }}>
+                <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
+                <Text style={{ marginHorizontal: 12, color: colors.textTertiary, fontSize: 12 }}>or</Text>
+                <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
+              </View>
 
-          {showSsoLogin ? (
-            <Pressable onPress={handleSsoLogin} disabled={isLoggingIn} style={{ height: 44, borderRadius: 7, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
-              <Text style={{ color: colors.textPrimary, fontSize: 12, fontWeight: '600' }}>{i18n.t('LOGIN.LOGIN_VIA_SSO')}</Text>
-            </Pressable> 
-          ) : null}
+              <Pressable
+                onPress={handleGoogleLogin}
+                disabled={isLoggingIn || googleLoading || !request}
+                style={{ height: 45, borderRadius: 7, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 10 }}>
+                {googleLoading ? (
+                  <ActivityIndicator size="small" color={colors.textPrimary} />
+                ) : (
+                  <Text style={{ fontSize: 18 }}>G</Text>
+                )}
+                <Text style={{ color: colors.textPrimary, fontSize: 13, fontWeight: '600' }}>{i18n.t('LOGIN.LOGIN_VIA_GOOGLE')}</Text>
+              </Pressable>
+            </>
+          )}
 
-         
+          <View style={{ flex: 1, minHeight: 40 }} />
 
-          {/* Static footer message - replace the string below with whatever text you want */}
           <Animated.Text style={{ color: colors.textTertiary, fontSize: 12, textAlign: 'center', marginTop: 14 }}>
             {'No account? Sign up on your desktop.'}
           </Animated.Text>
@@ -276,12 +289,12 @@ const LoginScreen = () => {
       <BottomSheetModal
         ref={languagesModalSheetRef}
         backdropComponent={BottomSheetBackdrop}
-        handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
+        handleIndicatorStyle={{ backgroundColor: isDark ? '#4B5563' : 'rgba(0,0,0,0.3)', width: 32, height: 4, borderRadius: 11 }}
         detached
         enablePanDownToClose
         animationConfigs={animationConfigs}
-        handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
-        style={tailwind.style('rounded-[26px] overflow-hidden')}
+        handleStyle={{ padding: 0, height: 16, paddingTop: 5 }}
+        style={{ borderRadius: 26, backgroundColor: isDark ? '#1C1C1E' : '#ffffff', overflow: 'hidden' }}
         snapPoints={['70%']}>
         <BottomSheetScrollView showsVerticalScrollIndicator={false}>
           <BottomSheetHeader headerText={i18n.t('SETTINGS.SET_LANGUAGE')} />

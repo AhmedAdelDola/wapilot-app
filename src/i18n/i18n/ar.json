@@ -39,7 +39,9 @@
     "SETTINGS": "الإعدادات",
     "CHANGE_LANGUAGE": "تغيير اللغة",
     "TERMS": "الشروط والأحكام",
-    "CHANGE_URL": "تغيير عنوان URL"
+    "CHANGE_URL": "تغيير عنوان URL",
+    "LOGIN_VIA_SSO": "تسجيل الدخول عبر SSO",
+    "LOGIN_VIA_GOOGLE": "المتابعة بجوجل"
   },
   "FORGOT_PASSWORD": {
     "EMAIL": "الرجاء إدخال بريدك الإلكتروني",
@@ -460,5 +462,16 @@
     "EXECUTION_SUCCESS": "تم تنفيذ الماكرو بنجاح",
     "EXECUTION_ERROR": "Macro execution failed",
     "NO_MACROS": "لم يتم العثور على الماكروس"
+  },
+  "CHANGE_PASSWORD": {
+    "TITLE": "تغيير كلمة المرور",
+    "CURRENT": "كلمة المرور الحالية",
+    "NEW": "كلمة المرور الجديدة",
+    "CONFIRM": "تأكيد كلمة المرور الجديدة",
+    "CURRENT_PLACEHOLDER": "أدخل كلمة المرور الحالية",
+    "NEW_PLACEHOLDER": "أدخل كلمة المرور الجديدة",
+    "CONFIRM_PLACEHOLDER": "تأكيد كلمة المرور الجديدة",
+    "SUCCESS": "تم تحديث كلمة المرور بنجاح",
+    "ERROR": "فشل في تغيير كلمة المرور"
   }
 }

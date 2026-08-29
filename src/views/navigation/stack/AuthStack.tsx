@@ -5,6 +5,7 @@ import ConfigInstallationURL from '@/views/screens/auth/ConfigURLScreen';
 import Login from '@/views/screens/auth/LoginScreen';
 import ForgotPassword from '@/views/screens/auth/ForgotPassword';
 import MFAScreen from '@/views/screens/auth/MFAScreen';
+import { useTheme } from '@/theme/useTheme';
 
 export type AuthStackParamList = {
   Login: undefined;
@@ -16,8 +17,17 @@ export type AuthStackParamList = {
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 export const AuthStack = () => {
+  const { isDark } = useTheme();
+
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Login">
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        headerStyle: { backgroundColor: isDark ? '#0f172a' : '#ffffff' },
+        headerTintColor: isDark ? '#f8fafc' : '#111827',
+        headerShadowVisible: false,
+      }}
+      initialRouteName="Login">
       <Stack.Screen
         options={{
           headerShown: false,

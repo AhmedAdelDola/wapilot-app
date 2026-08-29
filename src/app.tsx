@@ -1,20 +1,46 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
-import { Alert, BackHandler } from 'react-native';
+import { Alert, BackHandler, Platform } from 'react-native';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from '@/viewmodels/store';
 import { AppNavigator } from '@/views/navigation';
 import { AppErrorBoundary } from '@/views/components/error-boundary';
+import * as NavigationBar from 'expo-navigation-bar';
+import { AnimatedSplash } from '@/views/screens/splash/AnimatedSplash';
 
 import i18n from '@/i18n';
 
 const Chatwoot = () => {
+  const [showSplash, setShowSplash] = useState(true);
+
   useEffect(() => {
-    const subscription = BackHandler.addEventListener(
+    if (Platform.OS === 'android') {
+      NavigationBar.setVisibilityAsync('hidden');
+
+      const navSubscription = NavigationBar.addVisibilityListener(({ visibility }) => {
+        if (visibility === 'visible') {
+          setTimeout(() => {
+            NavigationBar.setVisibilityAsync('hidden');
+          }, 1500);
+        }
+      });
+
+      const backSubscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        handleBackButtonClick,
+      );
+
+      return () => {
+        navSubscription.remove();
+        backSubscription.remove();
+      };
+    }
+
+    const backSubscription = BackHandler.addEventListener(
       'hardwareBackPress',
       handleBackButtonClick,
     );
-    return () => subscription.remove();
+    return () => backSubscription.remove();
   }, []);
   const handleBackButtonClick = () => {
     Alert.alert(
@@ -40,6 +66,10 @@ const Chatwoot = () => {
       i18n.locale = settings.localeValue;
     }
   };
+
+  if (showSplash) {
+    return <AnimatedSplash onFinish={() => setShowSplash(false)} />;
+  }
 
   return (
     <Provider store={store}>

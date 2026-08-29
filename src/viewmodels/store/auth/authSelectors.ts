@@ -27,6 +27,11 @@ export const selectResetPasswordLoading = createSelector(
   auth => auth.uiFlags.isResettingPassword,
 );
 
+export const selectResetPasswordSuccess = createSelector(
+  selectAuth,
+  auth => auth.uiFlags.resetPasswordSuccess,
+);
+
 export const selectAccounts = createSelector(selectAuth, auth => auth.user?.accounts);
 
 export const selectCurrentUserAvailability = createSelector(selectAuth, auth => {

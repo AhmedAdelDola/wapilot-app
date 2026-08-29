@@ -68,3 +68,19 @@ export interface SsoAuthResponse {
   user: User;
   headers: AuthHeaders;
 }
+
+export interface GoogleLoginPayload {
+  id_token: string;
+}
+
+export interface ChangePasswordPayload {
+  profile: {
+    current_password: string;
+    password: string;
+    password_confirmation: string;
+  };
+}
+
+export interface ChangePasswordResponse {
+  message: string;
+}

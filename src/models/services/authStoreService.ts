@@ -13,6 +13,9 @@ import type {
   SetActiveAccountPayload,
   SsoAuthPayload,
   SsoAuthResponse,
+  GoogleLoginPayload,
+  ChangePasswordPayload,
+  ChangePasswordResponse,
 } from '@/viewmodels/store/auth/authTypes';
 
 export class AuthService {
@@ -85,5 +88,24 @@ export class AuthService {
       user: response.data.data,
       headers,
     };
+  }
+
+  static async loginWithGoogle(payload: GoogleLoginPayload): Promise<LoginResponse> {
+    const response = await apiService.post<{ data: User }>('auth/google', payload);
+    const headers = {
+      'access-token': response.headers['access-token'],
+      uid: response.headers.uid,
+      client: response.headers.client,
+    };
+    apiService.setAuthHeaders(headers);
+    return {
+      user: response.data.data,
+      headers,
+    };
+  }
+
+  static async changePassword(payload: ChangePasswordPayload): Promise<ChangePasswordResponse> {
+    const response = await apiService.put<ChangePasswordResponse>('profile', payload);
+    return response.data;
   }
 }

@@ -13,7 +13,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     splash: {
       image: './assets/splash.png',
       resizeMode: 'contain',
-      backgroundColor: '#ffffff',
+      backgroundColor: '#0f172a',
       enableFullScreenImage_legacy: true,
     },
     ios: {
@@ -35,6 +35,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       package: 'com.messagepro.app',
       googleServicesFile: './google-services.json',
       permissions: ['android.permission.CAMERA', 'android.permission.RECORD_AUDIO'],
+      edgeToEdgeEnabled: true,
     },
     extra: {
       eas: {

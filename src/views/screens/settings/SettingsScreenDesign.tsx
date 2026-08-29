@@ -84,13 +84,6 @@ const PhoneIconSm = ({ color = '#94a3b8' }: { color?: string }) => (
   </Svg>
 );
 
-const AlertIcon = ({ color = '#94a3b8' }: { color?: string }) => (
-  <Svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <Path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    <Path d="M12 9v4M12 17h.01" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
-  </Svg>
-);
-
 const ChatIcon = ({ color = '#94a3b8' }: { color?: string }) => (
   <Svg width="20" height="20" viewBox="0 0 24 24" fill="none">
     <Path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -514,7 +507,6 @@ const SettingsScreenDesign = () => {
               Help & feedback
             </Text>
             {[
-              { icon: <AlertIcon />, label: 'Report a bug', action: () => navigation.navigate('ReportBugScreen') },
               { icon: <ChatIcon />, label: 'Get support', action: () => setShowSupportSheet(true) },
             ].map((item, i) => (
               <Pressable key={i} style={[dynamicRowCls, { paddingHorizontal: 0 }]} onPress={item.action}>
@@ -554,6 +546,10 @@ const SettingsScreenDesign = () => {
 
 // ---------- Get Support Sheet (reference-exact with WhatsApp integration) ----------
 const GetSupportSheetLocal = ({ onClose }: { onClose: () => void }) => {
+  const { isDark } = useTheme();
+  const bgColor = isDark ? '#1e293b' : 'white';
+  const textPrimary = isDark ? '#f8fafc' : '#111827';
+  const textSecondary = isDark ? '#94a3b8' : '#6b7280';
   const handleOpenWhatsApp = () => {
     Linking.openURL('https://wa.me/201026047788').catch(() => {
       Alert.alert('Error', 'Could not open WhatsApp');
@@ -569,7 +565,7 @@ const GetSupportSheetLocal = ({ onClose }: { onClose: () => void }) => {
           bottom: 0,
           left: 0,
           right: 0,
-          backgroundColor: 'white',
+          backgroundColor: bgColor,
           borderTopLeftRadius: 16,
           borderTopRightRadius: 16,
           paddingBottom: 40,
@@ -579,17 +575,17 @@ const GetSupportSheetLocal = ({ onClose }: { onClose: () => void }) => {
           style={{
             width: 40,
             height: 4,
-            backgroundColor: '#d1d5db',
+            backgroundColor: isDark ? '#475569' : '#d1d5db',
             borderRadius: 999,
             alignSelf: 'center',
             marginTop: 12,
             marginBottom: 16,
           }}
         />
-        <Text style={{ fontSize: 18, fontWeight: '600', color: '#111827', textAlign: 'center', marginBottom: 4 }}>
+        <Text style={{ fontSize: 18, fontWeight: '600', color: textPrimary, textAlign: 'center', marginBottom: 4 }}>
           Get Support
         </Text>
-        <Text style={{ fontSize: 14, color: '#6b7280', textAlign: 'center', marginBottom: 24 }}>
+        <Text style={{ fontSize: 14, color: textSecondary, textAlign: 'center', marginBottom: 24 }}>
           Chat with us on WhatsApp
         </Text>
         <Pressable

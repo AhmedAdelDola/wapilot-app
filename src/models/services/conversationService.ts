@@ -150,13 +150,16 @@ class ConversationService {
   async searchConversations(query: string, params: {
     page?: number;
   } = {}): Promise<ConversationListResponse['data']> {
-    const response = await apiService.get('conversations/search', {
+    const response: any = await apiService.get('conversations/search', {
       params: {
         q: query,
         page: params.page || 1,
       },
     });
-    return response.data.data;
+    console.log('[TEMP SEARCH SVC] response.data keys =', response?.data ? Object.keys(response.data) : response?.data, '| response.data.data keys =', response?.data?.data ? Object.keys(response.data.data) : response?.data?.data);
+    const body = response?.data ?? response;
+    const inner = body?.data ?? body;
+    return inner;
   }
 
   /**

@@ -228,12 +228,6 @@ const SettingsScreen = () => {
 
         <SettingsSection title="Help & feedback">
           <SettingsRow
-            icon={<Text style={tailwind.style('text-xl')}>⚠️</Text>}
-            title="Report a bug"
-            onPress={() => navigation.navigate('ReportBugScreen' as never)}
-            hasChevron
-          />
-          <SettingsRow
             icon={<Text style={tailwind.style('text-xl')}>💬</Text>}
             title="Get support"
             onPress={() => setShowGetSupport(true)}

@@ -1,0 +1,64 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Dimensions, Image, StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+
+const { width } = Dimensions.get('window');
+
+const ICONS = [
+  require('@/assets/images/splash-icon-1.png'),
+  require('@/assets/images/splash-icon-2.png'),
+  require('@/assets/images/splash-icon-3.png'),
+  require('@/assets/images/splash-icon-4.png'),
+];
+
+type AnimatedSplashProps = {
+  onFinish: () => void;
+};
+
+export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const stepRef = useRef(0);
+
+  useEffect(() => {
+    const totalIcons = ICONS.length;
+    const iconDuration = 800;
+
+    const animateNext = () => {
+      fadeAnim.setValue(0);
+      Animated.sequence([
+        Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
+        Animated.delay(iconDuration - 600),
+        Animated.timing(fadeAnim, { toValue: 0, duration: 300, useNativeDriver: true }),
+      ]).start(() => {
+        stepRef.current++;
+        if (stepRef.current < totalIcons) {
+          setCurrentIndex(stepRef.current);
+          animateNext();
+        } else {
+          onFinish();
+        }
+      });
+    };
+
+    animateNext();
+  }, []);
+
+  return (
+    <View style={[styles.container, { backgroundColor: isDark ? '#0f172a' : '#ffffff' }]}>
+      <StatusBar translucent backgroundColor="transparent" barStyle={isDark ? 'light-content' : 'dark-content'} />
+      <View style={styles.content}>
+        <Animated.View style={{ opacity: fadeAnim }}>
+          <Image source={ICONS[currentIndex]} style={styles.icon} resizeMode="contain" />
+        </Animated.View>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  content: { justifyContent: 'center', alignItems: 'center' },
+  icon: { width: width * 0.35, height: width * 0.35 },
+});

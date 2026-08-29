@@ -6,6 +6,12 @@ import type { ApiErrorResponse } from './authTypes';
 export const handleApiError = (error: unknown, customErrorMsg?: string) => {
   const { response } = error as AxiosError<ApiErrorResponse>;
 
+  if (response?.status === 429) {
+    const message = 'Too many requests. Please try again later.';
+    showToast({ message });
+    return { success: false, errors: [message] };
+  }
+
   // Handle specific error responses (401, 400, etc.)
   if (response?.status === 401 || response?.status === 400) {
     const { errors } = response.data;

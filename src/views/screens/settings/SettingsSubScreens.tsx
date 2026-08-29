@@ -369,10 +369,11 @@ export const UpdateNotificationsScreen = () => {
 export const ChangePasswordScreen = () => {
   const navigation = useNavigation<any>();
   const isDark = useIsDark();
+  const dispatch = useAppDispatch();
+  const isChangingPassword = useAppSelector(state => state.auth.uiFlags.isChangingPassword);
   const [currentPassword, setCurrentPassword] = useState('');
   const [nextPassword, setNextPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
 
   const inputCls = {
     width: '100%',
@@ -388,7 +389,7 @@ export const ChangePasswordScreen = () => {
 
   const labelCls = { fontWeight: '600', color: isDark ? '#f9fafb' : '#111827', marginBottom: 6, fontSize: 14 } as const;
 
-  const handleChangePassword = () => {
+  const handleChangePassword = useCallback(async () => {
     if (!currentPassword) {
       Alert.alert('Error', 'Please enter your current password');
       return;
@@ -402,18 +403,26 @@ export const ChangePasswordScreen = () => {
       return;
     }
 
-    setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
+    try {
+      await dispatch(authActions.changePassword({
+        profile: {
+          current_password: currentPassword,
+          password: nextPassword,
+          password_confirmation: confirmPassword,
+        },
+      })).unwrap();
       showToast({ message: 'Password updated successfully' });
       navigation.goBack();
-    }, 600);
-  };
+    } catch (error: any) {
+      const message = error?.errors?.[0] || 'Failed to change password';
+      Alert.alert('Error', message);
+    }
+  }, [currentPassword, nextPassword, confirmPassword, dispatch, navigation]);
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#111827' : 'white' }}>
       <StatusBar translucent backgroundColor={isDark ? '#111827' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
-      <SubHeader title="Change password" right="Save" onRightPress={handleChangePassword} rightLoading={isSaving} />
+      <SubHeader title="Change password" right="Save" onRightPress={handleChangePassword} rightLoading={isChangingPassword} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 32, gap: 20 }}>
         <View>
           <Text style={labelCls}>Existing Password</Text>
