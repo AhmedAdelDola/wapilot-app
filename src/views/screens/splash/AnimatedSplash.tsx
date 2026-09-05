@@ -13,7 +13,10 @@ import * as SplashScreen from 'expo-splash-screen';
 
 const { height, width } = Dimensions.get('window');
 
-const LETTER_HEIGHT = Math.min(height * 0.065, width * 0.15);
+const M_ANIM_DURATION = 800;
+const M_SETTLE_PAUSE = 200;
+const LETTER_STAGGER = 100;
+const LETTER_FLY_DUR = 300;
 
 const LETTERS: { src: ReturnType<typeof require>; ratio: number }[] = [
   { src: require('@/assets/images/brand/letters/condensed version graded-1.png'),  ratio: 1081 / 697 },
@@ -28,10 +31,13 @@ const LETTERS: { src: ReturnType<typeof require>; ratio: number }[] = [
   { src: require('@/assets/images/brand/letters/condensed version graded-10.png'), ratio: 703 / 693  },
 ];
 
-const M_ANIM_DURATION = 800;
-const M_SETTLE_PAUSE = 200;
-const LETTER_STAGGER = 100;
-const LETTER_FLY_DUR = 300;
+const calcLetterHeight = () => {
+  const maxWordWidth = width * 0.85;
+  const totalRatio = LETTERS.reduce((sum, l) => sum + l.ratio, 0);
+  const byWidth = maxWordWidth / totalRatio;
+  const byHeight = height * 0.08;
+  return Math.min(byWidth, byHeight, 80);
+};
 
 type AnimatedSplashProps = { onFinish: () => void };
 
@@ -41,6 +47,8 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
   const bg = isDark ? '#101113' : '#ffffff';
 
   const finishedRef = useRef(false);
+
+  const LETTER_HEIGHT = useRef(calcLetterHeight()).current;
 
   const mScale = useRef(new Animated.Value(0.3)).current;
   const mOpacity = useRef(new Animated.Value(0)).current;
@@ -157,13 +165,11 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
         >
           <Image
             source={LETTERS[0].src}
-            style={[
-              styles.letter,
-              {
-                width: LETTER_HEIGHT * LETTERS[0].ratio,
-                height: LETTER_HEIGHT,
-              },
-            ]}
+            style={{
+              width: LETTER_HEIGHT * LETTERS[0].ratio,
+              height: LETTER_HEIGHT,
+              marginHorizontal: 1,
+            }}
             resizeMode="contain"
           />
         </Animated.View>
@@ -177,13 +183,11 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
             >
               <Image
                 source={letter.src}
-                style={[
-                  styles.letter,
-                  {
-                    width: LETTER_HEIGHT * letter.ratio,
-                    height: LETTER_HEIGHT,
-                  },
-                ]}
+                style={{
+                  width: LETTER_HEIGHT * letter.ratio,
+                  height: LETTER_HEIGHT,
+                  marginHorizontal: 1,
+                }}
                 resizeMode="contain"
               />
             </Animated.View>
@@ -203,9 +207,6 @@ const styles = StyleSheet.create({
   wordRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'nowrap',
-  },
-  letter: {
-    marginHorizontal: 1,
+    justifyContent: 'center',
   },
 });
