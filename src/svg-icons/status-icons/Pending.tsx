@@ -13,3 +13,12 @@ export const PendingIcon = ({ stroke = '#858585', color, strokeWidth = 1.5, fill
     </Svg>
   );
 };
+
+export const PendingFilledIcon = ({ color = '#FA8900' }: { color?: string }): JSX.Element => {
+  return (
+    <Svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+      <Path d="M12 21C16.6944 21 20.5 17.1944 20.5 12.5C20.5 7.80558 16.6944 4 12 4C7.30558 4 3.5 7.80558 3.5 12.5C3.5 17.1944 7.30558 21 12 21Z" fill={color} />
+      <Path d="M15.5059 12.4941H8.50586" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  );
+};

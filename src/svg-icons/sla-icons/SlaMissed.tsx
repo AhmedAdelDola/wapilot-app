@@ -18,3 +18,5 @@ export const SlaMissedIcon = ({ color }: { color: string }) => {
     </Svg>
   );
 };
+
+export const SLAIcon = SlaMissedIcon;

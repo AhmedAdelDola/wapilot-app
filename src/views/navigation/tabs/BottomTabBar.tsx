@@ -2,7 +2,6 @@ import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useTheme } from '@/theme';
-import { SvgProps } from 'react-native-svg';
 
 import { BellIcon } from '@/svg-icons/tabs/BellIcon';
 import { InboxIcon } from '@/svg-icons/tabs/InboxIcon';
@@ -15,20 +14,20 @@ type NavIconProps = { focused: boolean; routeName: keyof TabParamList; color: st
 const ICON_SIZE = 22;
 
 const TabBarIcon = ({ focused, routeName, color }: NavIconProps) => {
-  const props = { width: ICON_SIZE, height: ICON_SIZE, color, stroke: color } as Partial<SvgProps>;
+  const iconProps = { width: ICON_SIZE, height: ICON_SIZE, color, stroke: color };
   let icon: React.ReactNode;
   switch (routeName) {
     case 'Notifications':
-      icon = <BellIcon {...props} />;
+      icon = <BellIcon {...iconProps as any} />;
       break;
     case 'Inbox':
-      icon = <InboxIcon {...props} />;
+      icon = <InboxIcon {...iconProps as any} />;
       break;
     case 'Calls':
       icon = <CallsIconOutline width={ICON_SIZE} height={ICON_SIZE} />;
       break;
     case 'Settings':
-      icon = <GearIcon {...props} />;
+      icon = <GearIcon {...iconProps as any} />;
       break;
     default:
       return null;

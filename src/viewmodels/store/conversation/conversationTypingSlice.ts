@@ -3,11 +3,14 @@ import { TypingUser } from '@/models/types';
 import { RootState } from '@/viewmodels/store';
 
 interface TypingUserWithTimestamp {
+  availabilityStatus: string;
+  availableName: string;
+  avatarUrl: string;
+  thumbnail: string;
   id: number;
   name: string;
   type: 'user' | 'contact';
   lastSeenAt: number;
-  [key: string]: any;
 }
 
 interface TypingUserPayload {
