@@ -112,13 +112,13 @@ const SubHeader = ({
         paddingTop: 16,
         paddingBottom: 16,
         borderBottomWidth: 1,
-        borderBottomColor: isDark ? '#1B1C20' : '#F0F0F3',
-        backgroundColor: isDark ? '#282E34' : 'white',
+        borderBottomColor: isDark ? '#24262B' : '#EAEAEA',
+        backgroundColor: isDark ? '#101113' : '#ffffff',
       }}>
       <Pressable onPress={() => navigation.goBack()} hitSlop={12}>
-        <ArrowLeft color={isDark ? 'rgba(0,0,0,0.03)' : '#282E34'} />
+        <ArrowLeft color={isDark ? '#EDEEF0' : '#282E34'} />
       </Pressable>
-      <Text style={{ fontSize: 18, fontWeight: '700', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34' }}>{title}</Text>
+      <Text style={{ fontSize: 18, fontWeight: '700', color: isDark ? '#EDEEF0' : '#282E34' }}>{title}</Text>
       <View style={{ minWidth: 48, alignItems: 'flex-end' }}>
         {right && (
           <Pressable onPress={onRightPress} disabled={rightLoading} hitSlop={12}>
@@ -212,7 +212,7 @@ export const UpdateNotificationsScreen = () => {
     justifyContent: 'space-between' as const,
     borderWidth: 1,
     borderColor: isDark ? '#626F7F' : '#EAEAEA',
-    backgroundColor: isDark ? '#1B1C20' : 'white',
+    backgroundColor: isDark ? '#1B1C20' : '#ffffff',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -231,13 +231,13 @@ export const UpdateNotificationsScreen = () => {
       : { title: 'Chat Sounds Scope', options: chatOptions, selected: chatScope, onSelect: setChatScope };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#282E34' : 'white' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#282E34' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#101113' : '#ffffff'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Update notifications" right="Save" onRightPress={handleSave} rightLoading={isSaving} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 32, gap: 24 }}>
         <View>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={{ fontWeight: '600', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', fontSize: 16 }}>Mobile Push Notification</Text>
+            <Text style={{ fontWeight: '600', color: isDark ? '#EDEEF0' : '#282E34', fontSize: 16 }}>Mobile Push Notification</Text>
             <Toggle on={mobilePush} onToggle={() => setMobilePush(!mobilePush)} />
           </View>
           <Pressable style={dropdownStyle} onPress={() => setActiveModal('push')}>
@@ -254,7 +254,7 @@ export const UpdateNotificationsScreen = () => {
                 borderRadius: 6,
                 borderWidth: 1.5,
                 borderColor: offlineOnly ? '#725AFF' : (isDark ? '#626F7F' : '#EAEAEA'),
-                backgroundColor: offlineOnly ? '#725AFF' : (isDark ? '#1B1C20' : 'white'),
+                backgroundColor: offlineOnly ? '#725AFF' : (isDark ? '#1B1C20' : '#ffffff'),
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
@@ -264,11 +264,11 @@ export const UpdateNotificationsScreen = () => {
           </Pressable>
         </View>
 
-        <View style={{ height: 1, backgroundColor: isDark ? '#1B1C20' : '#F0F0F3' }} />
+        <View style={{ height: 1, backgroundColor: isDark ? '#24262B' : '#EAEAEA' }} />
 
         <View>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={{ fontWeight: '600', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', fontSize: 16 }}>In-app Call Sounds</Text>
+            <Text style={{ fontWeight: '600', color: isDark ? '#EDEEF0' : '#282E34', fontSize: 16 }}>In-app Call Sounds</Text>
             <Toggle on={callSounds} onToggle={() => setCallSounds(!callSounds)} />
           </View>
           <Pressable style={dropdownStyle} onPress={() => setActiveModal('call')}>
@@ -279,11 +279,11 @@ export const UpdateNotificationsScreen = () => {
           </Pressable>
         </View>
 
-        <View style={{ height: 1, backgroundColor: isDark ? '#1B1C20' : '#F0F0F3' }} />
+        <View style={{ height: 1, backgroundColor: isDark ? '#24262B' : '#EAEAEA' }} />
 
         <View>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={{ fontWeight: '600', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', fontSize: 16 }}>In-app Chat Sounds</Text>
+            <Text style={{ fontWeight: '600', color: isDark ? '#EDEEF0' : '#282E34', fontSize: 16 }}>In-app Chat Sounds</Text>
             <Toggle on={chatSounds} onToggle={() => setChatSounds(!chatSounds)} />
           </View>
           <Pressable style={dropdownStyle} onPress={() => setActiveModal('chat')}>
@@ -303,7 +303,7 @@ export const UpdateNotificationsScreen = () => {
             onPress={() => setActiveModal(null)}>
             <Pressable
               style={{
-                backgroundColor: isDark ? '#1B1C20' : 'white',
+                backgroundColor: isDark ? '#1B1C20' : '#ffffff',
                 borderTopLeftRadius: 20,
                 borderTopRightRadius: 20,
                 paddingBottom: 40,
@@ -321,7 +321,7 @@ export const UpdateNotificationsScreen = () => {
                   marginBottom: 16,
                 }}
               />
-              <Text style={{ fontSize: 17, fontWeight: '700', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', marginBottom: 12 }}>
+              <Text style={{ fontSize: 17, fontWeight: '700', color: isDark ? '#EDEEF0' : '#282E34', marginBottom: 12 }}>
                 {currentModalOptions.title}
               </Text>
               {currentModalOptions.options.map(opt => {
@@ -381,13 +381,13 @@ export const ChangePasswordScreen = () => {
     paddingVertical: 14,
     borderWidth: 1,
     borderColor: isDark ? '#626F7F' : '#EAEAEA',
-    backgroundColor: isDark ? '#1B1C20' : 'white',
+    backgroundColor: isDark ? '#1B1C20' : '#ffffff',
     borderRadius: 12,
-    color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34',
+    color: isDark ? '#EDEEF0' : '#282E34',
     fontSize: 14,
   } as const;
 
-  const labelCls = { fontWeight: '600', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', marginBottom: 6, fontSize: 14 } as const;
+  const labelCls = { fontWeight: '600', color: isDark ? '#EDEEF0' : '#282E34', marginBottom: 6, fontSize: 14 } as const;
 
   const handleChangePassword = useCallback(async () => {
     if (!currentPassword) {
@@ -420,8 +420,8 @@ export const ChangePasswordScreen = () => {
   }, [currentPassword, nextPassword, confirmPassword, dispatch, navigation]);
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#282E34' : 'white' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#282E34' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#101113' : '#ffffff'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Change password" right="Save" onRightPress={handleChangePassword} rightLoading={isChangingPassword} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 32, gap: 20 }}>
         <View>
@@ -496,18 +496,18 @@ export const ProfileScreen = () => {
     paddingVertical: 14,
     borderWidth: 1,
     borderColor: isDark ? '#626F7F' : '#EAEAEA',
-    backgroundColor: isDark ? '#1B1C20' : 'white',
+    backgroundColor: isDark ? '#1B1C20' : '#ffffff',
     borderRadius: 12,
-    color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34',
+    color: isDark ? '#EDEEF0' : '#282E34',
     fontSize: 14,
     fontWeight: '500' as const,
   } as const;
 
-  const labelCls = { fontWeight: '600', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', marginBottom: 6, fontSize: 14 } as const;
+  const labelCls = { fontWeight: '600', color: isDark ? '#EDEEF0' : '#282E34', marginBottom: 6, fontSize: 14 } as const;
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#282E34' : 'white' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#282E34' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#101113' : '#ffffff'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Profile" right="Save" onRightPress={handleSave} rightLoading={isSaving} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 32 }}>
         <View style={{ alignItems: 'center', marginBottom: 24 }}>
@@ -527,7 +527,7 @@ export const ProfileScreen = () => {
               <Text style={{ color: 'white', fontSize: 32, fontWeight: '700' }}>{initialLetter}</Text>
             </View>
           )}
-          <Text style={{ fontWeight: '700', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', fontSize: 18 }}>{user?.name || 'User'}</Text>
+          <Text style={{ fontWeight: '700', color: isDark ? '#EDEEF0' : '#282E34', fontSize: 18 }}>{user?.name || 'User'}</Text>
           <Text style={{ color: isDark ? '#80838D' : '#626F7F', fontSize: 14, marginTop: 2 }}>{email}</Text>
         </View>
 
@@ -542,7 +542,7 @@ export const ProfileScreen = () => {
           </View>
           <View>
             <Text style={labelCls}>Email</Text>
-            <TextInput value={email} editable={false} style={[inputCls, { backgroundColor: isDark ? '#282E34' : 'rgba(0,0,0,0.03)', color: '#80838D' }]} />
+            <TextInput value={email} editable={false} style={[inputCls, { backgroundColor: isDark ? '#282E34' : '#EDEEF0', color: '#80838D' }]} />
           </View>
           <View>
             <Text style={labelCls}>Language</Text>
@@ -553,14 +553,14 @@ export const ProfileScreen = () => {
                 justifyContent: 'space-between',
                 borderWidth: 1,
                 borderColor: isDark ? '#626F7F' : '#EAEAEA',
-                backgroundColor: isDark ? '#1B1C20' : 'white',
+                backgroundColor: isDark ? '#1B1C20' : '#ffffff',
                 borderRadius: 12,
                 paddingHorizontal: 16,
                 paddingVertical: 14,
               }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <Text style={{ fontSize: 16 }}>🇬🇧</Text>
-                <Text style={{ color: isDark ? 'rgba(0,0,0,0.03)' : '#626F7F', fontSize: 14, fontWeight: '500' }}>English</Text>
+                <Text style={{ color: isDark ? '#EDEEF0' : '#626F7F', fontSize: 14, fontWeight: '500' }}>English</Text>
               </View>
               <ChevronDown />
             </View>
@@ -617,8 +617,8 @@ export const ChangeWorkspaceScreen = () => {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#282E34' : 'white' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#282E34' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#101113' : '#ffffff'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Change workspace" />
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 }}>
         <View
@@ -626,7 +626,7 @@ export const ChangeWorkspaceScreen = () => {
             flexDirection: 'row',
             alignItems: 'center',
             gap: 8,
-            backgroundColor: isDark ? '#1B1C20' : '#F0F0F3',
+            backgroundColor: isDark ? '#24262B' : '#EAEAEA',
             borderRadius: 12,
             paddingHorizontal: 12,
             paddingVertical: 10,
@@ -637,7 +637,7 @@ export const ChangeWorkspaceScreen = () => {
             onChangeText={setQuery}
             placeholder="Search workspace"
             placeholderTextColor="#80838D"
-            style={{ flex: 1, color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', fontSize: 14 }}
+            style={{ flex: 1, color: isDark ? '#EDEEF0' : '#282E34', fontSize: 14 }}
           />
         </View>
       </View>
@@ -660,7 +660,7 @@ export const ChangeWorkspaceScreen = () => {
                 borderRadius: 12,
                 backgroundColor: isActive ? (isDark ? '#1B1C20' : '#f0fdfa') : 'transparent',
                 borderBottomWidth: 1,
-                borderBottomColor: isDark ? '#1B1C20' : '#F0F0F3',
+                borderBottomColor: isDark ? '#24262B' : '#EAEAEA',
                 marginBottom: 4,
               }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
@@ -682,7 +682,7 @@ export const ChangeWorkspaceScreen = () => {
                   )}
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontWeight: '600', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', fontSize: 15 }}>{account.name}</Text>
+                  <Text style={{ fontWeight: '600', color: isDark ? '#EDEEF0' : '#282E34', fontSize: 15 }}>{account.name}</Text>
                   {isActive && (
                     <Text style={{ color: '#2dd4bf', fontSize: 12, fontWeight: '600', marginTop: 2 }}>Active</Text>
                   )}
@@ -723,8 +723,8 @@ export const DarkModeScreen = () => {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#282E34' : 'white' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#282E34' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#101113' : '#ffffff'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Dark mode" />
       <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
         {options.map(opt => (
@@ -737,9 +737,9 @@ export const DarkModeScreen = () => {
               justifyContent: 'space-between',
               paddingVertical: 16,
               borderBottomWidth: 1,
-              borderBottomColor: isDark ? '#1B1C20' : '#F0F0F3',
+              borderBottomColor: isDark ? '#24262B' : '#EAEAEA',
             }}>
-            <Text style={{ color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', fontSize: 15, fontWeight: currentTheme === opt.id ? '600' : '400' }}>
+            <Text style={{ color: isDark ? '#EDEEF0' : '#282E34', fontSize: 15, fontWeight: currentTheme === opt.id ? '600' : '400' }}>
               {opt.label}
             </Text>
             {currentTheme === opt.id && <CheckIcon />}
@@ -759,7 +759,7 @@ export const ReportBugScreen = () => {
   const [summary, setSummary] = useState('');
   const [isSending, setIsSending] = useState(false);
 
-  const labelCls = { fontWeight: '600', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', marginBottom: 6, fontSize: 14 } as const;
+  const labelCls = { fontWeight: '600', color: isDark ? '#EDEEF0' : '#282E34', marginBottom: 6, fontSize: 14 } as const;
 
   const handleSend = () => {
     if (!summary.trim()) {
@@ -775,8 +775,8 @@ export const ReportBugScreen = () => {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#282E34' : 'white' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#282E34' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#101113' : '#ffffff'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Report a bug" right="Send" onRightPress={handleSend} rightLoading={isSending} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 32, gap: 20 }}>
         <View>
@@ -788,7 +788,7 @@ export const ReportBugScreen = () => {
               justifyContent: 'space-between',
               borderWidth: 1,
               borderColor: isDark ? '#626F7F' : '#EAEAEA',
-              backgroundColor: isDark ? '#1B1C20' : 'white',
+              backgroundColor: isDark ? '#1B1C20' : '#ffffff',
               borderRadius: 12,
               paddingHorizontal: 16,
               paddingVertical: 14,
@@ -814,9 +814,9 @@ export const ReportBugScreen = () => {
               paddingVertical: 14,
               borderWidth: 1,
               borderColor: isDark ? '#626F7F' : '#EAEAEA',
-              backgroundColor: isDark ? '#1B1C20' : 'white',
+              backgroundColor: isDark ? '#1B1C20' : '#ffffff',
               borderRadius: 12,
-              color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34',
+              color: isDark ? '#EDEEF0' : '#282E34',
               fontSize: 14,
             }}
           />
