@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
@@ -9,14 +9,8 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
-import * as SplashScreen from 'expo-splash-screen';
 
 const { height, width } = Dimensions.get('window');
-
-const M_ANIM_DURATION = 800;
-const M_SETTLE_PAUSE = 200;
-const LETTER_STAGGER = 100;
-const LETTER_FLY_DUR = 300;
 
 const LETTERS: { src: ReturnType<typeof require>; ratio: number }[] = [
   { src: require('@/assets/images/brand/letters/condensed version graded-1.png'),  ratio: 1081 / 697 },
@@ -47,7 +41,6 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
   const bg = isDark ? '#101113' : '#ffffff';
 
   const finishedRef = useRef(false);
-
   const LETTER_HEIGHT = useRef(calcLetterHeight()).current;
 
   const mScale = useRef(new Animated.Value(0.3)).current;
@@ -66,77 +59,57 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
     const finish = () => {
       if (finishedRef.current) return;
       finishedRef.current = true;
-      SplashScreen.hideAsync().catch(() => {});
       onFinish();
     };
 
-    const safetyMs =
-      M_ANIM_DURATION + M_SETTLE_PAUSE + (LETTERS.length - 1) * LETTER_STAGGER + LETTER_FLY_DUR + 1500;
-    const safetyTimeout = setTimeout(finish, safetyMs);
+    const timers: NodeJS.Timeout[] = [];
 
-    Animated.sequence([
-      Animated.parallel([
-        Animated.timing(mOpacity, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.spring(mTranslateY, {
-          toValue: 0,
-          damping: 8,
-          stiffness: 120,
-          mass: 1,
-          useNativeDriver: true,
-        }),
-        Animated.sequence([
-          Animated.timing(mRotate, {
-            toValue: 1,
-            duration: M_ANIM_DURATION * 0.6,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
-          }),
-          Animated.timing(mRotate, {
-            toValue: 1,
-            duration: 0,
-            useNativeDriver: true,
-          }),
-        ]),
-        Animated.spring(mScale, {
-          toValue: 1,
-          damping: 6,
-          stiffness: 80,
-          useNativeDriver: true,
-        }),
+    const schedule = (fn: () => void, delay: number) => {
+      const t = setTimeout(fn, delay);
+      timers.push(t);
+      return t;
+    };
+
+    let cumDelay = 0;
+
+    // Phase 1: M drops in (0 → ~600ms)
+    mOpacity.setValue(0);
+    mTranslateY.setValue(-height * 0.35);
+    mRotate.setValue(0);
+    mScale.setValue(0.3);
+
+    Animated.parallel([
+      Animated.timing(mOpacity, { toValue: 1, duration: 200, useNativeDriver: true }),
+      Animated.spring(mTranslateY, { toValue: 0, damping: 8, stiffness: 120, mass: 1, useNativeDriver: true }),
+      Animated.sequence([
+        Animated.timing(mRotate, { toValue: 1, duration: 480, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(mRotate, { toValue: 1, duration: 0, useNativeDriver: true }),
       ]),
-      Animated.delay(M_SETTLE_PAUSE),
+      Animated.spring(mScale, { toValue: 1, damping: 6, stiffness: 80, useNativeDriver: true }),
+    ]).start();
 
-      Animated.stagger(
-        LETTER_STAGGER,
-        letterAnims.map(({ opacity, translateX }) =>
-          Animated.parallel([
-            Animated.timing(opacity, {
-              toValue: 1,
-              duration: LETTER_FLY_DUR,
-              easing: Easing.out(Easing.exp),
-              useNativeDriver: true,
-            }),
-            Animated.timing(translateX, {
-              toValue: 0,
-              duration: LETTER_FLY_DUR,
-              easing: Easing.out(Easing.exp),
-              useNativeDriver: true,
-            }),
-          ])
-        )
-      ),
+    cumDelay = 700;
 
-      Animated.delay(800),
-    ]).start(() => {
-      clearTimeout(safetyTimeout);
-      finish();
+    // Phase 2: Letters fly in (staggered)
+    letterAnims.forEach(({ opacity, translateX }, idx) => {
+      schedule(() => {
+        opacity.setValue(0);
+        translateX.setValue(50);
+        Animated.parallel([
+          Animated.timing(opacity, { toValue: 1, duration: 300, easing: Easing.out(Easing.exp), useNativeDriver: true }),
+          Animated.timing(translateX, { toValue: 0, duration: 300, easing: Easing.out(Easing.exp), useNativeDriver: true }),
+        ]).start();
+      }, cumDelay + idx * 100);
     });
 
-    return () => clearTimeout(safetyTimeout);
+    cumDelay += (letterAnims.length) * 100 + 400;
+
+    // Finish after all animations
+    schedule(finish, cumDelay);
+
+    return () => {
+      timers.forEach(clearTimeout);
+    };
   }, []);
 
   const mRotateInterpolated = mRotate.interpolate({

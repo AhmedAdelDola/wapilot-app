@@ -5,12 +5,9 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from '@/viewmodels/store';
 import { AppNavigator } from '@/views/navigation';
 import { AppErrorBoundary } from '@/views/components/error-boundary';
-import * as SplashScreen from 'expo-splash-screen';
 import { AnimatedSplash } from '@/views/screens/splash/AnimatedSplash';
 
 import i18n from '@/i18n';
-
-SplashScreen.preventAutoHideAsync().catch(() => {});
 
 let NavigationBar: typeof import('expo-navigation-bar') | null = null;
 try {
