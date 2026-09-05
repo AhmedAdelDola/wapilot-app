@@ -76,7 +76,7 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
       onFinish();
     };
 
-    const timers: NodeJS.Timeout[] = [];
+    const timers: ReturnType<typeof setTimeout>[] = [];
     const schedule = (fn: () => void, delay: number) => {
       timers.push(setTimeout(fn, delay));
     };
@@ -180,7 +180,7 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
       </View>
 
       {/* "pro" row */}
-      <View style={[styles.wordRow, { marginTop: 8 }]}>
+      <View style={[styles.wordRow, { marginTop: 20 }]}>
         {PRO_LETTERS.map((letter, idx) => {
           const { opacity, translateY } = proAnims[idx];
           return renderLetter(letter.src, letter.ratio, { opacity, transform: [{ translateY }] }, `pro-${idx}`);
