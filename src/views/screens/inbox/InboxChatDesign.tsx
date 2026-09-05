@@ -3758,7 +3758,7 @@ const InboxScreenDesign = () => {
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <Pressable onPress={() => setShowSearch(true)} hitSlop={8}><SearchIcon color={textPrimary} /></Pressable>
-            <Pressable onPress={() => setShowAddContact(true)} hitSlop={8}><UserCircleIcon color={textPrimary} /></Pressable>
+            <Pressable onPress={() => setShowAddContact(true)} hitSlop={8}><View style={{ width: 22, height: 22 }}><UserCircleIcon color={textPrimary} /></View></Pressable>
             <Pressable onPress={() => setShowSort(true)} hitSlop={8}><FilterIcon color={textPrimary} /></Pressable>
           </View>
         </View>

@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Circle, ClipPath, Defs, G, Path, Rect } from 'react-native-svg';
 
-export const FacebookIcon = () => {
+export const FacebookIcon = ({ width = 24, height = 24 }: { width?: number; height?: number }) => {
   return (
     <Svg width="16" height="17" viewBox="0 0 16 17" fill="none">
       <Circle cx="8" cy="8.5" r="8" fill="#BBBBBB" />
@@ -15,9 +15,9 @@ export const FacebookIcon = () => {
   );
 };
 
-export const MessengerFilledIcon = () => {
+export const MessengerFilledIcon = ({ width = 24, height = 24 }: { width?: number; height?: number }) => {
   return (
-    <Svg width="100%" height="100%" viewBox="0 0 20 20" fill="none">
+    <Svg width={width} height={height} viewBox="0 0 20 20" fill="none">
       <Circle cx="10" cy="10" r="10" fill="#BBBBBB" />
       <Path
         fill-rule="evenodd"
@@ -29,9 +29,9 @@ export const MessengerFilledIcon = () => {
   );
 };
 
-export const InstagramFilledIcon = () => {
+export const InstagramFilledIcon = ({ width = 24, height = 24 }: { width?: number; height?: number }) => {
   return (
-    <Svg width="100%" height="100%" viewBox="0 0 20 20" fill="none">
+    <Svg width={width} height={height} viewBox="0 0 20 20" fill="none">
       <Circle cx="10" cy="10" r="10" fill="#BBBBBB" />
       <G clipPath="url(#clip0_2323_83371)">
         <Path
@@ -48,9 +48,9 @@ export const InstagramFilledIcon = () => {
   );
 };
 
-export const FacebookFilledIcon = () => {
+export const FacebookFilledIcon = ({ width = 24, height = 24 }: { width?: number; height?: number }) => {
   return (
-    <Svg width="100%" height="100%" viewBox="0 0 20 20" fill="none">
+    <Svg width={width} height={height} viewBox="0 0 20 20" fill="none">
       <Circle cx="10" cy="10" r="10" fill="white" />
       <Path
         d="M20 10C20 4.48 15.52 0 10 0C4.48 0 0 4.48 0 10C0 14.84 3.44 18.87 8 19.8V13H6V10H8V7.5C8 5.57 9.57 4 11.5 4H14V7H12C11.45 7 11 7.45 11 8V10H14V13H11V19.95C16.05 19.45 20 15.19 20 10Z"

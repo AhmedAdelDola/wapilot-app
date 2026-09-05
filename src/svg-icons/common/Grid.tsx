@@ -3,9 +3,9 @@ import Svg, { Path } from 'react-native-svg';
 
 import { IconProps } from '../../types';
 
-export const GridIcon = ({ stroke = '#858585' }: IconProps): JSX.Element => {
+export const GridIcon = ({ stroke = '#858585' , width = 24, height = 24 }: IconProps): JSX.Element => {
   return (
-    <Svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+    <Svg width={width} height={height} viewBox="0 0 24 24" fill="none">
       <Path
         d="M12 6C12.5523 6 13 5.55228 13 5C13 4.44772 12.5523 4 12 4C11.4477 4 11 4.44772 11 5C11 5.55228 11.4477 6 12 6Z"
         stroke={stroke}

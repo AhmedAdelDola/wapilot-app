@@ -1,9 +1,9 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
 
-export const MarkAsRead = () => {
+export const MarkAsRead = ({ width = 24, height = 24 }: { width?: number; height?: number }) => {
   return (
-    <Svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+    <Svg width={width} height={height} viewBox="0 0 24 24" fill="none">
       <Path
         fillRule="evenodd"
         clipRule="evenodd"

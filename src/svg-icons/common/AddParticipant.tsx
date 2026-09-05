@@ -1,9 +1,9 @@
 import React from 'react';
 import { Svg, Path } from 'react-native-svg';
 
-export const AddParticipant = ({ stroke = '#858585', color, strokeWidth = 1.5, fill = 'none', strokeOpacity, ...rest }: { stroke?: string; color?: string; strokeWidth?: number; fill?: string; strokeOpacity?: number; [key: string]: any }): JSX.Element => {
+export const AddParticipant = ({ stroke = '#858585', color, strokeWidth = 1.5, fill = 'none', strokeOpacity, width = 24, height = 24, ...rest }: { stroke?: string; color?: string; strokeWidth?: number; fill?: string; strokeOpacity?: number; [key: string]: any }): JSX.Element => {
   return (
-    <Svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+    <Svg width={width} height={height} viewBox="0 0 24 24" fill="none">
       <Path d="M2.5 20C2.73089 17.0974 5.18124 14.6723 8.18816 14.5298C8.44209 14.5178 8.71121 14.5076 8.99999 14.5L9.80845 14.5521C11.2257 14.6435 12.51 15.1986 13.5 16.0632" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
       <Path d="M12.25 8.75C12.25 10.5449 10.7949 12 9 12C7.20508 12 5.75 10.5449 5.75 8.75C5.75 6.95507 7.20508 5.5 9 5.5C10.7949 5.5 12.25 6.95507 12.25 8.75Z" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
       <Path d="M15 10.9961C16.3442 11.1229 17.5564 11.6799 18.5 12.5197" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />

@@ -1,9 +1,9 @@
 import React from 'react';
 import { ClipPath, Defs, G, Path, Rect, Svg } from 'react-native-svg';
 
-export const CopilotDiscardIcon = (): JSX.Element => {
+export const CopilotDiscardIcon = ({ width = 28, height = 28 }: { width?: number; height?: number }): JSX.Element => {
   return (
-    <Svg width="100%" height="100%" viewBox="0 0 28 28" fill="none">
+    <Svg width={width} height={height} viewBox="0 0 28 28" fill="none">
       <G clipPath="url(#clip0)">
         <Path
           d="M19 9L9 19"

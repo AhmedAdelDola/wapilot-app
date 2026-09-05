@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
 
-export const UnassignedIcon = ({ stroke = '#80838D', color, strokeWidth = 1.5, fill = 'none', strokeOpacity, ...rest }: { stroke?: string; color?: string; strokeWidth?: number; fill?: string; strokeOpacity?: number; [key: string]: any }) => {
+export const UnassignedIcon = ({ stroke = '#80838D', color, strokeWidth = 1.5, fill = 'none', strokeOpacity, width = 24, height = 24, ...rest }: { stroke?: string; color?: string; strokeWidth?: number; fill?: string; strokeOpacity?: number; [key: string]: any }) => {
   return (
     <Svg width="22" height="23" viewBox="0 0 22 23" fill="none">
       <Path

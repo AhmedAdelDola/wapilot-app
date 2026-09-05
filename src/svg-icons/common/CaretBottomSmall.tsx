@@ -3,9 +3,9 @@ import { Path, Svg } from 'react-native-svg';
 
 import { IconProps } from '../../types';
 
-export const CaretBottomSmall = ({ fill = '#303030' }: IconProps): JSX.Element => {
+export const CaretBottomSmall = ({ fill = '#303030' , width = 24, height = 24 }: IconProps): JSX.Element => {
   return (
-    <Svg width="100%" height="100%" viewBox="0 0 8 5" fill="none">
+    <Svg width={width} height={height} viewBox="0 0 8 5" fill="none">
       <Path
         fillRule="evenodd"
         clipRule="evenodd"

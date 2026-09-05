@@ -1,9 +1,9 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
 
-export const StatusIcon = () => {
+export const StatusIcon = ({ width = 24, height = 24 }: { width?: number; height?: number }) => {
   return (
-    <Svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+    <Svg width={width} height={height} viewBox="0 0 24 24" fill="none">
       <Path
         d="M14.126 8.77359H3C2.44772 8.77359 2 8.34378 2 7.81359C2 7.2834 2.44772 6.85359 3 6.85359H14.126C14.5701 5.19737 16.1362 3.97359 18 3.97359C20.2091 3.97359 22 5.69282 22 7.81359C22 9.93437 20.2091 11.6536 18 11.6536C16.1362 11.6536 14.5701 10.4298 14.126 8.77359Z"
         fill="white"

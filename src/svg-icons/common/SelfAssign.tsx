@@ -1,7 +1,7 @@
 import React from 'react';
 import { Path, Svg } from 'react-native-svg';
 
-export const SelfAssign = ({ stroke = '#725AFF', color, strokeWidth = 1.5, fill = 'none', strokeOpacity, ...rest }: { stroke?: string; color?: string; strokeWidth?: number; fill?: string; strokeOpacity?: number; [key: string]: any }): JSX.Element => {
+export const SelfAssign = ({ stroke = '#725AFF', color, strokeWidth = 1.5, fill = 'none', strokeOpacity, width = 24, height = 24, ...rest }: { stroke?: string; color?: string; strokeWidth?: number; fill?: string; strokeOpacity?: number; [key: string]: any }): JSX.Element => {
   return (
     <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
       <Path

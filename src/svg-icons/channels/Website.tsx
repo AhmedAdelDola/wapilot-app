@@ -1,9 +1,9 @@
 import React from 'react';
 import Svg, { Circle, Path } from 'react-native-svg';
 
-export const WebsiteIcon = () => {
+export const WebsiteIcon = ({ width = 24, height = 24 }: { width?: number; height?: number }) => {
   return (
-    <Svg width="100%" height="100%" viewBox="0 0 20 20" fill="none">
+    <Svg width={width} height={height} viewBox="0 0 20 20" fill="none">
       <Circle cx="10" cy="10" r="10" fill="#6E56CF" />
       <Path
         d="M8.438 16.3069C7.21292 14.6362 6.49917 12.6458 6.38337 10.5773H3.51855C3.64098 11.9452 4.19477 13.2389 5.10004 14.2717C5.97249 15.2825 7.1399 15.9943 8.438 16.3069Z"
@@ -33,9 +33,9 @@ export const WebsiteIcon = () => {
   );
 };
 
-export const WebsiteFilledIcon = () => {
+export const WebsiteFilledIcon = ({ width = 24, height = 24 }: { width?: number; height?: number }) => {
   return (
-    <Svg width="100%" height="100%" viewBox="0 0 20 20" fill="none">
+    <Svg width={width} height={height} viewBox="0 0 20 20" fill="none">
       <Circle cx="10" cy="10" r="10" fill="#BBBBBB" />
       <Path
         d="M8.43898 16.3068C7.2139 14.6361 6.50014 12.6456 6.38435 10.5771H3.51953C3.64196 11.9451 4.19575 13.2388 5.10101 14.2716C5.97347 15.2824 7.14088 15.9941 8.43898 16.3068Z"
