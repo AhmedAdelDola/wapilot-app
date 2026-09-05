@@ -3,12 +3,10 @@ import { Pressable, Text, View } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useTheme } from '@/theme';
 
-import {
-  BellIcon,
-  InboxIcon,
-  PhoneIcon,
-  GearIcon,
-} from '@/svg-icons/tabs/NavIcons';
+import { BellIcon } from '@/svg-icons/tabs/BellIcon';
+import { InboxIcon } from '@/svg-icons/tabs/InboxIcon';
+import { CallsIconOutline } from '@/svg-icons/tabs/CallsIcon';
+import { GearIcon } from '@/svg-icons/tabs/NavIcons';
 import { TabParamList } from './AppTabs';
 
 type NavIconProps = { focused: boolean; routeName: keyof TabParamList; color: string };
@@ -16,13 +14,13 @@ type NavIconProps = { focused: boolean; routeName: keyof TabParamList; color: st
 const TabBarIcon = ({ focused, routeName, color }: NavIconProps) => {
   switch (routeName) {
     case 'Notifications':
-      return <BellIcon filled={focused} color={color} />;
+      return <BellIcon stroke={color} />;
     case 'Inbox':
-      return <InboxIcon filled={focused} color={color} />;
+      return <InboxIcon stroke={color} />;
     case 'Calls':
-      return <PhoneIcon filled={focused} color={color} />;
+      return <CallsIconOutline />;
     case 'Settings':
-      return <GearIcon filled={focused} color={color} />;
+      return <GearIcon stroke={color} />;
   }
 };
 
