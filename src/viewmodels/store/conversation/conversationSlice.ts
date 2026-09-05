@@ -3,7 +3,7 @@ import { Conversation } from '@/models/types/Conversation';
 import { conversationActions } from './conversationActions';
 import { findPendingMessageIndex } from '@/utils/conversationUtils';
 
-import { MESSAGE_TYPES } from '@/constants';
+import { MESSAGE_TYPES, MESSAGE_STATUS } from '@/constants';
 import { Message } from '@/models/types/Message';
 import { PendingMessage } from './conversationTypes';
 
@@ -16,11 +16,12 @@ export interface ConversationState {
   error: string | null;
   isLoadingConversations: boolean;
   isLoadingMessages: boolean;
+  isLoadingMoreMessages: boolean;
   isAllConversationsFetched: boolean;
-  isAllMessagesFetched: boolean;
   isAllMessagesFetchedByConversation: Record<number, boolean>;
   isConversationFetching: boolean;
   isChangingConversationStatus: boolean;
+  messageLoadError: string | null;
 }
 
 export const conversationAdapter = createEntityAdapter<Conversation>();
@@ -35,10 +36,11 @@ const initialState = conversationAdapter.getInitialState<ConversationState>({
   isLoadingConversations: false,
   isAllConversationsFetched: false,
   isLoadingMessages: false,
-  isAllMessagesFetched: false,
+  isLoadingMoreMessages: false,
   isAllMessagesFetchedByConversation: {},
   isConversationFetching: false,
   isChangingConversationStatus: false,
+  messageLoadError: null,
 });
 
 const isOutdatedConversationUpdate = (
@@ -118,9 +120,10 @@ const conversationSlice = createSlice({
     clearAllConversations: state => {
       conversationAdapter.removeAll(state);
       state.isAllConversationsFetched = false;
-      state.isAllMessagesFetched = false;
       state.isAllMessagesFetchedByConversation = {};
       state.error = null;
+      state.messageLoadError = null;
+      state.isLoadingMoreMessages = false;
     },
     addConversation: (state, action) => {
       const conversation = action.payload;
@@ -166,6 +169,18 @@ const conversationSlice = createSlice({
       if (pendingMessageIndex !== -1) {
         conversation.messages[pendingMessageIndex] = message as Message;
       } else {
+        // Staleness guard: if the message is older than the newest loaded message
+        // and it's not a pending replacement, skip appending it.
+        // It will be loaded via pagination when the user scrolls up.
+        const isPending = (message as any).status === MESSAGE_STATUS.PROGRESS;
+        if (!isPending && conversation.messages.length > 0) {
+          const newestMessage = conversation.messages[conversation.messages.length - 1];
+          const incomingTime = typeof message.createdAt === 'number' ? message.createdAt : 0;
+          const newestTime = typeof newestMessage?.createdAt === 'number' ? newestMessage.createdAt : 0;
+          if (incomingTime > 0 && newestTime > 0 && incomingTime < newestTime) {
+            return;
+          }
+        }
         conversation.messages.push(message as Message);
       }
       conversation.timestamp = message.createdAt;
@@ -246,8 +261,13 @@ const conversationSlice = createSlice({
         state.isConversationFetching = false;
         state.error = state.error || 'Unable to load conversation';
       })
-      .addCase(conversationActions.fetchPreviousMessages.pending, state => {
-        state.isLoadingMessages = true;
+      .addCase(conversationActions.fetchPreviousMessages.pending, (state, action) => {
+        if (action.meta.arg.beforeId) {
+          state.isLoadingMoreMessages = true;
+          state.messageLoadError = null;
+        } else {
+          state.isLoadingMessages = true;
+        }
       })
       .addCase(conversationActions.fetchPreviousMessages.fulfilled, (state, action) => {
         const { messages, conversationId, meta: responseMeta } = action.payload;
@@ -278,9 +298,12 @@ const conversationSlice = createSlice({
           ...responseMeta,
         };
         state.isLoadingMessages = false;
+        state.isLoadingMoreMessages = false;
       })
-      .addCase(conversationActions.fetchPreviousMessages.rejected, state => {
+      .addCase(conversationActions.fetchPreviousMessages.rejected, (state, action) => {
         state.isLoadingMessages = false;
+        state.isLoadingMoreMessages = false;
+        state.messageLoadError = action.error?.message || 'Failed to load messages';
       })
       .addCase(conversationActions.toggleConversationStatus.pending, state => {
         state.isChangingConversationStatus = true;

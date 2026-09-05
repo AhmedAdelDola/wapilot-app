@@ -6,14 +6,17 @@ import {
   transformNotification,
 } from '@/utils/camelCaseKeys';
 import { conversationActions } from '@/viewmodels/store/conversation/conversationActions';
+import { cleanupStaleTypingUsers } from '@/viewmodels/store/conversation/conversationTypingSlice';
 
 const PRESENCE_INTERVAL = 20000;
 const RECONNECT_BASE = 1000;
 const RECONNECT_MAX = 30000;
+const TYPING_CLEANUP_INTERVAL = 10000;
 
 let ws: WebSocket | null = null;
 let presenceTimer: ReturnType<typeof setInterval> | null = null;
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+let typingCleanupTimer: ReturnType<typeof setInterval> | null = null;
 let reconnectDelay = RECONNECT_BASE;
 let isConnecting = false;
 let savedParams: { pubSubToken: string; webSocketUrl: string; accountId: number; userId: number } | null = null;
@@ -45,7 +48,6 @@ const handleReceived = (data: any) => {
         const existingConv = state.conversations?.entities?.[conversationId];
 
         if (!existingConv) {
-          // New conversation or not currently in store -> fetch the conversation so it appears in Inbox
           store.dispatch(conversationActions.fetchConversation(conversationId) as any);
         } else {
           store.dispatch({
@@ -152,8 +154,8 @@ const handleReceived = (data: any) => {
           type: 'notification/addNotification',
           payload: { notification },
         });
-      } catch (e) {
-        console.error('[ActionCable] Error transforming notification:', e);
+      } catch {
+        // Silently ignore notification transform errors
       }
       break;
     }
@@ -187,15 +189,22 @@ const subscribe = () => {
       data: JSON.stringify({ action: 'update_presence' }),
     });
   }, PRESENCE_INTERVAL);
+
+  // Periodically clean up stale typing indicators
+  if (typingCleanupTimer) clearInterval(typingCleanupTimer);
+  typingCleanupTimer = setInterval(() => {
+    try {
+      const store = getStore();
+      store.dispatch(cleanupStaleTypingUsers());
+    } catch {
+      // Store not available yet
+    }
+  }, TYPING_CLEANUP_INTERVAL);
 };
 
 const connect = () => {
-  if (!savedParams) {
-    console.warn('[ActionCable] connect() called but no params saved');
-    return;
-  }
+  if (!savedParams) return;
   if (isConnecting || (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING))) {
-    console.warn('[ActionCable] Already connected/connecting, skip');
     return;
   }
 
@@ -214,19 +223,10 @@ const connect = () => {
     try {
       const msg = JSON.parse(event.data);
 
-      if (msg.type === 'welcome') {
-        return;
-      }
+      if (msg.type === 'welcome') return;
       if (msg.type === 'ping') return;
-
-      if (msg.type === 'confirm_subscription') {
-        return;
-      }
-
-      if (msg.type === 'reject_subscription') {
-        console.warn('[ActionCable] ❌ Subscription rejected:', JSON.stringify(msg));
-        return;
-      }
+      if (msg.type === 'confirm_subscription') return;
+      if (msg.type === 'reject_subscription') return;
 
       if (msg.message) {
         handleReceived(msg.message);
@@ -236,16 +236,14 @@ const connect = () => {
     }
   };
 
-  ws.onerror = (error) => {
-    console.error('[ActionCable] ❌ WebSocket error:', JSON.stringify(error));
+  ws.onerror = () => {
     isConnecting = false;
   };
 
-  ws.onclose = (event) => {
+  ws.onclose = () => {
     isConnecting = false;
     cleanup();
 
-    // Reconnect with exponential backoff
     reconnectTimer = setTimeout(() => {
       reconnectDelay = Math.min(reconnectDelay * 2, RECONNECT_MAX);
       connect();
@@ -257,6 +255,10 @@ const cleanup = () => {
   if (presenceTimer) {
     clearInterval(presenceTimer);
     presenceTimer = null;
+  }
+  if (typingCleanupTimer) {
+    clearInterval(typingCleanupTimer);
+    typingCleanupTimer = null;
   }
   if (reconnectTimer) {
     clearTimeout(reconnectTimer);

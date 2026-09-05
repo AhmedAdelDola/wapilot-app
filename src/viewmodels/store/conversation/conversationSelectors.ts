@@ -42,6 +42,16 @@ export const selectIsAllMessagesFetched = (conversationId: number) =>
     state => state.isAllMessagesFetchedByConversation?.[conversationId] ?? false,
   );
 
+export const selectIsLoadingMoreMessages = createSelector(
+  selectConversationsState,
+  state => state.isLoadingMoreMessages,
+);
+
+export const selectMessageLoadError = createSelector(
+  selectConversationsState,
+  state => state.messageLoadError,
+);
+
 export const selectIsLoadingMessages = createSelector(
   selectConversationsState,
   state => state.isLoadingMessages,

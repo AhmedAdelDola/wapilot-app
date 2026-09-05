@@ -34,6 +34,8 @@ import {
   selectConversationById,
   getMessagesByConversationId,
   selectIsAllMessagesFetched,
+  selectIsLoadingMoreMessages,
+  selectMessageLoadError,
 } from '@/viewmodels/store/conversation/conversationSelectors';
 import { selectUserId, selectUserThumbnail } from '@/viewmodels/store/auth/authSelectors';
 import { selectAllInboxes } from '@/viewmodels/store/inbox/inboxSelectors';
@@ -751,9 +753,14 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
   const initialScrolledRef = React.useRef(false);
   const shouldScrollToEndRef = React.useRef(false);
   const loadingOlderRef = React.useRef(false);
+  const conversationIdRef = React.useRef(conversationId);
+  const isNearBottomRef = React.useRef(true);
+  const [showNewMessagesBadge, setShowNewMessagesBadge] = useState(false);
   const currentUserId = useAppSelector(selectUserId);
   const currentUserThumbnail = useAppSelector(selectUserThumbnail);
   const isAllMessagesFetched = useAppSelector(selectIsAllMessagesFetched(conversationId));
+  const isLoadingMoreMessages = useAppSelector(selectIsLoadingMoreMessages);
+  const messageLoadError = useAppSelector(selectMessageLoadError);
   const conversation = useAppSelector(state => selectConversationById(state, conversationId));
   const messages = useAppSelector(state => getMessagesByConversationId(state, { conversationId }));
   const messageMap = React.useMemo(() => {
@@ -892,11 +899,16 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
           beforeId: oldestMessageId,
         } as any),
       ).unwrap();
-    } catch (e) {
+    } catch {
+      // Error state is handled by the reducer
     } finally {
       loadingOlderRef.current = false;
     }
   };
+
+  const retryLoadMessages = useCallback(() => {
+    loadPreviousMessages();
+  }, [conversationId, oldestMessageId, isAllMessagesFetched]);
 
   const [isInitialLoadDone, setIsInitialLoadDone] = useState(false);
   const [isChatReady, setIsChatReady] = useState(false);
@@ -912,15 +924,23 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
   }, [isInitialLoadDone, messages.length]);
 
   React.useEffect(() => {
+    conversationIdRef.current = conversationId;
     initialScrolledRef.current = false;
     setIsInitialLoadDone(false);
     setIsChatReady(false);
+    setShowNewMessagesBadge(false);
+    isNearBottomRef.current = true;
+    loadingOlderRef.current = false;
+
     dispatch(conversationActions.fetchConversation(conversationId));
     dispatch(conversationActions.fetchPreviousMessages({ conversationId, beforeId: null } as any))
       .unwrap()
       .catch(() => {})
       .finally(() => {
-        setIsInitialLoadDone(true);
+        // Guard against stale responses from a previous conversation
+        if (conversationIdRef.current === conversationId) {
+          setIsInitialLoadDone(true);
+        }
       });
     dispatch(conversationActions.markMessageRead({ conversationId }) as any);
   }, [conversationId]);
@@ -932,9 +952,13 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
       if (lastMsg && lastMsg.id !== prevLastMsgIdRef.current) {
         prevLastMsgIdRef.current = lastMsg.id;
         if (initialScrolledRef.current) {
-          setTimeout(() => {
-            scrollViewRef.current?.scrollToEnd({ animated: true });
-          }, 80);
+          if (isNearBottomRef.current) {
+            requestAnimationFrame(() => {
+              scrollViewRef.current?.scrollToEnd({ animated: true });
+            });
+          } else {
+            setShowNewMessagesBadge(true);
+          }
         }
       }
     }
@@ -1579,10 +1603,19 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
           scrollEnabled={isChatReady}
           contentContainerStyle={{ paddingTop: 16, paddingBottom: 24 }}
           onScroll={({ nativeEvent }) => {
+            if (!initialScrolledRef.current || !isInitialLoadDone) return;
+
+            const { contentOffset, contentSize, layoutMeasurement } = nativeEvent;
+            const distanceFromBottom = contentSize.height - layoutMeasurement.height - contentOffset.y;
+            isNearBottomRef.current = distanceFromBottom < 100;
+
+            if (isNearBottomRef.current) {
+              setShowNewMessagesBadge(false);
+            }
+
+            // Trigger pagination when near top
             if (
-              initialScrolledRef.current &&
-              isInitialLoadDone &&
-              nativeEvent.contentOffset.y <= nativeEvent.contentSize.height * 0.25 &&
+              contentOffset.y <= contentSize.height * 0.25 &&
               !loadingOlderRef.current &&
               !isAllMessagesFetched
             ) {
@@ -1590,6 +1623,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
             }
           }}
           onEndReached={() => {
+            // Fallback pagination trigger for FlashList
             if (!loadingOlderRef.current && !isAllMessagesFetched) {
               loadPreviousMessages();
             }
@@ -1636,12 +1670,67 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
               <Text style={{ fontSize: 13, color: isDark ? '#64748b' : '#9ca3af' }}>No messages yet</Text>
             </View>
           }
+          ListFooterComponent={
+            <>
+              {isLoadingMoreMessages && (
+                <View style={{ paddingVertical: 16, alignItems: 'center' }}>
+                  <ActivityIndicator size="small" color={isDark ? '#60a5fa' : '#2563eb'} />
+                </View>
+              )}
+              {!isLoadingMoreMessages && messageLoadError && (
+                <Pressable
+                  onPress={retryLoadMessages}
+                  style={{ paddingVertical: 12, alignItems: 'center' }}>
+                  <Text style={{ color: isDark ? '#60a5fa' : '#2563eb', fontSize: 13, fontWeight: '600' }}>
+                    {isArabic ? 'فشل التحميل - اضغط للإعادة' : 'Failed to load - tap to retry'}
+                  </Text>
+                </Pressable>
+              )}
+              {isAllMessagesFetched && messages.length > 0 && !isLoadingMoreMessages && (
+                <View style={{ paddingVertical: 16, alignItems: 'center' }}>
+                  <Text style={{ color: isDark ? '#475569' : '#9ca3af', fontSize: 12 }}>
+                    {isArabic ? '— جميع الرسائل —' : '— All messages —'}
+                  </Text>
+                </View>
+              )}
+            </>
+          }
         />
 
         {!isChatReady && (
           <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: bgColor, alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
             <ActivityIndicator size="large" color={isDark ? '#60a5fa' : '#2563eb'} />
           </View>
+        )}
+
+        {showNewMessagesBadge && isChatReady && (
+          <Pressable
+            onPress={() => {
+              setShowNewMessagesBadge(false);
+              isNearBottomRef.current = true;
+              requestAnimationFrame(() => {
+                scrollViewRef.current?.scrollToEnd({ animated: true });
+              });
+            }}
+            style={{
+              position: 'absolute',
+              bottom: 12,
+              alignSelf: 'center',
+              backgroundColor: isDark ? '#2563eb' : '#111827',
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              borderRadius: 20,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.25,
+              shadowRadius: 4,
+              elevation: 4,
+              zIndex: 20,
+            }}>
+            <Text style={{ color: '#ffffff', fontSize: 13, fontWeight: '600' }}>
+              {isArabic ? '↓ رسائل جديدة' : '↓ New messages'}
+            </Text>
+          </Pressable>
         )}
         </View>
 
