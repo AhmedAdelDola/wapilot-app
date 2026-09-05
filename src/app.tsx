@@ -5,7 +5,6 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from '@/viewmodels/store';
 import { AppNavigator } from '@/views/navigation';
 import { AppErrorBoundary } from '@/views/components/error-boundary';
-import * as NavigationBar from 'expo-navigation-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { AnimatedSplash } from '@/views/screens/splash/AnimatedSplash';
 
@@ -13,30 +12,37 @@ import i18n from '@/i18n';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
+let NavigationBar: typeof import('expo-navigation-bar') | null = null;
+try {
+  NavigationBar = require('expo-navigation-bar');
+} catch {}
+
 const Chatwoot = () => {
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    if (Platform.OS === 'android') {
-      NavigationBar.setVisibilityAsync('hidden');
+    if (Platform.OS === 'android' && NavigationBar) {
+      try {
+        NavigationBar.setVisibilityAsync('hidden');
 
-      const navSubscription = NavigationBar.addVisibilityListener(({ visibility }) => {
-        if (visibility === 'visible') {
-          setTimeout(() => {
-            NavigationBar.setVisibilityAsync('hidden');
-          }, 1500);
-        }
-      });
+        const navSubscription = NavigationBar.addVisibilityListener(({ visibility }: { visibility: string }) => {
+          if (visibility === 'visible') {
+            setTimeout(() => {
+              NavigationBar?.setVisibilityAsync('hidden');
+            }, 1500);
+          }
+        });
 
-      const backSubscription = BackHandler.addEventListener(
-        'hardwareBackPress',
-        handleBackButtonClick,
-      );
+        const backSubscription = BackHandler.addEventListener(
+          'hardwareBackPress',
+          handleBackButtonClick,
+        );
 
-      return () => {
-        navSubscription.remove();
-        backSubscription.remove();
-      };
+        return () => {
+          navSubscription.remove();
+          backSubscription.remove();
+        };
+      } catch {}
     }
 
     const backSubscription = BackHandler.addEventListener(
