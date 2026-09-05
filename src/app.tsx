@@ -6,9 +6,12 @@ import { store, persistor } from '@/viewmodels/store';
 import { AppNavigator } from '@/views/navigation';
 import { AppErrorBoundary } from '@/views/components/error-boundary';
 import * as NavigationBar from 'expo-navigation-bar';
+import * as SplashScreen from 'expo-splash-screen';
 import { AnimatedSplash } from '@/views/screens/splash/AnimatedSplash';
 
 import i18n from '@/i18n';
+
+SplashScreen.preventAutoHideAsync();
 
 const Chatwoot = () => {
   const [showSplash, setShowSplash] = useState(true);

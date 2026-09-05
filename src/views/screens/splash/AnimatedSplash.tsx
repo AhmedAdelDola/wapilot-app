@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, Image, StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
 
 const { width } = Dimensions.get('window');
 
@@ -37,6 +38,7 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
           setCurrentIndex(stepRef.current);
           animateNext();
         } else {
+          SplashScreen.hideAsync();
           onFinish();
         }
       });
