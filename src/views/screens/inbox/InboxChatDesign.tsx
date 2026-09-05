@@ -3751,7 +3751,7 @@ const InboxScreenDesign = () => {
       <StatusBar translucent backgroundColor={bgColor} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <View style={{ flex: 1, backgroundColor: bgColor, position: 'relative', overflow: 'hidden' }}>
         {/* Header */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 20, paddingBottom: 12 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <Pressable onPress={() => setDrawerOpen(true)} hitSlop={8}><HamburgerIcon color={textPrimary} /></Pressable>
             <Text style={{ fontSize: 20, fontWeight: '600', color: textPrimary }}>{activeLabel}</Text>
@@ -3824,6 +3824,7 @@ const InboxScreenDesign = () => {
             refreshing={refreshing}
             onRefresh={onRefresh}
             contentContainerStyle={{ paddingBottom: 80 }}
+            style={{ flex: 1 }}
             onScrollBeginDrag={() => {
               if (!isFlashListReady) {
                 setFlashListReady(true);
