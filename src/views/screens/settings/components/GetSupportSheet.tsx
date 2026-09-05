@@ -1,7 +1,8 @@
-import React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Pressable, Text, View, Linking } from 'react-native';
 import { tailwind } from '@/theme';
 import { useTheme } from '@/theme/useTheme';
+import { SettingsService } from '@/models/services/settingsService';
 
 type GetSupportSheetProps = {
   onClose: () => void;
@@ -9,6 +10,24 @@ type GetSupportSheetProps = {
 
 export const GetSupportSheet = ({ onClose }: GetSupportSheetProps) => {
   const { isDark } = useTheme();
+  const [contactUrl, setContactUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    SettingsService.getSupportContactUrl()
+      .then((data) => {
+        if (data.contact_us_url) {
+          setContactUrl(data.contact_us_url);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleContactPress = () => {
+    if (contactUrl) {
+      Linking.openURL(contactUrl);
+    }
+    onClose();
+  };
 
   return (
     <View style={tailwind.style(isDark ? 'bg-slate-800 rounded-t-3xl' : 'bg-white rounded-t-3xl')}>
@@ -23,15 +42,18 @@ export const GetSupportSheet = ({ onClose }: GetSupportSheetProps) => {
       </View>
 
       <View style={tailwind.style('px-4 py-2')}>
-        <Pressable
-          style={tailwind.style('flex-row items-center py-4 border-b', isDark ? 'border-slate-700' : 'border-gray-100')}>
-          <View style={tailwind.style('w-10 h-10 rounded-full bg-green-100 items-center justify-center mr-3')}>
-            <Text style={tailwind.style('text-xl')}>💬</Text>
-          </View>
-          <Text style={tailwind.style('text-[16px] font-inter-normal-20', isDark ? 'text-slate-100' : 'text-gray-950')}>
-            Contact us via WhatsApp
-          </Text>
-        </Pressable>
+        {contactUrl ? (
+          <Pressable
+            onPress={handleContactPress}
+            style={tailwind.style('flex-row items-center py-4 border-b', isDark ? 'border-slate-700' : 'border-gray-100')}>
+            <View style={tailwind.style('w-10 h-10 rounded-full bg-green-100 items-center justify-center mr-3')}>
+              <Text style={tailwind.style('text-xl')}>💬</Text>
+            </View>
+            <Text style={tailwind.style('text-[16px] font-inter-normal-20', isDark ? 'text-slate-100' : 'text-gray-950')}>
+              Contact us via WhatsApp
+            </Text>
+          </Pressable>
+        ) : null}
 
         <Pressable
           style={tailwind.style('flex-row items-center py-4')}>

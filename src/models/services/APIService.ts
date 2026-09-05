@@ -17,6 +17,7 @@ const nonAccountRoutes = [
   'profile/availability',
   'profile/set_active_account',
   'notification_subscriptions',
+  'support',
 ];
 
 // Auth routes (no /api/v1 prefix)

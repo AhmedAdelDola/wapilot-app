@@ -45,4 +45,9 @@ export class SettingsService {
   static async removeDevice(payload: RemoveDevicePayload): Promise<void> {
     await apiService.delete(`notification_subscriptions?push_token=${encodeURIComponent(payload.push_token)}`, { data: payload });
   }
+
+  static async getSupportContactUrl(): Promise<{ contact_us_url: string | null }> {
+    const response = await apiService.get<{ data: { contact_us_url: string | null } }>('support');
+    return response.data.data;
+  }
 }
