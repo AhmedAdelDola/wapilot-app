@@ -1,20 +1,14 @@
 import React from 'react';
-import Svg, { ClipPath, Defs, G, Path, Rect } from 'react-native-svg';
+import { Svg, Path } from 'react-native-svg';
 
-export const MacroIcon = (): JSX.Element => {
+export const MacroIcon = ({ stroke = '#858585', color, strokeWidth = 1.5, fill = 'none', strokeOpacity, ...rest }: { stroke?: string; color?: string; strokeWidth?: number; fill?: string; strokeOpacity?: number; [key: string]: any }): JSX.Element => {
   return (
-    <Svg width="100%" height="100%" viewBox="0 0 20 20" fill="none">
-      <G clipPath="url(#clip0_2165_87535)">
-        <Path
-          d="M8.14454 18.2661L15.127 9.26223C15.2637 9.07668 15.3418 8.91067 15.3418 8.72512C15.3418 8.37356 15.0781 8.11965 14.7168 8.11965H10.4102L12.6758 2.25051C13.0176 1.36184 12.0605 0.873557 11.4941 1.60598L4.51172 10.6099C4.375 10.7954 4.29688 10.9614 4.29688 11.147C4.29688 11.4986 4.57031 11.7525 4.92188 11.7525H9.22852L6.96289 17.6216C6.63085 18.5103 7.57812 18.9986 8.14454 18.2661ZM8.63281 15.9419L11.25 10.4536H6.47461L11.2402 4.06692L10.9961 3.9302L8.38868 9.41848H13.1543L8.38868 15.8052L8.63281 15.9419Z"
-          fill="#80838D"
-        />
-      </G>
-      <Defs>
-        <ClipPath id="clip0_2165_87535">
-          <Rect width="11.4062" height="17.4991" fill="white" transform="translate(4.29688 1.25)" />
-        </ClipPath>
-      </Defs>
+    <Svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+      <Path d="M15 9V15H9V9H15Z" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M15 15H18C19.6569 15 21 16.3431 21 18C21 19.6569 19.6569 21 18 21C16.3431 21 15 19.6569 15 18V15Z" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M9 15.002H6C4.34315 15.002 3 16.3451 3 18.002C3 19.6588 4.34315 21.002 6 21.002C7.65685 21.002 9 19.6588 9 18.002V15.002Z" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M15 9L15 6C15 4.34315 16.3431 3 18 3C19.6569 3 21 4.34315 21 6C21 7.65685 19.6569 9 18 9H15Z" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M9 9V6C9 4.34315 7.65685 3 6 3C4.34315 3 3 4.34315 3 6C3 7.65685 4.34315 9 6 9H9Z" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </Svg>
   );
 };

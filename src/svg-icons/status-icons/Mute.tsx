@@ -1,32 +1,13 @@
 import React from 'react';
-import Svg, { Path } from 'react-native-svg';
+import { Svg, Path } from 'react-native-svg';
 
-import { IconProps } from '../../types';
-
-export const MuteIcon = ({ stroke = '#858585', strokeWidth = '1.5' }: IconProps): JSX.Element => {
+export const MuteIcon = ({ stroke = '#858585', color, strokeWidth = 1.5, fill = 'none', strokeOpacity, ...rest }: { stroke?: string; color?: string; strokeWidth?: number; fill?: string; strokeOpacity?: number; [key: string]: any }): JSX.Element => {
   return (
     <Svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M18.5 11.5V16.1002C18.5 18.16 18.5 19.19 18.0747 19.7331C17.7046 20.2058 17.1418 20.4872 16.5416 20.4997C15.8519 20.514 15.028 19.8961 13.3801 18.6603L12.313 17.86"
-        stroke={stroke}
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M10 16.5H6.7C5.5799 16.5 5.01984 16.5 4.59202 16.282C4.21569 16.0903 3.90973 15.7843 3.71799 15.408C3.5 14.9802 3.5 14.4201 3.5 13.3V11.7C3.5 10.5799 3.5 10.0198 3.71799 9.59202C3.90973 9.21569 4.21569 8.90973 4.59202 8.71799C5.01984 8.5 5.57989 8.5 6.7 8.5H10L14.8236 5.09507C15.2713 4.7791 15.4951 4.62111 15.66 4.54478C16.8463 3.99581 18.2317 4.71366 18.4672 5.99936C18.5 6.17811 18.5 6.45208 18.5 7V7"
-        stroke={stroke}
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M22 3L6 21.5"
-        stroke={stroke}
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <Path d="M16 18C16 20.2091 14.2091 22 12 22C9.79086 22 8 20.2091 8 18" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M8 3.12589C8.88491 2.48978 9.95074 2.08864 11.1071 2.01285C11.3031 2 11.5353 2 11.9995 2C12.4638 2 12.696 2 12.892 2.01285C15.8965 2.20977 18.2898 4.60304 18.4867 7.60758C18.4995 7.80358 18.4995 8.03572 18.4995 8.5V9.8056C18.4995 10.5353 18.4995 10.9002 18.5356 11.254C18.6477 12.354 19.0187 13.4119 19.6184 14.3409C19.8113 14.6397 20.0392 14.9246 20.4951 15.4944L20.6648 15.7066C20.7508 15.814 20.8286 15.9113 20.8986 16" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M18 18H4.43654C3.70878 18 3.3449 18 3.13431 17.8951C2.72509 17.6913 2.50621 17.2359 2.60268 16.789C2.65233 16.559 2.87964 16.2749 3.33427 15.7066L3.50401 15.4944C3.95985 14.9246 4.18779 14.6397 4.38067 14.3409C4.98035 13.4119 5.35143 12.354 5.46349 11.254C5.49954 10.9002 5.49954 10.5353 5.49954 9.8056V8.5C5.49954 8.03572 5.49954 7.80358 5.51239 7.60758C5.54913 7.04701 5.66232 6.50772 5.84168 6" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M2 2L22 22" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </Svg>
   );
 };

@@ -1,16 +1,11 @@
 import React from 'react';
-import Svg, { Path } from 'react-native-svg';
+import { Svg, Path } from 'react-native-svg';
 
-export const CopyIcon = () => {
+export const CopyIcon = ({ stroke = '#858585', color, strokeWidth = 1.5, fill = 'none', strokeOpacity, ...rest }: { stroke?: string; color?: string; strokeWidth?: number; fill?: string; strokeOpacity?: number; [key: string]: any }): JSX.Element => {
   return (
     <Svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M10.5 2.003C9.825 2.012 9.42 2.051 9.092 2.218C8.71569 2.40974 8.40974 2.71569 8.218 3.092C8.051 3.42 8.012 3.825 8.003 4.5M19.5 2.003C20.175 2.012 20.58 2.051 20.908 2.218C21.2843 2.40974 21.5903 2.71569 21.782 3.092C21.949 3.42 21.988 3.825 21.997 4.5M21.997 13.5C21.988 14.175 21.949 14.58 21.782 14.908C21.5903 15.2843 21.2843 15.5903 20.908 15.782C20.58 15.949 20.175 15.988 19.5 15.997M22 8V10M14 2H16M5.2 22H12.8C13.92 22 14.48 22 14.908 21.782C15.2843 21.5903 15.5903 21.2843 15.782 20.908C16 20.48 16 19.92 16 18.8V11.2C16 10.08 16 9.52 15.782 9.092C15.5903 8.71569 15.2843 8.40974 14.908 8.218C14.48 8 13.92 8 12.8 8H5.2C4.08 8 3.52 8 3.092 8.218C2.71569 8.40974 2.40974 8.71569 2.218 9.092C2 9.52 2 10.08 2 11.2V18.8C2 19.92 2 20.48 2.218 20.908C2.40974 21.2843 2.71569 21.5903 3.092 21.782C3.52 22 4.08 22 5.2 22Z"
-        stroke="#858585"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <Path d="M7 11V9C7 5.70017 7 4.05025 8.02513 3.02513C9.05025 2 10.7002 2 14 2C17.2998 2 18.9497 2 19.9749 3.02513C21 4.05025 21 5.70017 21 9V11C21 14.2998 21 15.9497 19.9749 16.9749C18.9497 18 17.2998 18 14 18C10.7002 18 9.05025 18 8.02513 16.9749C7 15.9497 7 14.2998 7 11Z" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M3 6V15C3 18.2998 3 19.9497 4.02513 20.9749C5.05025 22 6.70017 22 10 22H17" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </Svg>
   );
 };

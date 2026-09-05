@@ -1,29 +1,10 @@
 import React from 'react';
-import Svg, { ClipPath, Defs, G, Path, Rect } from 'react-native-svg';
+import { Svg, Path } from 'react-native-svg';
 
-export const PlayIcon = (): JSX.Element => {
+export const PlayIcon = ({ stroke = '#858585', color, strokeWidth = 1.5, fill = 'none', strokeOpacity, ...rest }: { stroke?: string; color?: string; strokeWidth?: number; fill?: string; strokeOpacity?: number; [key: string]: any }): JSX.Element => {
   return (
-    <Svg width="100%" height="100%" viewBox="0 0 20 20" fill="none">
-      <G id="play-circle 1" clipPath="url(#clip0_57_25171)">
-        <Path
-          id="Vector"
-          d="M9.99996 18.3333C14.6025 18.3333 18.3333 14.6025 18.3333 9.99996C18.3333 5.39746 14.6025 1.66663 9.99996 1.66663C5.39746 1.66663 1.66663 5.39746 1.66663 9.99996C1.66663 14.6025 5.39746 18.3333 9.99996 18.3333Z"
-          stroke="#8F8F8F"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <Path
-          id="Vector_2"
-          d="M7.91663 7.47077C7.91663 7.07327 7.91663 6.87411 7.99996 6.76327C8.03571 6.71553 8.08128 6.67602 8.13362 6.64741C8.18595 6.6188 8.24381 6.60176 8.30329 6.59744C8.44163 6.58744 8.60913 6.69494 8.94413 6.90994L12.8775 9.43911C13.1683 9.62577 13.3133 9.71911 13.3633 9.83744C13.3851 9.88885 13.3963 9.94411 13.3963 9.99994C13.3963 10.0558 13.3851 10.111 13.3633 10.1624C13.3133 10.2808 13.1683 10.3741 12.8775 10.5608L8.94413 13.0899C8.60913 13.3049 8.44163 13.4124 8.30329 13.4024C8.24374 13.398 8.18584 13.3808 8.1335 13.3521C8.08117 13.3233 8.03562 13.2837 7.99996 13.2358C7.91663 13.1258 7.91663 12.9266 7.91663 12.5291V7.47077Z"
-          fill="#8F8F8F"
-        />
-      </G>
-      <Defs>
-        <ClipPath id="clip0_57_25171">
-          <Rect width="20" height="20" fill="white" />
-        </ClipPath>
-      </Defs>
+    <Svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+      <Path d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </Svg>
   );
 };

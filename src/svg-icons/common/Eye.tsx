@@ -1,27 +1,12 @@
 import React from 'react';
-import Svg, { Path, G } from 'react-native-svg';
+import { Svg, Path } from 'react-native-svg';
 
-export const EyeIcon = ({ color = '#7E808A' }: { color?: string }) => {
+export const EyeIcon = ({ stroke = '#858585', color, strokeWidth = 1.5, fill = 'none', strokeOpacity, ...rest }: { stroke?: string; color?: string; strokeWidth?: number; fill?: string; strokeOpacity?: number; [key: string]: any }): JSX.Element => {
   return (
-    <Svg width="100%" height="100%" viewBox="0 0 17 16" fill="none">
-      <G id="lucide/eye">
-        <G id="Vector">
-          <Path
-            d="M2.04167 8.23175C1.98611 8.08207 1.98611 7.91743 2.04167 7.76775C2.5828 6.45565 3.50135 5.33378 4.68085 4.54435C5.86035 3.75492 7.2477 3.3335 8.667 3.3335C10.0863 3.3335 11.4737 3.75492 12.6532 4.54435C13.8327 5.33378 14.7512 6.45565 15.2923 7.76775C15.3479 7.91743 15.3479 8.08207 15.2923 8.23175C14.7512 9.54385 13.8327 10.6657 12.6532 11.4552C11.4737 12.2446 10.0863 12.666 8.667 12.666C7.2477 12.666 5.86035 12.2446 4.68085 11.4552C3.50135 10.6657 2.5828 9.54385 2.04167 8.23175Z"
-            stroke={color}
-            strokeWidth="1.33333"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <Path
-            d="M8.667 9.99975C9.77157 9.99975 10.667 9.10432 10.667 7.99975C10.667 6.89518 9.77157 5.99975 8.667 5.99975C7.56243 5.99975 6.667 6.89518 6.667 7.99975C6.667 9.10432 7.56243 9.99975 8.667 9.99975Z"
-            stroke={color}
-            strokeWidth="1.33333"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </G>
-      </G>
+    <Svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+      <Path d="M2 8C2 8 6.47715 3 12 3C17.5228 3 22 8 22 8" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M21.544 13.045C21.848 13.4713 22 13.6845 22 14C22 14.3155 21.848 14.5287 21.544 14.955C20.1779 16.8706 16.6892 21 12 21C7.31078 21 3.8221 16.8706 2.45604 14.955C2.15201 14.5287 2 14.3155 2 14C2 13.6845 2.15201 13.4713 2.45604 13.045C3.8221 11.1294 7.31078 7 12 7C16.6892 7 20.1779 11.1294 21.544 13.045Z" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M15 14C15 12.3431 13.6569 11 12 11C10.3431 11 9 12.3431 9 14C9 15.6569 10.3431 17 12 17C13.6569 17 15 15.6569 15 14Z" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </Svg>
   );
 };

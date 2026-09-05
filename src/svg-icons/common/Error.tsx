@@ -1,16 +1,12 @@
 import React from 'react';
-import Svg, { Path } from 'react-native-svg';
+import { Svg, Path, Circle } from 'react-native-svg';
 
-export const ErrorIcon = () => {
+export const ErrorIcon = ({ stroke = '#858585', color, strokeWidth = 1.5, fill = 'none', strokeOpacity, ...rest }: { stroke?: string; color?: string; strokeWidth?: number; fill?: string; strokeOpacity?: number; [key: string]: any }): JSX.Element => {
   return (
-    <Svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-      <Path
-        d="M40.0013 53.3337H40.0346M40.0013 26.667V40.0003M51.0413 6.66699C52.8093 6.66737 54.5047 7.37 55.7546 8.62033L71.3813 24.247C72.6316 25.4969 73.3343 27.1924 73.3346 28.9603V51.0403C73.3343 52.8083 72.6316 54.5037 71.3813 55.7537L55.7546 71.3803C54.5047 72.6307 52.8093 73.3333 51.0413 73.3337H28.9613C27.1933 73.3333 25.4979 72.6307 24.248 71.3803L8.6213 55.7537C7.37097 54.5037 6.66835 52.8083 6.66797 51.0403V28.9603C6.66835 27.1924 7.37097 25.4969 8.6213 24.247L24.248 8.62033C25.4979 7.37 27.1933 6.66737 28.9613 6.66699H51.0413Z"
-        stroke="#E592A3"
-        strokeWidth="6.66667"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <Svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+      <Path d="M12 8V12" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M12.125 15.75H12M12.25 15.75C12.25 15.8881 12.1381 16 12 16C11.8619 16 11.75 15.8881 11.75 15.75C11.75 15.6119 11.8619 15.5 12 15.5C12.1381 15.5 12.25 15.6119 12.25 15.75Z" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Circle cx="12" cy="12" r="10" stroke={color || stroke} strokeWidth="1.5" fill="none" />
     </Svg>
   );
 };

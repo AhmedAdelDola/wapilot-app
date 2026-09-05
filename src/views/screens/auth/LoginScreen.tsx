@@ -155,7 +155,7 @@ const LoginScreen = () => {
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
               <Image
                 // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
-                source={isDark ? require('@/assets/images/brand/condensed-white.png') : require('@/assets/images/brand/condensed-black.png')}
+                source={require('@/assets/images/brand/condensed-version-graded.png')}
                 style={{ width: 140, height: 40 }}
                 resizeMode="contain"
               />

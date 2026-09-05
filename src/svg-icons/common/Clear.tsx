@@ -1,15 +1,12 @@
 import React from 'react';
-import Svg, { Path } from 'react-native-svg';
+import { Svg, Path } from 'react-native-svg';
 
-import { IconProps } from '../../types';
-
-export const ClearIcon = ({ stroke = '#858585' }: IconProps): JSX.Element => {
+export const ClearIcon = ({ stroke = '#858585', color, strokeWidth = 1.5, fill = 'none', strokeOpacity, ...rest }: { stroke?: string; color?: string; strokeWidth?: number; fill?: string; strokeOpacity?: number; [key: string]: any }): JSX.Element => {
   return (
-    <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M3.82031 13.7403C3.82031 18.252 7.47656 21.9199 12 21.9199C16.5234 21.9199 20.1797 18.252 20.1797 13.7403C20.1797 13.2129 19.8164 12.8496 19.3008 12.8496C18.8086 12.8496 18.4922 13.2129 18.4922 13.7285C18.4922 17.3145 15.5859 20.209 12 20.209C8.41406 20.209 5.50781 17.3145 5.50781 13.7285C5.50781 10.1426 8.41406 7.23633 12 7.23633C12.6094 7.23633 13.1602 7.25977 13.6523 7.36524L11.168 9.80274C11.0039 9.95508 10.9336 10.1777 10.9336 10.3887C10.9336 10.8691 11.2969 11.2324 11.7539 11.2324C12.0234 11.2324 12.2109 11.1387 12.3633 10.998L16.0664 7.29492C16.2305 7.13086 16.3125 6.93164 16.3125 6.68555C16.3125 6.46289 16.2187 6.24024 16.0664 6.08789L12.3633 2.33789C12.2227 2.17383 12.0117 2.08008 11.7539 2.08008C11.2969 2.08008 10.9336 2.4668 10.9336 2.94727C10.9336 3.16992 11.0156 3.38086 11.1563 3.54492L13.3125 5.67774C12.8906 5.5957 12.4453 5.56055 12 5.56055C7.47656 5.56055 3.82031 9.2168 3.82031 13.7403Z"
-        fill="#80838D"
-      />
+    <Svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+      <Path d="M11 20.001H5" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M12 4L8 20.0008M12 4C13.3874 4 15.1695 4.03054 16.5884 4.17648C17.1885 4.23819 17.4886 4.26905 17.7541 4.37789C18.3066 4.60428 18.7518 5.10062 18.9194 5.6768C19 5.95381 19 6.26991 19 6.90214M12 4C10.6126 4 8.83047 4.03054 7.41161 4.17648C6.8115 4.23819 6.51144 4.26905 6.24586 4.37789C5.69344 4.60428 5.24816 5.10062 5.08057 5.6768C5 5.95381 5 6.26991 5 6.90214" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M14 15L19 20M14 20L19 15" stroke={color || stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </Svg>
   );
 };
