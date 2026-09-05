@@ -23,6 +23,7 @@ import {
   selectConversationsLoading,
   selectIsAllConversationsFetched,
   selectAllConversations,
+  selectConversationLoadError,
 } from '@/viewmodels/store/conversation/conversationSelectors';
 import { clearAllConversations } from '@/viewmodels/store/conversation/conversationSlice';
 import { selectAllInboxes } from '@/viewmodels/store/inbox/inboxSelectors';
@@ -114,10 +115,14 @@ const InboxScreen = () => {
 
   // List & pagination state
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [pageNumber, setPageNumber] = useState(1);
   const [isFlashListReady, setFlashListReady] = useState(false);
   const drawerRef = useRef<DrawerLayout>(null);
   const openedRowIndex = useSharedValue<number | null>(null);
+
+  // Pagination refs (avoids stale closures)
+  const pageNumberRef = useRef(1);
+  const isLoadingPageRef = useRef(false);
+  const fetchIdRef = useRef(0);
 
   // Dynamic meta counts & lifecycle stages
   const [counts, setCounts] = useState({ mine_count: 0, unassigned_count: 0, all_count: 0 });
@@ -127,9 +132,9 @@ const InboxScreen = () => {
   const userId = useAppSelector(selectUserId);
   const isConversationsLoading = useAppSelector(selectConversationsLoading);
   const isAllConversationsFetched = useAppSelector(selectIsAllConversationsFetched);
+  const conversationLoadError = useAppSelector(selectConversationLoadError);
   const inboxes = useAppSelector(selectAllInboxes) as Inbox[];
   const labels = useAppSelector(selectAllLabels) as Label[];
-
   const allConversations = useAppSelector(selectAllConversations) as Conversation[];
 
   // Fetch meta counts
@@ -192,7 +197,6 @@ const InboxScreen = () => {
     });
 
     const getTime = (conv: Conversation): number => {
-      // Treat 0 / null / undefined as "no value" so they fall back to the next source
       const lastActivity = conv.lastActivityAt && Number(conv.lastActivityAt) > 0 ? Number(conv.lastActivityAt) : 0;
       if (lastActivity > 0) return lastActivity;
       const lastMsg =
@@ -210,8 +214,9 @@ const InboxScreen = () => {
     });
   }, [allConversations, selectedStatus, selectedSidebar, userId, lifecycleStages]);
 
-  const fetchConversations = useCallback(
-    async (page: number = 1) => {
+  // Stable fetch conversations function using refs to avoid stale closures
+  const fetchConversationsPage = useCallback(
+    async (page: number, fetchId: number) => {
       let assigneeType = ASSIGNEE_MAP[selectedSidebar] || 'all';
       let targetInboxId = 0;
 
@@ -226,48 +231,107 @@ const InboxScreen = () => {
         sortBy: 'latest',
         inboxId: targetInboxId,
       };
-      await dispatch(conversationActions.fetchConversations(payload));
+
+      const result = await dispatch(conversationActions.fetchConversations(payload));
+
+      // Guard: only process if this is still the active fetch
+      if (fetchIdRef.current !== fetchId) return;
+
+      if (result.meta.requestStatus === 'fulfilled' && page === 1) {
+        // After page 1 loads successfully, fetch page 2 as a prefetch
+        if (fetchIdRef.current === fetchId && !isLoadingPageRef.current) {
+          isLoadingPageRef.current = true;
+          try {
+            await dispatch(
+              conversationActions.fetchConversations({ ...payload, page: 2 }),
+            );
+          } catch {
+            // Prefetch failure is non-critical
+          } finally {
+            if (fetchIdRef.current === fetchId) {
+              isLoadingPageRef.current = false;
+            }
+          }
+        }
+      }
     },
     [dispatch, selectedStatus, selectedSidebar],
   );
 
-  const clearAndFetch = useCallback(async (shouldClear = true) => {
-    setPageNumber(1);
-    setFlashListReady(false);
-    if (shouldClear) await dispatch(clearAllConversations());
-    fetchConversations(1);
-    fetchConversations(2);
-    fetchCounts();
-  }, [dispatch, fetchConversations, fetchCounts]);
-
+  // Initial load and filter change handler
   useEffect(() => {
-    setPageNumber(1);
+    pageNumberRef.current = 1;
+    isLoadingPageRef.current = false;
     setFlashListReady(false);
-    fetchConversations(1);
-    fetchConversations(2);
+
+    // Increment fetchId to invalidate any in-flight requests
+    const fetchId = ++fetchIdRef.current;
+
+    fetchConversationsPage(1, fetchId);
     fetchCounts();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStatus, selectedSidebar]);
 
   const handleRefresh = useCallback(() => {
     setIsRefreshing(true);
-    clearAndFetch().finally(() => setIsRefreshing(false));
-  }, [clearAndFetch]);
+    pageNumberRef.current = 1;
+    isLoadingPageRef.current = false;
+    const fetchId = ++fetchIdRef.current;
+
+    dispatch(clearAllConversations());
+    fetchConversationsPage(1, fetchId).finally(() => {
+      if (fetchIdRef.current === fetchId) {
+        setIsRefreshing(false);
+      }
+    });
+  }, [dispatch, fetchConversationsPage]);
 
   const handleOnEndReached = useCallback(() => {
-    if (isFlashListReady && !isAllConversationsFetched && !isConversationsLoading) {
-      setPageNumber(prev => {
-        const nextPage = prev + 1;
-        fetchConversations(nextPage);
-        return nextPage;
-      });
+    if (
+      isFlashListReady &&
+      !isAllConversationsFetched &&
+      !isConversationsLoading &&
+      !isLoadingPageRef.current
+    ) {
+      const nextPage = pageNumberRef.current + 1;
+      pageNumberRef.current = nextPage;
+      isLoadingPageRef.current = true;
+      const fetchId = fetchIdRef.current;
+
+      dispatch(
+        conversationActions.fetchConversations({
+          status: STATUS_MAP[selectedStatus] || 'open',
+          assigneeType: ASSIGNEE_MAP[selectedSidebar] || 'all',
+          page: nextPage,
+          sortBy: 'latest',
+          inboxId: selectedSidebar.startsWith('inbox_')
+            ? Number(selectedSidebar.replace('inbox_', ''))
+            : 0,
+        }),
+      )
+        .unwrap()
+        .catch(() => {})
+        .finally(() => {
+          if (fetchIdRef.current === fetchId) {
+            isLoadingPageRef.current = false;
+          }
+        });
     }
   }, [
     isFlashListReady,
     isAllConversationsFetched,
     isConversationsLoading,
-    fetchConversations,
+    dispatch,
+    selectedStatus,
+    selectedSidebar,
   ]);
+
+  const handleRetryLoad = useCallback(() => {
+    pageNumberRef.current = 1;
+    isLoadingPageRef.current = false;
+    const fetchId = ++fetchIdRef.current;
+    fetchConversationsPage(1, fetchId);
+  }, [fetchConversationsPage]);
 
   const handleSidebarSelect = useCallback((id: string) => {
     setSelectedSidebar(id);
@@ -299,14 +363,16 @@ const InboxScreen = () => {
     [handleNavigateToChat, lifecycleStages, openedRowIndex],
   );
 
-  const ListFooterComponent = () => {
-    if (isAllConversationsFetched || conversations.length === 0) return null;
-    return (
-      <View style={tailwind.style('flex-1 items-center justify-center pt-8 pb-4')}>
-        <ActivityIndicator size="small" />
-      </View>
-    );
-  };
+  const ListFooterComponent = useMemo(() => {
+    return () => {
+      if (isAllConversationsFetched || conversations.length === 0) return null;
+      return (
+        <View style={tailwind.style('flex-1 items-center justify-center pt-8 pb-4')}>
+          <ActivityIndicator size="small" />
+        </View>
+      );
+    };
+  }, [isAllConversationsFetched, conversations.length]);
 
   // Dynamic Sidebar Sections
   const sidebarSections = useMemo(() => [
@@ -429,12 +495,28 @@ const InboxScreen = () => {
   };
 
   const shouldShowEmptyLoader = isConversationsLoading && allConversations.length === 0;
+  const shouldShowError = !shouldShowEmptyLoader && conversationLoadError && allConversations.length === 0;
 
   if (showAddContact) {
     return <AddContactScreen onBack={() => setShowAddContact(false)} />;
   }
 
   const renderContent = () => {
+    if (shouldShowError) {
+      return (
+        <View style={tailwind.style('flex-1 items-center justify-center px-8')}>
+          <Text style={{ color: isDark ? '#f87171' : '#dc2626', fontSize: 14, fontWeight: '600', textAlign: 'center', marginBottom: 12 }}>
+            {conversationLoadError || 'Failed to load conversations'}
+          </Text>
+          <Pressable
+            onPress={handleRetryLoad}
+            style={{ paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8, backgroundColor: isDark ? '#2563eb' : '#111827' }}>
+            <Text style={{ color: '#ffffff', fontSize: 14, fontWeight: '600' }}>Retry</Text>
+          </Pressable>
+        </View>
+      );
+    }
+
     if (shouldShowEmptyLoader) {
       return (
         <View style={tailwind.style('flex-1 items-center justify-center')}>

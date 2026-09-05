@@ -14,6 +14,7 @@ export interface ConversationState {
     allCount: number;
   };
   error: string | null;
+  conversationLoadError: string | null;
   isLoadingConversations: boolean;
   isLoadingMessages: boolean;
   isLoadingMoreMessages: boolean;
@@ -22,6 +23,7 @@ export interface ConversationState {
   isConversationFetching: boolean;
   isChangingConversationStatus: boolean;
   messageLoadError: string | null;
+  lastFetchedPage: number;
 }
 
 export const conversationAdapter = createEntityAdapter<Conversation>();
@@ -33,6 +35,7 @@ const initialState = conversationAdapter.getInitialState<ConversationState>({
     allCount: 0,
   },
   error: null,
+  conversationLoadError: null,
   isLoadingConversations: false,
   isAllConversationsFetched: false,
   isLoadingMessages: false,
@@ -41,6 +44,7 @@ const initialState = conversationAdapter.getInitialState<ConversationState>({
   isConversationFetching: false,
   isChangingConversationStatus: false,
   messageLoadError: null,
+  lastFetchedPage: 0,
 });
 
 const isOutdatedConversationUpdate = (
@@ -122,8 +126,10 @@ const conversationSlice = createSlice({
       state.isAllConversationsFetched = false;
       state.isAllMessagesFetchedByConversation = {};
       state.error = null;
+      state.conversationLoadError = null;
       state.messageLoadError = null;
       state.isLoadingMoreMessages = false;
+      state.lastFetchedPage = 0;
     },
     addConversation: (state, action) => {
       const conversation = action.payload;
@@ -227,15 +233,17 @@ const conversationSlice = createSlice({
           conversationAdapter.upsertMany(state, transformedConversations);
         }
         state.isLoadingConversations = false;
+        state.conversationLoadError = null;
         state.isAllConversationsFetched = conversations.length < 20;
         state.meta = meta;
+        state.lastFetchedPage = page ?? 0;
       })
       .addCase(conversationActions.fetchConversationsMeta.fulfilled, (state, { payload }) => {
         state.meta = payload;
       })
-      .addCase(conversationActions.fetchConversations.rejected, state => {
+      .addCase(conversationActions.fetchConversations.rejected, (state, action) => {
         state.isLoadingConversations = false;
-        state.isAllConversationsFetched = false;
+        state.conversationLoadError = action.error?.message || 'Failed to load conversations';
       })
       .addCase(conversationActions.fetchConversation.pending, state => {
         state.error = null;

@@ -52,6 +52,16 @@ export const selectMessageLoadError = createSelector(
   state => state.messageLoadError,
 );
 
+export const selectConversationLoadError = createSelector(
+  selectConversationsState,
+  state => state.conversationLoadError,
+);
+
+export const selectLastFetchedPage = createSelector(
+  selectConversationsState,
+  state => state.lastFetchedPage,
+);
+
 export const selectIsLoadingMessages = createSelector(
   selectConversationsState,
   state => state.isLoadingMessages,
