@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Animated,
   Dimensions,
@@ -12,7 +12,7 @@ import {
 
 const { height, width } = Dimensions.get('window');
 
-const LETTERS: { src: ReturnType<typeof require>; ratio: number }[] = [
+const MESSAGE_LETTERS: { src: ReturnType<typeof require>; ratio: number }[] = [
   { src: require('@/assets/images/brand/letters/condensed version graded-1.png'),  ratio: 1081 / 697 },
   { src: require('@/assets/images/brand/letters/condensed version graded-2.png'),  ratio: 665 / 693  },
   { src: require('@/assets/images/brand/letters/condensed version graded-3.png'),  ratio: 525 / 694  },
@@ -20,17 +20,24 @@ const LETTERS: { src: ReturnType<typeof require>; ratio: number }[] = [
   { src: require('@/assets/images/brand/letters/condensed version graded-5.png'),  ratio: 596 / 694  },
   { src: require('@/assets/images/brand/letters/condensed version graded-6.png'),  ratio: 673 / 944  },
   { src: require('@/assets/images/brand/letters/condensed version graded-7.png'),  ratio: 665 / 693  },
+];
+
+const PRO_LETTERS: { src: ReturnType<typeof require>; ratio: number }[] = [
   { src: require('@/assets/images/brand/letters/condensed version graded-8.png'),  ratio: 703 / 940  },
   { src: require('@/assets/images/brand/letters/condensed version graded-9.png'),  ratio: 364 / 689  },
   { src: require('@/assets/images/brand/letters/condensed version graded-10.png'), ratio: 703 / 693  },
 ];
 
 const calcLetterHeight = () => {
+  const allLetters = [...MESSAGE_LETTERS, ...PRO_LETTERS];
   const maxWordWidth = width * 0.85;
-  const totalRatio = LETTERS.reduce((sum, l) => sum + l.ratio, 0);
-  const byWidth = maxWordWidth / totalRatio;
-  const byHeight = height * 0.08;
-  return Math.min(byWidth, byHeight, 80);
+  const maxLineWidth = Math.max(
+    MESSAGE_LETTERS.reduce((sum, l) => sum + l.ratio, 0),
+    PRO_LETTERS.reduce((sum, l) => sum + l.ratio, 0),
+  );
+  const byWidth = maxWordWidth / maxLineWidth;
+  const byHeight = height * 0.07;
+  return Math.min(byWidth, byHeight, 70);
 };
 
 type AnimatedSplashProps = { onFinish: () => void };
@@ -48,10 +55,17 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
   const mTranslateY = useRef(new Animated.Value(-height * 0.35)).current;
   const mRotate = useRef(new Animated.Value(0)).current;
 
-  const letterAnims = useRef(
-    LETTERS.slice(1).map(() => ({
+  const messageAnims = useRef(
+    MESSAGE_LETTERS.slice(1).map(() => ({
       opacity: new Animated.Value(0),
       translateX: new Animated.Value(50),
+    }))
+  ).current;
+
+  const proAnims = useRef(
+    PRO_LETTERS.map(() => ({
+      opacity: new Animated.Value(0),
+      translateY: new Animated.Value(30),
     }))
   ).current;
 
@@ -63,21 +77,13 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
     };
 
     const timers: NodeJS.Timeout[] = [];
-
     const schedule = (fn: () => void, delay: number) => {
-      const t = setTimeout(fn, delay);
-      timers.push(t);
-      return t;
+      timers.push(setTimeout(fn, delay));
     };
 
-    let cumDelay = 0;
+    let t = 0;
 
-    // Phase 1: M drops in (0 → ~600ms)
-    mOpacity.setValue(0);
-    mTranslateY.setValue(-height * 0.35);
-    mRotate.setValue(0);
-    mScale.setValue(0.3);
-
+    // Phase 1: M drops in
     Animated.parallel([
       Animated.timing(mOpacity, { toValue: 1, duration: 200, useNativeDriver: true }),
       Animated.spring(mTranslateY, { toValue: 0, damping: 8, stiffness: 120, mass: 1, useNativeDriver: true }),
@@ -88,34 +94,60 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
       Animated.spring(mScale, { toValue: 1, damping: 6, stiffness: 80, useNativeDriver: true }),
     ]).start();
 
-    cumDelay = 700;
+    t = 700;
 
-    // Phase 2: Letters fly in (staggered)
-    letterAnims.forEach(({ opacity, translateX }, idx) => {
+    // Phase 2: "essage" letters fly in
+    messageAnims.forEach(({ opacity, translateX }, idx) => {
       schedule(() => {
-        opacity.setValue(0);
-        translateX.setValue(50);
         Animated.parallel([
           Animated.timing(opacity, { toValue: 1, duration: 300, easing: Easing.out(Easing.exp), useNativeDriver: true }),
           Animated.timing(translateX, { toValue: 0, duration: 300, easing: Easing.out(Easing.exp), useNativeDriver: true }),
         ]).start();
-      }, cumDelay + idx * 100);
+      }, t + idx * 100);
     });
 
-    cumDelay += (letterAnims.length) * 100 + 400;
+    t += messageAnims.length * 100 + 300;
 
-    // Finish after all animations
-    schedule(finish, cumDelay);
+    // Phase 3: "pro" slides up from below
+    proAnims.forEach(({ opacity, translateY }, idx) => {
+      schedule(() => {
+        Animated.parallel([
+          Animated.timing(opacity, { toValue: 1, duration: 300, easing: Easing.out(Easing.exp), useNativeDriver: true }),
+          Animated.spring(translateY, { toValue: 0, damping: 10, stiffness: 100, useNativeDriver: true }),
+        ]).start();
+      }, t + idx * 120);
+    });
 
-    return () => {
-      timers.forEach(clearTimeout);
-    };
+    t += proAnims.length * 120 + 600;
+
+    schedule(finish, t);
+
+    return () => timers.forEach(clearTimeout);
   }, []);
 
   const mRotateInterpolated = mRotate.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
   });
+
+  const renderLetter = (
+    src: ReturnType<typeof require>,
+    ratio: number,
+    animStyle: any,
+    key: string | number,
+  ) => (
+    <Animated.View key={key} style={animStyle}>
+      <Image
+        source={src}
+        style={{
+          width: LETTER_HEIGHT * ratio,
+          height: LETTER_HEIGHT,
+          marginHorizontal: 1,
+        }}
+        resizeMode="contain"
+      />
+    </Animated.View>
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: bg }]}>
@@ -125,46 +157,33 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
         barStyle={isDark ? 'light-content' : 'dark-content'}
       />
 
+      {/* "message" row */}
       <View style={styles.wordRow}>
-        <Animated.View
-          style={{
+        {renderLetter(
+          MESSAGE_LETTERS[0].src,
+          MESSAGE_LETTERS[0].ratio,
+          {
             opacity: mOpacity,
             transform: [
               { translateY: mTranslateY },
               { rotate: mRotateInterpolated },
               { scale: mScale },
             ],
-          }}
-        >
-          <Image
-            source={LETTERS[0].src}
-            style={{
-              width: LETTER_HEIGHT * LETTERS[0].ratio,
-              height: LETTER_HEIGHT,
-              marginHorizontal: 1,
-            }}
-            resizeMode="contain"
-          />
-        </Animated.View>
+          },
+          'm',
+        )}
 
-        {LETTERS.slice(1).map((letter, idx) => {
-          const { opacity, translateX } = letterAnims[idx];
-          return (
-            <Animated.View
-              key={idx}
-              style={{ opacity, transform: [{ translateX }] }}
-            >
-              <Image
-                source={letter.src}
-                style={{
-                  width: LETTER_HEIGHT * letter.ratio,
-                  height: LETTER_HEIGHT,
-                  marginHorizontal: 1,
-                }}
-                resizeMode="contain"
-              />
-            </Animated.View>
-          );
+        {MESSAGE_LETTERS.slice(1).map((letter, idx) => {
+          const { opacity, translateX } = messageAnims[idx];
+          return renderLetter(letter.src, letter.ratio, { opacity, transform: [{ translateX }] }, idx);
+        })}
+      </View>
+
+      {/* "pro" row */}
+      <View style={[styles.wordRow, { marginTop: 8 }]}>
+        {PRO_LETTERS.map((letter, idx) => {
+          const { opacity, translateY } = proAnims[idx];
+          return renderLetter(letter.src, letter.ratio, { opacity, transform: [{ translateY }] }, `pro-${idx}`);
         })}
       </View>
     </View>
