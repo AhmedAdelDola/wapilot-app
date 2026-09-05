@@ -11,9 +11,9 @@ import {
 } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 
-const { height } = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
-const LETTER_HEIGHT = height * 0.13;
+const LETTER_HEIGHT = Math.min(height * 0.065, width * 0.15);
 
 const LETTERS: { src: ReturnType<typeof require>; ratio: number }[] = [
   { src: require('@/assets/images/brand/letters/condensed version graded-1.png'),  ratio: 1081 / 697 },
