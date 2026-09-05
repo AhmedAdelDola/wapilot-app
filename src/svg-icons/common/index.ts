@@ -21,6 +21,7 @@ export * from './Eye';
 export * from './EyeSlash';
 export * from './File';
 export * from './Filter';
+export * from './InboxFilter';
 export * from './Grid';
 export * from './KeyRound';
 export * from './LabelTag';
