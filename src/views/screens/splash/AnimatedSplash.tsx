@@ -21,10 +21,18 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const stepRef = useRef(0);
+  const finishedRef = useRef(false);
 
   useEffect(() => {
     const totalIcons = ICONS.length;
     const iconDuration = 800;
+
+    const finish = () => {
+      if (finishedRef.current) return;
+      finishedRef.current = true;
+      SplashScreen.hideAsync().catch(() => {});
+      onFinish();
+    };
 
     const animateNext = () => {
       fadeAnim.setValue(0);
@@ -38,13 +46,15 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
           setCurrentIndex(stepRef.current);
           animateNext();
         } else {
-          SplashScreen.hideAsync();
-          onFinish();
+          finish();
         }
       });
     };
 
+    const safetyTimeout = setTimeout(finish, totalIcons * iconDuration + 1000);
     animateNext();
+
+    return () => clearTimeout(safetyTimeout);
   }, []);
 
   return (

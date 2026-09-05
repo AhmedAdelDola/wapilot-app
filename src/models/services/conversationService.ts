@@ -156,7 +156,6 @@ class ConversationService {
         page: params.page || 1,
       },
     });
-    console.log('[TEMP SEARCH SVC] response.data keys =', response?.data ? Object.keys(response.data) : response?.data, '| response.data.data keys =', response?.data?.data ? Object.keys(response.data.data) : response?.data?.data);
     const body = response?.data ?? response;
     const inner = body?.data ?? body;
     return inner;

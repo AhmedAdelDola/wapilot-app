@@ -11,7 +11,7 @@ import { AnimatedSplash } from '@/views/screens/splash/AnimatedSplash';
 
 import i18n from '@/i18n';
 
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 const Chatwoot = () => {
   const [showSplash, setShowSplash] = useState(true);

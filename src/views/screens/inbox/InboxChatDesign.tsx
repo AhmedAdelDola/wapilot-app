@@ -27,13 +27,15 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSharedValue } from 'react-native-reanimated';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { conversationActions } from '@/viewmodels/store/conversation/conversationActions';
-import { updateConversation } from '@/viewmodels/store/conversation/conversationSlice';
+import { updateConversation, clearAllConversations } from '@/viewmodels/store/conversation/conversationSlice';
 import {
   selectAllConversations,
   selectConversationsLoading,
   selectConversationById,
   getMessagesByConversationId,
   selectIsAllMessagesFetched,
+  selectIsAllConversationsFetched,
+  selectConversationLoadError,
   selectIsLoadingMoreMessages,
   selectMessageLoadError,
 } from '@/viewmodels/store/conversation/conversationSelectors';
@@ -3141,6 +3143,8 @@ const InboxScreenDesign = () => {
   const [showAddContact, setShowAddContact] = useState(false);
   const allConversations = useAppSelector(selectAllConversations);
   const conversationsLoading = useAppSelector(selectConversationsLoading);
+  const isAllConversationsFetched = useAppSelector(selectIsAllConversationsFetched);
+  const conversationLoadError = useAppSelector(selectConversationLoadError);
   const locale = useAppSelector(selectLocale);
   const isArabic = locale?.startsWith('ar');
   const typingRecords = useAppSelector(selectTypingUsers);
@@ -3162,11 +3166,10 @@ const InboxScreenDesign = () => {
   const [customDateText, setCustomDateText] = useState('');
   const [customTimeText, setCustomTimeText] = useState('');
 
-  const [page, setPage] = useState(1);
   const pageRef = React.useRef(1);
-  const hasMoreRef = React.useRef(true);
-  const isFetchingMoreRef = React.useRef(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const isLoadingPageRef = React.useRef(false);
+  const fetchIdRef = React.useRef(0);
+  const [isFlashListReady, setFlashListReady] = useState(false);
 
   React.useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', event => {
@@ -3208,7 +3211,7 @@ const InboxScreenDesign = () => {
   const openedRowIndex = useSharedValue<number | null>(null);
 
   const fetchConversationsFromApi = React.useCallback(
-    async (pageNumber = 1) => {
+    async (pageNumber = 1, fetchId?: number) => {
       let assigneeType: 'all' | 'me' | 'unassigned' = 'all';
       let targetInboxId = 0;
 
@@ -3230,6 +3233,8 @@ const InboxScreenDesign = () => {
         } as any),
       );
 
+      if (fetchId !== undefined && fetchIdRef.current !== fetchId) return undefined;
+
       return (result as any).payload as ConversationListResponse;
     },
     [dispatch, tab, activeItem],
@@ -3237,13 +3242,16 @@ const InboxScreenDesign = () => {
 
   React.useEffect(() => {
     pageRef.current = 1;
-    setPage(1);
-    hasMoreRef.current = true;
-    isFetchingMoreRef.current = false;
-    fetchConversationsFromApi(1).then(data => {
+    isLoadingPageRef.current = false;
+    setFlashListReady(false);
+    const fetchId = ++fetchIdRef.current;
+    fetchConversationsFromApi(1, fetchId).then(data => {
+      if (fetchIdRef.current !== fetchId) return;
       if (data && data.conversations && Array.isArray(data.conversations)) {
         if (data.conversations.length === 0) {
-          hasMoreRef.current = false;
+          pageRef.current = 1;
+        } else {
+          pageRef.current = 1;
         }
       }
     });
@@ -3259,11 +3267,8 @@ const InboxScreenDesign = () => {
     const timer = setTimeout(async () => {
       setIsSearchingServer(true);
       try {
-        console.log('[TEMP SEARCH] query =', searchQuery.trim());
         const res = await conversationService.searchConversations(searchQuery.trim());
-        console.log('[TEMP SEARCH] response keys =', res ? Object.keys(res) : res, '| payloadIsArray =', res ? Array.isArray(res.payload) : false);
         if (res && Array.isArray(res.payload)) {
-          console.log('[TEMP SEARCH] firstResult =', JSON.stringify(res.payload[0], null, 2)?.slice(0, 800));
           const normalized = res.payload.map((c: any) => ({
             ...transformConversation(c),
             id: c.id,
@@ -3294,8 +3299,8 @@ const InboxScreenDesign = () => {
           }));
           setServerSearchResults(normalized as unknown as Conversation[]);
         }
-      } catch (err: any) {
-        console.error('[TEMP SEARCH] error =', err?.response?.status, err?.message, err?.response?.data);
+      } catch {
+        // Search failure is non-critical
       } finally {
         setIsSearchingServer(false);
       }
@@ -3303,42 +3308,40 @@ const InboxScreenDesign = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const onRefresh = () => {
+  const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     pageRef.current = 1;
-    setPage(1);
-    hasMoreRef.current = true;
-    isFetchingMoreRef.current = false;
-    fetchConversationsFromApi(1).finally(() => {
-      setRefreshing(false);
+    isLoadingPageRef.current = false;
+    const fetchId = ++fetchIdRef.current;
+    dispatch(clearAllConversations());
+    fetchConversationsFromApi(1, fetchId).finally(() => {
+      if (fetchIdRef.current === fetchId) {
+        setRefreshing(false);
+      }
     });
-  };
+  }, [dispatch, fetchConversationsFromApi]);
 
   const handleLoadMore = React.useCallback(async () => {
-    if (isFetchingMoreRef.current || !hasMoreRef.current) return;
-    isFetchingMoreRef.current = true;
-    setIsLoadingMore(true);
+    if (isLoadingPageRef.current || isAllConversationsFetched) return;
+    isLoadingPageRef.current = true;
     const nextPage = pageRef.current + 1;
+    const fetchId = fetchIdRef.current;
     try {
-      const data = await fetchConversationsFromApi(nextPage);
+      const data = await fetchConversationsFromApi(nextPage, fetchId);
+      if (fetchIdRef.current !== fetchId) return;
       if (data && data.conversations && Array.isArray(data.conversations)) {
         if (data.conversations.length > 0) {
           pageRef.current = nextPage;
-          setPage(nextPage);
         }
-        if (data.conversations.length === 0) {
-          hasMoreRef.current = false;
-        }
-      } else {
-        hasMoreRef.current = false;
       }
     } catch {
-      // ignore
+      // Pagination failure is non-critical
     } finally {
-      isFetchingMoreRef.current = false;
-      setIsLoadingMore(false);
+      if (fetchIdRef.current === fetchId) {
+        isLoadingPageRef.current = false;
+      }
     }
-  }, [fetchConversationsFromApi]);
+  }, [fetchConversationsFromApi, isAllConversationsFetched]);
 
   const conversations = useMemo(() => {
     const list = allConversations.filter(item => {
@@ -3787,6 +3790,22 @@ const InboxScreenDesign = () => {
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             <ActivityIndicator size="small" color="#2563eb" />
           </View>
+        ) : !conversationsLoading && conversationLoadError && filteredConversations.length === 0 ? (
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
+            <Text style={{ color: isDark ? '#f87171' : '#dc2626', fontSize: 14, fontWeight: '600', textAlign: 'center', marginBottom: 12 }}>
+              {conversationLoadError || (isArabic ? 'فشل تحميل المحادثات' : 'Failed to load conversations')}
+            </Text>
+            <Pressable
+              onPress={() => {
+                pageRef.current = 1;
+                isLoadingPageRef.current = false;
+                const fetchId = ++fetchIdRef.current;
+                fetchConversationsFromApi(1, fetchId);
+              }}
+              style={{ paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8, backgroundColor: isDark ? '#2563eb' : '#111827' }}>
+              <Text style={{ color: '#ffffff', fontSize: 14, fontWeight: '600' }}>{isArabic ? 'إعادة المحاولة' : 'Retry'}</Text>
+            </Pressable>
+          </View>
         ) : filteredConversations.length === 0 ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, paddingBottom: 64 }}>
             <ChatBubbleIcon />
@@ -3795,29 +3814,22 @@ const InboxScreenDesign = () => {
             </Text>
           </View>
         ) : (
-          <ScrollView
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2563eb" />}
-            onScroll={({ nativeEvent }) => {
-              const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-              const isCloseToBottom =
-                layoutMeasurement.height + contentOffset.y >= contentSize.height - 120 &&
-                contentOffset.y > 10;
-              if (isCloseToBottom) {
-                handleLoadMore();
+          <FlashList
+            data={filteredConversations}
+            renderItem={renderConversationItem}
+            estimatedItemSize={91}
+            keyExtractor={item => String(item.id)}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            contentContainerStyle={{ paddingBottom: 80 }}
+            onScrollBeginDrag={() => {
+              if (!isFlashListReady) {
+                setFlashListReady(true);
               }
             }}
-            scrollEventThrottle={100}
-            contentContainerStyle={{ paddingBottom: 80 }}>
-            {filteredConversations.map((item, index) => renderConversationItem({ item, index }))}
-            {isLoadingMore && (
-              <View style={{ paddingVertical: 18, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}>
-                <ActivityIndicator size="small" color="#2563eb" />
-                <Text style={{ color: textSecondary, fontSize: 13, fontWeight: '500' }}>
-                  {isArabic ? 'جاري تحميل المزيد من المحادثات...' : 'Loading more conversations...'}
-                </Text>
-              </View>
-            )}
-          </ScrollView>
+          />
         )}
 
         {/* Drawer overlay */}
