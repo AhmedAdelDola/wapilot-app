@@ -3,7 +3,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 
 import { IconProps } from '../../types';
 
-export const WhatsAppMonochromeIcon = ({ stroke = '#8D8D8D' }: IconProps): JSX.Element => {
+export const WhatsAppMonochromeIcon = ({ stroke = '#80838D' }: IconProps): JSX.Element => {
   return (
     <Svg width="100%" height="100%" viewBox="0 0 20 20" fill="none">
       <Path

@@ -52,14 +52,14 @@ export const InboxItemComponent = (props: InboxItemProps) => {
   const { isDark } = useTheme();
 
   const titleColor = isRead
-    ? (isDark ? '#94a3b8' : '#6b7280')
-    : (isDark ? '#f8fafc' : '#030712');
+    ? (isDark ? '#94a3b8' : '#626F7F')
+    : (isDark ? '#EDEEF0' : '#282E34');
 
   const subtitleColor = isRead
-    ? (isDark ? '#64748b' : '#9ca3af')
-    : (isDark ? '#cbd5e1' : '#374151');
+    ? (isDark ? '#80838D' : '#80838D')
+    : (isDark ? '#B0B4BA' : '#626F7F');
 
-  const metaColor = isDark ? '#64748b' : '#9ca3af';
+  const metaColor = isDark ? '#80838D' : '#80838D';
 
   return (
     <Animated.View
@@ -68,7 +68,7 @@ export const InboxItemComponent = (props: InboxItemProps) => {
         paddingVertical: 14,
         paddingRight: 16,
         borderBottomWidth: 1,
-        borderBottomColor: isDark ? '#1e293b' : '#f3f4f6',
+        borderBottomColor: isDark ? '#1B1C20' : '#F0F0F3',
       }}>
       <Animated.View style={{}}>
         <AnimatedNativeView
@@ -81,7 +81,7 @@ export const InboxItemComponent = (props: InboxItemProps) => {
                   width: 8,
                   height: 8,
                   borderRadius: 999,
-                  backgroundColor: '#3b82f6',
+                  backgroundColor: '#725AFF',
                   marginRight: 2,
                 }}
               />
@@ -90,7 +90,7 @@ export const InboxItemComponent = (props: InboxItemProps) => {
               numberOfLines={1}
               style={{
                 fontSize: 15,
-                fontFamily: isRead ? 'Inter-400-20' : 'Inter-500-24',
+                fontFamily: isRead ? 'Gontserrat-Regular' : 'Gontserrat-Bold',
                 fontWeight: isRead ? '500' : '700',
                 letterSpacing: 0.2,
                 color: titleColor,
@@ -100,10 +100,10 @@ export const InboxItemComponent = (props: InboxItemProps) => {
               {sender.name || ''}
             </Animated.Text>
             <NativeView style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-              <Animated.Text style={{ fontSize: 13, fontFamily: 'Inter-400-20', color: metaColor }}>
+              <Animated.Text style={{ fontSize: 13, fontFamily: 'Gontserrat-Regular', color: metaColor }}>
                 #
               </Animated.Text>
-              <Animated.Text style={{ fontSize: 13, fontFamily: 'Inter-400-20', color: metaColor }}>
+              <Animated.Text style={{ fontSize: 13, fontFamily: 'Gontserrat-Regular', color: metaColor }}>
                 {conversationId}
               </Animated.Text>
             </NativeView>
@@ -117,7 +117,7 @@ export const InboxItemComponent = (props: InboxItemProps) => {
               <Animated.Text
                 style={{
                   fontSize: 12,
-                  fontFamily: 'Inter-400-20',
+                  fontFamily: 'Gontserrat-Regular',
                   color: metaColor,
                 }}>
                 {lastActivityAt()}
@@ -138,7 +138,7 @@ export const InboxItemComponent = (props: InboxItemProps) => {
 
             <Animated.Text
               style={{
-                fontFamily: 'Inter-400-20',
+                fontFamily: 'Gontserrat-Regular',
                 fontSize: 14,
                 color: subtitleColor,
                 lineHeight: 18,

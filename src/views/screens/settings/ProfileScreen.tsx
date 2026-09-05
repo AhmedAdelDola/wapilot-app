@@ -55,7 +55,7 @@ const ProfileScreen = () => {
           disabled={!hasChanges || isSaving}
           hitSlop={16}>
           {isSaving ? (
-            <ActivityIndicator size="small" color="#6B7280" />
+            <ActivityIndicator size="small" color="#626F7F" />
           ) : (
             <Text
               style={tailwind.style(
@@ -95,7 +95,7 @@ const ProfileScreen = () => {
             value={firstName}
             onChangeText={setFirstName}
             placeholder="Enter first name"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor="#80838D"
           />
 
           <Text style={tailwind.style('text-[14px] font-inter-medium-24 text-gray-950 mb-2')}>
@@ -106,7 +106,7 @@ const ProfileScreen = () => {
             value={lastName}
             onChangeText={setLastName}
             placeholder="Enter last name"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor="#80838D"
           />
 
           <Text style={tailwind.style('text-[14px] font-inter-medium-24 text-gray-950 mb-2')}>

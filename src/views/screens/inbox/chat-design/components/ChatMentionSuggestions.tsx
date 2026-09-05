@@ -29,9 +29,9 @@ export const ChatMentionSuggestions = ({
         maxHeight: 160,
         marginTop: 6,
         borderWidth: 1,
-        borderColor: isDark ? '#334155' : '#d1d5db',
+        borderColor: isDark ? '#24262B' : '#EAEAEA',
         borderRadius: 10,
-        backgroundColor: isDark ? '#1e293b' : '#ffffff',
+        backgroundColor: isDark ? '#1B1C20' : '#ffffff',
       }}>
       {filtered.slice(0, 6).map(agent => (
         <Pressable
@@ -41,9 +41,9 @@ export const ChatMentionSuggestions = ({
             paddingHorizontal: 12,
             paddingVertical: 10,
             borderBottomWidth: 1,
-            borderBottomColor: isDark ? '#334155' : '#f3f4f6',
+            borderBottomColor: isDark ? '#24262B' : '#F0F0F3',
           }}>
-          <Text style={{ color: isDark ? '#f8fafc' : '#111827', fontSize: 14, fontWeight: '500' }}>
+          <Text style={{ color: isDark ? '#EDEEF0' : '#282E34', fontSize: 14, fontWeight: '500' }}>
             @{agent.name || agent.availableName}
           </Text>
         </Pressable>

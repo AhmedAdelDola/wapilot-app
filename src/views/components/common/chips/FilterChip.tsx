@@ -30,19 +30,19 @@ export const FilterChip = ({ label, isActive, onPress }: FilterChipProps) => {
           paddingVertical: 6,
           borderRadius: 999,
           backgroundColor: isActive
-            ? (isDark ? '#3b82f6' : '#111827')
-            : (isDark ? '#1e293b' : '#f3f4f6'),
+            ? (isDark ? '#725AFF' : '#282E34')
+            : (isDark ? '#1B1C20' : '#F0F0F3'),
           borderWidth: 1,
           borderColor: isActive
-            ? (isDark ? '#3b82f6' : '#111827')
-            : (isDark ? '#334155' : '#e5e7eb'),
+            ? (isDark ? '#725AFF' : '#282E34')
+            : (isDark ? '#24262B' : '#EAEAEA'),
         }}>
         <Text
           style={{
             fontSize: 14,
             fontWeight: '600',
-            fontFamily: 'Inter-500-24',
-            color: isActive ? '#ffffff' : (isDark ? '#cbd5e1' : '#374151'),
+            fontFamily: 'Gontserrat-Bold',
+            color: isActive ? '#ffffff' : (isDark ? '#B0B4BA' : '#626F7F'),
           }}>
           {label}
         </Text>

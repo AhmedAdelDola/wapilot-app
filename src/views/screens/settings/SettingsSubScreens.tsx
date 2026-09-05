@@ -38,14 +38,14 @@ import { useTheme } from '@/theme';
 const useIsDark = () => useTheme().isDark;
 
 // ---------- Shared icons ----------
-const ArrowLeft = ({ color = '#111827' }: { color?: string }) => (
+const ArrowLeft = ({ color = '#282E34' }: { color?: string }) => (
   <Svg width="22" height="22" viewBox="0 0 24 24" fill="none">
     <Path d="M19 12H5" stroke={color} strokeWidth="2" strokeLinecap="round" />
     <Path d="M12 19l-7-7 7-7" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
 );
 
-const ChevronDown = ({ color = '#9ca3af' }: { color?: string }) => (
+const ChevronDown = ({ color = '#80838D' }: { color?: string }) => (
   <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
     <Path d="M6 9l6 6 6-6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
@@ -59,8 +59,8 @@ const CheckIcon = () => (
 
 const SearchSmall = () => (
   <Svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-    <Circle cx="11" cy="11" r="8" stroke="#9ca3af" strokeWidth="2" />
-    <Path d="m21 21-4.35-4.35" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" />
+    <Circle cx="11" cy="11" r="8" stroke="#80838D" strokeWidth="2" />
+    <Path d="m21 21-4.35-4.35" stroke="#80838D" strokeWidth="2" strokeLinecap="round" />
   </Svg>
 );
 
@@ -72,7 +72,7 @@ const Toggle = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => (
       width: 48,
       height: 24,
       borderRadius: 999,
-      backgroundColor: on ? '#3b82f6' : '#d1d5db',
+      backgroundColor: on ? '#725AFF' : '#EAEAEA',
       justifyContent: 'center',
       paddingHorizontal: 2,
     }}>
@@ -112,20 +112,20 @@ const SubHeader = ({
         paddingTop: 16,
         paddingBottom: 16,
         borderBottomWidth: 1,
-        borderBottomColor: isDark ? '#1f2937' : '#f3f4f6',
-        backgroundColor: isDark ? '#111827' : 'white',
+        borderBottomColor: isDark ? '#1B1C20' : '#F0F0F3',
+        backgroundColor: isDark ? '#282E34' : 'white',
       }}>
       <Pressable onPress={() => navigation.goBack()} hitSlop={12}>
-        <ArrowLeft color={isDark ? '#f9fafb' : '#111827'} />
+        <ArrowLeft color={isDark ? 'rgba(0,0,0,0.03)' : '#282E34'} />
       </Pressable>
-      <Text style={{ fontSize: 18, fontWeight: '700', color: isDark ? '#f9fafb' : '#111827' }}>{title}</Text>
+      <Text style={{ fontSize: 18, fontWeight: '700', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34' }}>{title}</Text>
       <View style={{ minWidth: 48, alignItems: 'flex-end' }}>
         {right && (
           <Pressable onPress={onRightPress} disabled={rightLoading} hitSlop={12}>
             {rightLoading ? (
-              <ActivityIndicator size="small" color="#2563eb" />
+              <ActivityIndicator size="small" color="#725AFF" />
             ) : (
-              <Text style={{ color: '#3b82f6', fontWeight: '600', fontSize: 15 }}>{right}</Text>
+              <Text style={{ color: '#725AFF', fontWeight: '600', fontSize: 15 }}>{right}</Text>
             )}
           </Pressable>
         )}
@@ -211,8 +211,8 @@ export const UpdateNotificationsScreen = () => {
     alignItems: 'center' as const,
     justifyContent: 'space-between' as const,
     borderWidth: 1,
-    borderColor: isDark ? '#374151' : '#e5e7eb',
-    backgroundColor: isDark ? '#1f2937' : 'white',
+    borderColor: isDark ? '#626F7F' : '#EAEAEA',
+    backgroundColor: isDark ? '#1B1C20' : 'white',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -231,17 +231,17 @@ export const UpdateNotificationsScreen = () => {
       : { title: 'Chat Sounds Scope', options: chatOptions, selected: chatScope, onSelect: setChatScope };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#111827' : 'white' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#111827' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#282E34' : 'white' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#282E34' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Update notifications" right="Save" onRightPress={handleSave} rightLoading={isSaving} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 32, gap: 24 }}>
         <View>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={{ fontWeight: '600', color: isDark ? '#f9fafb' : '#111827', fontSize: 16 }}>Mobile Push Notification</Text>
+            <Text style={{ fontWeight: '600', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', fontSize: 16 }}>Mobile Push Notification</Text>
             <Toggle on={mobilePush} onToggle={() => setMobilePush(!mobilePush)} />
           </View>
           <Pressable style={dropdownStyle} onPress={() => setActiveModal('push')}>
-            <Text style={{ color: isDark ? '#e5e7eb' : '#374151', fontSize: 14, fontWeight: '500', flex: 1, marginRight: 8 }}>
+            <Text style={{ color: isDark ? '#EAEAEA' : '#626F7F', fontSize: 14, fontWeight: '500', flex: 1, marginRight: 8 }}>
               {getPushScopeLabel()}
             </Text>
             <ChevronDown />
@@ -253,41 +253,41 @@ export const UpdateNotificationsScreen = () => {
                 height: 20,
                 borderRadius: 6,
                 borderWidth: 1.5,
-                borderColor: offlineOnly ? '#3b82f6' : (isDark ? '#4b5563' : '#d1d5db'),
-                backgroundColor: offlineOnly ? '#3b82f6' : (isDark ? '#1f2937' : 'white'),
+                borderColor: offlineOnly ? '#725AFF' : (isDark ? '#626F7F' : '#EAEAEA'),
+                backgroundColor: offlineOnly ? '#725AFF' : (isDark ? '#1B1C20' : 'white'),
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
               {offlineOnly && <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>✓</Text>}
             </View>
-            <Text style={{ fontSize: 14, color: isDark ? '#9ca3af' : '#374151' }}>Only send mobile notifications when I am Offline</Text>
+            <Text style={{ fontSize: 14, color: isDark ? '#80838D' : '#626F7F' }}>Only send mobile notifications when I am Offline</Text>
           </Pressable>
         </View>
 
-        <View style={{ height: 1, backgroundColor: isDark ? '#1f2937' : '#f3f4f6' }} />
+        <View style={{ height: 1, backgroundColor: isDark ? '#1B1C20' : '#F0F0F3' }} />
 
         <View>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={{ fontWeight: '600', color: isDark ? '#f9fafb' : '#111827', fontSize: 16 }}>In-app Call Sounds</Text>
+            <Text style={{ fontWeight: '600', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', fontSize: 16 }}>In-app Call Sounds</Text>
             <Toggle on={callSounds} onToggle={() => setCallSounds(!callSounds)} />
           </View>
           <Pressable style={dropdownStyle} onPress={() => setActiveModal('call')}>
-            <Text style={{ color: isDark ? '#e5e7eb' : '#374151', fontSize: 14, fontWeight: '500', flex: 1, marginRight: 8 }}>
+            <Text style={{ color: isDark ? '#EAEAEA' : '#626F7F', fontSize: 14, fontWeight: '500', flex: 1, marginRight: 8 }}>
               {getCallScopeLabel()}
             </Text>
             <ChevronDown />
           </Pressable>
         </View>
 
-        <View style={{ height: 1, backgroundColor: isDark ? '#1f2937' : '#f3f4f6' }} />
+        <View style={{ height: 1, backgroundColor: isDark ? '#1B1C20' : '#F0F0F3' }} />
 
         <View>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={{ fontWeight: '600', color: isDark ? '#f9fafb' : '#111827', fontSize: 16 }}>In-app Chat Sounds</Text>
+            <Text style={{ fontWeight: '600', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', fontSize: 16 }}>In-app Chat Sounds</Text>
             <Toggle on={chatSounds} onToggle={() => setChatSounds(!chatSounds)} />
           </View>
           <Pressable style={dropdownStyle} onPress={() => setActiveModal('chat')}>
-            <Text style={{ color: isDark ? '#e5e7eb' : '#374151', fontSize: 14, fontWeight: '500', flex: 1, marginRight: 8 }}>
+            <Text style={{ color: isDark ? '#EAEAEA' : '#626F7F', fontSize: 14, fontWeight: '500', flex: 1, marginRight: 8 }}>
               {getChatScopeLabel()}
             </Text>
             <ChevronDown />
@@ -303,7 +303,7 @@ export const UpdateNotificationsScreen = () => {
             onPress={() => setActiveModal(null)}>
             <Pressable
               style={{
-                backgroundColor: isDark ? '#1f2937' : 'white',
+                backgroundColor: isDark ? '#1B1C20' : 'white',
                 borderTopLeftRadius: 20,
                 borderTopRightRadius: 20,
                 paddingBottom: 40,
@@ -315,13 +315,13 @@ export const UpdateNotificationsScreen = () => {
                 style={{
                   width: 40,
                   height: 4,
-                  backgroundColor: isDark ? '#4b5563' : '#d1d5db',
+                  backgroundColor: isDark ? '#626F7F' : '#EAEAEA',
                   borderRadius: 999,
                   alignSelf: 'center',
                   marginBottom: 16,
                 }}
               />
-              <Text style={{ fontSize: 17, fontWeight: '700', color: isDark ? '#f9fafb' : '#111827', marginBottom: 12 }}>
+              <Text style={{ fontSize: 17, fontWeight: '700', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', marginBottom: 12 }}>
                 {currentModalOptions.title}
               </Text>
               {currentModalOptions.options.map(opt => {
@@ -339,12 +339,12 @@ export const UpdateNotificationsScreen = () => {
                       justifyContent: 'space-between',
                       paddingVertical: 14,
                       borderBottomWidth: 1,
-                      borderBottomColor: isDark ? '#374151' : '#f3f4f6',
+                      borderBottomColor: isDark ? '#626F7F' : '#F0F0F3',
                     }}>
                     <Text
                       style={{
                         fontSize: 15,
-                        color: isSelected ? '#3b82f6' : (isDark ? '#e5e7eb' : '#374151'),
+                        color: isSelected ? '#725AFF' : (isDark ? '#EAEAEA' : '#626F7F'),
                         fontWeight: isSelected ? '600' : '400',
                         flex: 1,
                         marginRight: 12,
@@ -380,14 +380,14 @@ export const ChangePasswordScreen = () => {
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
-    borderColor: isDark ? '#374151' : '#e5e7eb',
-    backgroundColor: isDark ? '#1f2937' : 'white',
+    borderColor: isDark ? '#626F7F' : '#EAEAEA',
+    backgroundColor: isDark ? '#1B1C20' : 'white',
     borderRadius: 12,
-    color: isDark ? '#f9fafb' : '#111827',
+    color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34',
     fontSize: 14,
   } as const;
 
-  const labelCls = { fontWeight: '600', color: isDark ? '#f9fafb' : '#111827', marginBottom: 6, fontSize: 14 } as const;
+  const labelCls = { fontWeight: '600', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', marginBottom: 6, fontSize: 14 } as const;
 
   const handleChangePassword = useCallback(async () => {
     if (!currentPassword) {
@@ -420,8 +420,8 @@ export const ChangePasswordScreen = () => {
   }, [currentPassword, nextPassword, confirmPassword, dispatch, navigation]);
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#111827' : 'white' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#111827' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#282E34' : 'white' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#282E34' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Change password" right="Save" onRightPress={handleChangePassword} rightLoading={isChangingPassword} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 32, gap: 20 }}>
         <View>
@@ -431,7 +431,7 @@ export const ChangePasswordScreen = () => {
             value={currentPassword}
             onChangeText={setCurrentPassword}
             placeholder="Enter current password"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#80838D"
             style={inputCls}
           />
         </View>
@@ -442,7 +442,7 @@ export const ChangePasswordScreen = () => {
             value={nextPassword}
             onChangeText={setNextPassword}
             placeholder="Enter new password"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#80838D"
             style={inputCls}
           />
         </View>
@@ -453,11 +453,11 @@ export const ChangePasswordScreen = () => {
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             placeholder="Confirm new password"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#80838D"
             style={inputCls}
           />
         </View>
-        <Text style={{ fontSize: 13, color: isDark ? '#9ca3af' : '#6b7280', lineHeight: 20 }}>
+        <Text style={{ fontSize: 13, color: isDark ? '#80838D' : '#626F7F', lineHeight: 20 }}>
           Your password must be at least 8 characters long, include a number, an uppercase letter, a special character and a lowercase letter.
         </Text>
       </ScrollView>
@@ -495,19 +495,19 @@ export const ProfileScreen = () => {
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
-    borderColor: isDark ? '#374151' : '#e5e7eb',
-    backgroundColor: isDark ? '#1f2937' : 'white',
+    borderColor: isDark ? '#626F7F' : '#EAEAEA',
+    backgroundColor: isDark ? '#1B1C20' : 'white',
     borderRadius: 12,
-    color: isDark ? '#f9fafb' : '#111827',
+    color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34',
     fontSize: 14,
     fontWeight: '500' as const,
   } as const;
 
-  const labelCls = { fontWeight: '600', color: isDark ? '#f9fafb' : '#111827', marginBottom: 6, fontSize: 14 } as const;
+  const labelCls = { fontWeight: '600', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', marginBottom: 6, fontSize: 14 } as const;
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#111827' : 'white' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#111827' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#282E34' : 'white' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#282E34' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Profile" right="Save" onRightPress={handleSave} rightLoading={isSaving} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 32 }}>
         <View style={{ alignItems: 'center', marginBottom: 24 }}>
@@ -519,7 +519,7 @@ export const ProfileScreen = () => {
                 width: 80,
                 height: 80,
                 borderRadius: 999,
-                backgroundColor: '#14b8a6',
+                backgroundColor: '#725AFF',
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom: 12,
@@ -527,22 +527,22 @@ export const ProfileScreen = () => {
               <Text style={{ color: 'white', fontSize: 32, fontWeight: '700' }}>{initialLetter}</Text>
             </View>
           )}
-          <Text style={{ fontWeight: '700', color: isDark ? '#f9fafb' : '#111827', fontSize: 18 }}>{user?.name || 'User'}</Text>
-          <Text style={{ color: isDark ? '#9ca3af' : '#6b7280', fontSize: 14, marginTop: 2 }}>{email}</Text>
+          <Text style={{ fontWeight: '700', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', fontSize: 18 }}>{user?.name || 'User'}</Text>
+          <Text style={{ color: isDark ? '#80838D' : '#626F7F', fontSize: 14, marginTop: 2 }}>{email}</Text>
         </View>
 
         <View style={{ gap: 20 }}>
           <View>
             <Text style={labelCls}>First Name</Text>
-            <TextInput value={firstName} onChangeText={setFirstName} style={inputCls} placeholder="Enter first name" placeholderTextColor="#9ca3af" />
+            <TextInput value={firstName} onChangeText={setFirstName} style={inputCls} placeholder="Enter first name" placeholderTextColor="#80838D" />
           </View>
           <View>
             <Text style={labelCls}>Last Name</Text>
-            <TextInput value={lastName} onChangeText={setLastName} style={inputCls} placeholder="Enter last name" placeholderTextColor="#9ca3af" />
+            <TextInput value={lastName} onChangeText={setLastName} style={inputCls} placeholder="Enter last name" placeholderTextColor="#80838D" />
           </View>
           <View>
             <Text style={labelCls}>Email</Text>
-            <TextInput value={email} editable={false} style={[inputCls, { backgroundColor: isDark ? '#111827' : '#f9fafb', color: '#9ca3af' }]} />
+            <TextInput value={email} editable={false} style={[inputCls, { backgroundColor: isDark ? '#282E34' : 'rgba(0,0,0,0.03)', color: '#80838D' }]} />
           </View>
           <View>
             <Text style={labelCls}>Language</Text>
@@ -552,19 +552,19 @@ export const ProfileScreen = () => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 borderWidth: 1,
-                borderColor: isDark ? '#374151' : '#e5e7eb',
-                backgroundColor: isDark ? '#1f2937' : 'white',
+                borderColor: isDark ? '#626F7F' : '#EAEAEA',
+                backgroundColor: isDark ? '#1B1C20' : 'white',
                 borderRadius: 12,
                 paddingHorizontal: 16,
                 paddingVertical: 14,
               }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <Text style={{ fontSize: 16 }}>🇬🇧</Text>
-                <Text style={{ color: isDark ? '#f9fafb' : '#374151', fontSize: 14, fontWeight: '500' }}>English</Text>
+                <Text style={{ color: isDark ? 'rgba(0,0,0,0.03)' : '#626F7F', fontSize: 14, fontWeight: '500' }}>English</Text>
               </View>
               <ChevronDown />
             </View>
-            <Text style={{ color: '#9ca3af', fontSize: 12, marginTop: 8 }}>All languages are currently in beta, with the exception of English.</Text>
+            <Text style={{ color: '#80838D', fontSize: 12, marginTop: 8 }}>All languages are currently in beta, with the exception of English.</Text>
           </View>
         </View>
       </ScrollView>
@@ -617,8 +617,8 @@ export const ChangeWorkspaceScreen = () => {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#111827' : 'white' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#111827' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#282E34' : 'white' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#282E34' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Change workspace" />
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 }}>
         <View
@@ -626,7 +626,7 @@ export const ChangeWorkspaceScreen = () => {
             flexDirection: 'row',
             alignItems: 'center',
             gap: 8,
-            backgroundColor: isDark ? '#1f2937' : '#f3f4f6',
+            backgroundColor: isDark ? '#1B1C20' : '#F0F0F3',
             borderRadius: 12,
             paddingHorizontal: 12,
             paddingVertical: 10,
@@ -636,8 +636,8 @@ export const ChangeWorkspaceScreen = () => {
             value={query}
             onChangeText={setQuery}
             placeholder="Search workspace"
-            placeholderTextColor="#9ca3af"
-            style={{ flex: 1, color: isDark ? '#f9fafb' : '#111827', fontSize: 14 }}
+            placeholderTextColor="#80838D"
+            style={{ flex: 1, color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', fontSize: 14 }}
           />
         </View>
       </View>
@@ -658,9 +658,9 @@ export const ChangeWorkspaceScreen = () => {
                 paddingVertical: 14,
                 paddingHorizontal: 12,
                 borderRadius: 12,
-                backgroundColor: isActive ? (isDark ? '#134e4a' : '#f0fdfa') : 'transparent',
+                backgroundColor: isActive ? (isDark ? '#1B1C20' : '#f0fdfa') : 'transparent',
                 borderBottomWidth: 1,
-                borderBottomColor: isDark ? '#1f2937' : '#f3f4f6',
+                borderBottomColor: isDark ? '#1B1C20' : '#F0F0F3',
                 marginBottom: 4,
               }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
@@ -669,7 +669,7 @@ export const ChangeWorkspaceScreen = () => {
                     width: 44,
                     height: 44,
                     borderRadius: 999,
-                    backgroundColor: isActive ? '#14b8a6' : (isDark ? '#374151' : '#93c5fd'),
+                    backgroundColor: isActive ? '#725AFF' : (isDark ? '#626F7F' : '#725AFF'),
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}>
@@ -682,7 +682,7 @@ export const ChangeWorkspaceScreen = () => {
                   )}
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontWeight: '600', color: isDark ? '#f9fafb' : '#111827', fontSize: 15 }}>{account.name}</Text>
+                  <Text style={{ fontWeight: '600', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', fontSize: 15 }}>{account.name}</Text>
                   {isActive && (
                     <Text style={{ color: '#2dd4bf', fontSize: 12, fontWeight: '600', marginTop: 2 }}>Active</Text>
                   )}
@@ -723,8 +723,8 @@ export const DarkModeScreen = () => {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#111827' : 'white' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#111827' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#282E34' : 'white' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#282E34' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Dark mode" />
       <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
         {options.map(opt => (
@@ -737,9 +737,9 @@ export const DarkModeScreen = () => {
               justifyContent: 'space-between',
               paddingVertical: 16,
               borderBottomWidth: 1,
-              borderBottomColor: isDark ? '#1f2937' : '#f3f4f6',
+              borderBottomColor: isDark ? '#1B1C20' : '#F0F0F3',
             }}>
-            <Text style={{ color: isDark ? '#f9fafb' : '#111827', fontSize: 15, fontWeight: currentTheme === opt.id ? '600' : '400' }}>
+            <Text style={{ color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', fontSize: 15, fontWeight: currentTheme === opt.id ? '600' : '400' }}>
               {opt.label}
             </Text>
             {currentTheme === opt.id && <CheckIcon />}
@@ -759,7 +759,7 @@ export const ReportBugScreen = () => {
   const [summary, setSummary] = useState('');
   const [isSending, setIsSending] = useState(false);
 
-  const labelCls = { fontWeight: '600', color: isDark ? '#f9fafb' : '#111827', marginBottom: 6, fontSize: 14 } as const;
+  const labelCls = { fontWeight: '600', color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34', marginBottom: 6, fontSize: 14 } as const;
 
   const handleSend = () => {
     if (!summary.trim()) {
@@ -775,8 +775,8 @@ export const ReportBugScreen = () => {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#111827' : 'white' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#111827' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#282E34' : 'white' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#282E34' : 'white'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Report a bug" right="Send" onRightPress={handleSend} rightLoading={isSending} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 32, gap: 20 }}>
         <View>
@@ -787,13 +787,13 @@ export const ReportBugScreen = () => {
               alignItems: 'center',
               justifyContent: 'space-between',
               borderWidth: 1,
-              borderColor: isDark ? '#374151' : '#e5e7eb',
-              backgroundColor: isDark ? '#1f2937' : 'white',
+              borderColor: isDark ? '#626F7F' : '#EAEAEA',
+              backgroundColor: isDark ? '#1B1C20' : 'white',
               borderRadius: 12,
               paddingHorizontal: 16,
               paddingVertical: 14,
             }}>
-            <Text style={{ color: isDark ? '#e5e7eb' : '#374151', fontSize: 14 }}>Inbox & Messages</Text>
+            <Text style={{ color: isDark ? '#EAEAEA' : '#626F7F', fontSize: 14 }}>Inbox & Messages</Text>
             <ChevronDown />
           </View>
         </View>
@@ -803,7 +803,7 @@ export const ReportBugScreen = () => {
             value={summary}
             onChangeText={setSummary}
             placeholder="Please be as detailed as possible. What did you expect and what happened instead?"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#80838D"
             multiline
             numberOfLines={4}
             textAlignVertical="top"
@@ -813,10 +813,10 @@ export const ReportBugScreen = () => {
               paddingHorizontal: 16,
               paddingVertical: 14,
               borderWidth: 1,
-              borderColor: isDark ? '#374151' : '#e5e7eb',
-              backgroundColor: isDark ? '#1f2937' : 'white',
+              borderColor: isDark ? '#626F7F' : '#EAEAEA',
+              backgroundColor: isDark ? '#1B1C20' : 'white',
               borderRadius: 12,
-              color: isDark ? '#f9fafb' : '#111827',
+              color: isDark ? 'rgba(0,0,0,0.03)' : '#282E34',
               fontSize: 14,
             }}
           />
@@ -829,13 +829,13 @@ export const ReportBugScreen = () => {
               height: 80,
               borderWidth: 2,
               borderStyle: 'dashed',
-              borderColor: isDark ? '#4b5563' : '#d1d5db',
+              borderColor: isDark ? '#626F7F' : '#EAEAEA',
               borderRadius: 12,
               alignItems: 'center',
               justifyContent: 'center',
             }}>
             <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <Path d="M12 5v14M5 12h14" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" />
+              <Path d="M12 5v14M5 12h14" stroke="#80838D" strokeWidth="2" strokeLinecap="round" />
             </Svg>
           </Pressable>
         </View>

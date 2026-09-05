@@ -13,8 +13,8 @@ type ToggleProps = {
   onValueChange: (value: boolean) => void;
 };
 
-const ACTIVE_COLOR = '#3b82f6';
-const INACTIVE_COLOR = '#d1d5db';
+const ACTIVE_COLOR = '#725AFF';
+const INACTIVE_COLOR = '#EAEAEA';
 
 export const Toggle = ({ value, onValueChange }: ToggleProps) => {
   const hapticSelection = useHaptic();

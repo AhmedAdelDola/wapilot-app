@@ -54,7 +54,7 @@ export const EmailBubble = (props: EmailBubbleProps) => {
         }
         html, body {
           background: #ffffff;
-          color: #111827;
+          color: #282E34;
         }
       `;
   const emailCustomStyle = isOutgoing ? `${outgoingReadableStyle}${baseStyle}` : baseStyle;

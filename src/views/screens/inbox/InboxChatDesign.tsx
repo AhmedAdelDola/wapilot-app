@@ -271,7 +271,7 @@ const HamburgerIcon = ({ color = 'currentColor' }: { color?: string }) => (
     <Path d="M3 6h18M3 12h18M3 18h18" stroke={color} strokeWidth={2} strokeLinecap="round" />
   </Svg>
 );
-const SearchIcon = ({ color = '#9ca3af' }: { color?: string }) => (
+const SearchIcon = ({ color = '#80838D' }: { color?: string }) => (
   <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
     <Circle cx={11} cy={11} r={8} stroke={color} strokeWidth={2} />
     <Path d="m21 21-4.35-4.35" stroke={color} strokeWidth={2} strokeLinecap="round" />
@@ -297,37 +297,37 @@ const ArrowLeft = ({ color = 'currentColor' }: { color?: string }) => (
     <Path d="M15 18l-6-6 6-6" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
 );
-const ChatBubbleIcon = ({ color = '#9ca3af' }: { color?: string }) => (
+const ChatBubbleIcon = ({ color = '#80838D' }: { color?: string }) => (
   <Svg width={52} height={52} viewBox="0 0 24 24" fill="none">
     <Path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
 );
-const PhoneIcon = ({ color = '#6b7280' }: { color?: string }) => (
+const PhoneIcon = ({ color = '#626F7F' }: { color?: string }) => (
   <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
     <Path d="M6.62 10.79a15.053 15.053 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02L6.62 10.79z" stroke={color} strokeWidth={1.8} />
   </Svg>
 );
-const ResolveIcon = ({ color = '#6b7280' }: { color?: string }) => (
+const ResolveIcon = ({ color = '#626F7F' }: { color?: string }) => (
   <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
     <Circle cx={12} cy={12} r={10} stroke={color} strokeWidth={1.8} />
     <Path d="M7 12l3.5 3.5L17 9" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
 );
-const MoreIcon = ({ color = '#6b7280' }: { color?: string }) => (
+const MoreIcon = ({ color = '#626F7F' }: { color?: string }) => (
   <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
     <Circle cx={5} cy={12} r={1.5} fill={color} />
     <Circle cx={12} cy={12} r={1.5} fill={color} />
     <Circle cx={19} cy={12} r={1.5} fill={color} />
   </Svg>
 );
-const SnoozeIcon = ({ color = '#6b7280' }: { color?: string }) => (
+const SnoozeIcon = ({ color = '#626F7F' }: { color?: string }) => (
   <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
     <Circle cx={12} cy={13} r={8} stroke={color} strokeWidth={1.8} />
     <Path d="M12 9v4l2.5 2.5" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
     <Path d="M8 3l4 2 4-2" stroke={color} strokeWidth={1.5} strokeLinecap="round" />
   </Svg>
 );
-const WorkflowIcon = ({ color = '#9ca3af' }: { color?: string }) => (
+const WorkflowIcon = ({ color = '#80838D' }: { color?: string }) => (
   <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
     <Rect x={3} y={3} width={7} height={7} rx={1} stroke={color} strokeWidth={1.8} />
     <Rect x={14} y={3} width={7} height={7} rx={1} stroke={color} strokeWidth={1.8} />
@@ -335,18 +335,18 @@ const WorkflowIcon = ({ color = '#9ca3af' }: { color?: string }) => (
     <Path d="M14 17.5h7M17.5 14v7" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
   </Svg>
 );
-const ShortcutIcon = ({ color = '#9ca3af' }: { color?: string }) => (
+const ShortcutIcon = ({ color = '#80838D' }: { color?: string }) => (
   <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
     <Path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
 );
-const BlockSlash = ({ color = '#9ca3af' }: { color?: string }) => (
+const BlockSlash = ({ color = '#80838D' }: { color?: string }) => (
   <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
     <Circle cx={12} cy={12} r={10} stroke={color} strokeWidth={1.8} />
     <Path d="M4.93 4.93l14.14 14.14" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
   </Svg>
 );
-const SendIcon = ({ color = '#3b82f6' }: { color?: string }) => (
+const SendIcon = ({ color = '#725AFF' }: { color?: string }) => (
   <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
     <Path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
@@ -357,7 +357,7 @@ const LockIcon = ({ size = 16, color = 'currentColor' }: { size?: number; color?
     <Path d="M7 11V7a5 5 0 0 1 10 0v4" stroke={color} strokeWidth={2} strokeLinecap="round" />
   </Svg>
 );
-const ChatBlue = ({ color = '#3b82f6' }: { color?: string }) => (
+const ChatBlue = ({ color = '#725AFF' }: { color?: string }) => (
   <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
     <Path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
@@ -369,8 +369,8 @@ const StarIcon = () => (
 );
 const ShortcutBlue = () => (
   <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-    <Rect x={3} y={3} width={18} height={18} rx={3} stroke="#3b82f6" strokeWidth={1.8} />
-    <Path d="M7 8h10M7 12h8M7 16h6" stroke="#3b82f6" strokeWidth={1.5} strokeLinecap="round" />
+    <Rect x={3} y={3} width={18} height={18} rx={3} stroke="#725AFF" strokeWidth={1.8} />
+    <Path d="M7 8h10M7 12h8M7 16h6" stroke="#725AFF" strokeWidth={1.5} strokeLinecap="round" />
   </Svg>
 );
 const LifecycleIcon = ({ color = 'currentColor' }: { color?: string }) => (
@@ -417,18 +417,18 @@ const FilterChip = ({ label, active, onClick }: { label: string; active: boolean
         paddingVertical: 6,
         borderRadius: 999,
         backgroundColor: active
-          ? (isDark ? '#3b82f6' : '#111827')
-          : (isDark ? '#1e293b' : '#f3f4f6'),
+          ? (isDark ? '#725AFF' : '#282E34')
+          : (isDark ? '#1B1C20' : '#F0F0F3'),
         borderWidth: 1,
         borderColor: active
-          ? (isDark ? '#3b82f6' : '#111827')
-          : (isDark ? '#334155' : '#e5e7eb'),
+          ? (isDark ? '#725AFF' : '#282E34')
+          : (isDark ? '#24262B' : '#EAEAEA'),
       }}>
       <Text
         style={{
           fontSize: 14,
           fontWeight: '600',
-          color: active ? '#ffffff' : (isDark ? '#cbd5e1' : '#374151'),
+          color: active ? '#ffffff' : (isDark ? '#B0B4BA' : '#626F7F'),
         }}>
         {label}
       </Text>
@@ -442,8 +442,8 @@ const BottomSheet = ({ children, onClose, bottomOffset = 0 }: { children: React.
   return (
     <View style={{ position: 'absolute', inset: 0, zIndex: 50 }} onStartShouldSetResponder={() => true} onResponderRelease={onClose}>
       <View style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)' }} />
-      <View style={{ position: 'absolute', bottom: bottomOffset, left: 0, right: 0, backgroundColor: isDark ? '#1e293b' : 'white', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingBottom: 32 }} onStartShouldSetResponder={() => true}>
-        <View style={{ width: 40, height: 4, backgroundColor: isDark ? '#475569' : '#d1d5db', borderRadius: 999, alignSelf: 'center', marginTop: 12, marginBottom: 8 }} />
+      <View style={{ position: 'absolute', bottom: bottomOffset, left: 0, right: 0, backgroundColor: isDark ? '#1B1C20' : 'white', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingBottom: 32 }} onStartShouldSetResponder={() => true}>
+        <View style={{ width: 40, height: 4, backgroundColor: isDark ? '#31343A' : '#EAEAEA', borderRadius: 999, alignSelf: 'center', marginTop: 12, marginBottom: 8 }} />
         {children}
       </View>
     </View>
@@ -506,9 +506,9 @@ const InboxDrawer = ({
   const apiUnassignedCount = conversationMeta?.unassignedCount ?? conversations.filter(c => !c.meta?.assignee).length;
 
   const mainItems = useMemo(() => [
-    { key: 'all', label: 'All', icon: <InboxDrawerIcon color={isDark ? '#d1d5db' : '#374151'} />, count: apiAllCount },
-    { key: 'mine', label: 'Mine', icon: <MineIcon color={isDark ? '#d1d5db' : '#086DE0'} />, count: apiMineCount },
-    { key: 'unassigned', label: 'Unassigned', icon: <UnassignedIcon color={isDark ? '#d1d5db' : '#6b7280'} />, count: apiUnassignedCount },
+    { key: 'all', label: 'All', icon: <InboxDrawerIcon color={isDark ? '#EAEAEA' : '#626F7F'} />, count: apiAllCount },
+    { key: 'mine', label: 'Mine', icon: <MineIcon color={isDark ? '#EAEAEA' : '#725AFF'} />, count: apiMineCount },
+    { key: 'unassigned', label: 'Unassigned', icon: <UnassignedIcon color={isDark ? '#EAEAEA' : '#626F7F'} />, count: apiUnassignedCount },
   ], [apiAllCount, apiMineCount, apiUnassignedCount, isDark]);
 
 const matchesStage = (c: any, stageName: string, stageId?: number): boolean => {
@@ -608,12 +608,12 @@ const matchesStage = (c: any, stageName: string, stageId?: number): boolean => {
     };
   }), [apiLifecycleStages, conversations]);
 
-  const bgColor = isDark ? '#0f172a' : '#ffffff';
-  const textPrimary = isDark ? '#f8fafc' : '#111827';
-  const textSecondary = isDark ? '#94a3b8' : '#374151';
-  const dividerColor = isDark ? '#1e293b' : '#f3f4f6';
-  const activeItemBg = isDark ? '#1e293b' : '#eff6ff';
-  const activeItemText = isDark ? '#60a5fa' : '#2563eb';
+  const bgColor = isDark ? '#101113' : '#ffffff';
+  const textPrimary = isDark ? '#EDEEF0' : '#282E34';
+  const textSecondary = isDark ? '#94a3b8' : '#626F7F';
+  const dividerColor = isDark ? '#1B1C20' : '#F0F0F3';
+  const activeItemBg = isDark ? '#1B1C20' : 'rgba(114,90,255,0.10)';
+  const activeItemText = isDark ? '#725AFF' : '#725AFF';
 
   return (
     <View style={{ flex: 1, backgroundColor: bgColor }}>
@@ -630,7 +630,7 @@ const matchesStage = (c: any, stageName: string, stageId?: number): boolean => {
                 {icon}
                 <Text style={{ fontWeight: '500', color: isActive ? activeItemText : textSecondary }}>{label}</Text>
               </View>
-              <Text style={{ color: isActive ? activeItemText : '#9ca3af', fontSize: 14, fontWeight: '500' }}>{count}</Text>
+              <Text style={{ color: isActive ? activeItemText : '#80838D', fontSize: 14, fontWeight: '500' }}>{count}</Text>
             </Pressable>
           );
         })}
@@ -640,10 +640,10 @@ const matchesStage = (c: any, stageName: string, stageId?: number): boolean => {
         {/* Lifecycle Stages */}
         <Pressable style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }} onPress={() => setLifecycleOpen(!lifecycleOpen)}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <LifecycleIcon color={isDark ? '#94a3b8' : '#374151'} />
+            <LifecycleIcon color={isDark ? '#94a3b8' : '#626F7F'} />
             <Text style={{ fontWeight: '600', color: textPrimary }}>Lifecycle Stages</Text>
           </View>
-          <ChevronDown color={isDark ? '#94a3b8' : '#374151'} />
+          <ChevronDown color={isDark ? '#94a3b8' : '#626F7F'} />
         </Pressable>
         {lifecycleOpen && lifecycle.map(({ key, label, emoji, count }) => (
           <Pressable key={key} onPress={() => { onSelect(key, label); onClose(); }} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
@@ -651,7 +651,7 @@ const matchesStage = (c: any, stageName: string, stageId?: number): boolean => {
               <Text style={{ fontSize: 18, width: 24, textAlign: 'center' }}>{emoji}</Text>
               <Text style={{ color: textSecondary, fontSize: 14, fontWeight: '500', flexShrink: 1 }} numberOfLines={1}>{label}</Text>
             </View>
-            <Text style={{ color: '#9ca3af', fontSize: 14, fontWeight: '500' }}>{count}</Text>
+            <Text style={{ color: '#80838D', fontSize: 14, fontWeight: '500' }}>{count}</Text>
           </Pressable>
         ))}
 
@@ -661,18 +661,18 @@ const matchesStage = (c: any, stageName: string, stageId?: number): boolean => {
         <Pressable style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }} onPress={() => setLabelsOpen(!labelsOpen)}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-              <Path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" stroke={isDark ? '#34d399' : '#10b981'} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-              <Line x1={7} y1={7} x2={7.01} y2={7} stroke={isDark ? '#34d399' : '#10b981'} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+              <Path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" stroke={isDark ? '#2CA54A' : '#2CA54A'} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+              <Line x1={7} y1={7} x2={7.01} y2={7} stroke={isDark ? '#2CA54A' : '#2CA54A'} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
             <Text style={{ fontWeight: '600', color: textPrimary }}>Labels</Text>
           </View>
-          <ChevronDown color={isDark ? '#94a3b8' : '#374151'} />
+          <ChevronDown color={isDark ? '#94a3b8' : '#626F7F'} />
         </Pressable>
         {labelsOpen && (
           apiLabels && apiLabels.length > 0 ? (
             apiLabels.map(lbl => {
               const count = conversations.filter(c => Array.isArray(c.labels) && c.labels.some((l: any) => typeof l === 'string' && l.toLowerCase() === lbl.title.toLowerCase())).length;
-              const labelColor = lbl.color || '#10b981';
+              const labelColor = lbl.color || '#2CA54A';
               return (
                 <Pressable
                   key={lbl.id}
@@ -704,12 +704,12 @@ const matchesStage = (c: any, stageName: string, stageId?: number): boolean => {
                       {lbl.title}
                     </Text>
                   </View>
-                  <Text style={{ color: '#9ca3af', fontSize: 14, fontWeight: '500', marginLeft: 8 }}>{count}</Text>
+                  <Text style={{ color: '#80838D', fontSize: 14, fontWeight: '500', marginLeft: 8 }}>{count}</Text>
                 </Pressable>
               );
             })
           ) : (
-            <Text style={{ paddingHorizontal: 16, paddingVertical: 8, color: '#9ca3af', fontSize: 14 }}>No labels available</Text>
+            <Text style={{ paddingHorizontal: 16, paddingVertical: 8, color: '#80838D', fontSize: 14 }}>No labels available</Text>
           )
         )}
 
@@ -718,10 +718,10 @@ const matchesStage = (c: any, stageName: string, stageId?: number): boolean => {
         {/* Inboxes */}
         <Pressable style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }} onPress={() => setCustoOpen(!custoOpen)}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <InboxDrawerIcon color={isDark ? '#94a3b8' : '#374151'} />
+            <InboxDrawerIcon color={isDark ? '#94a3b8' : '#626F7F'} />
             <Text style={{ fontWeight: '600', color: textPrimary }}>Inboxes</Text>
           </View>
-          <ChevronDown color={isDark ? '#94a3b8' : '#374151'} />
+          <ChevronDown color={isDark ? '#94a3b8' : '#626F7F'} />
         </Pressable>
         {custoOpen && (
           inboxes && inboxes.length > 0 ? (
@@ -731,11 +731,11 @@ const matchesStage = (c: any, stageName: string, stageId?: number): boolean => {
                   <ChatBubbleIcon2 />
                   <Text style={{ color: textSecondary, fontWeight: '500' }}>{inbox.name}</Text>
                 </View>
-                <Text style={{ color: '#9ca3af', fontSize: 14 }}>{conversations.filter(c => c.inboxId === inbox.id).length}</Text>
+                <Text style={{ color: '#80838D', fontSize: 14 }}>{conversations.filter(c => c.inboxId === inbox.id).length}</Text>
               </Pressable>
             ))
           ) : (
-            <Text style={{ paddingHorizontal: 16, paddingVertical: 8, color: '#9ca3af', fontSize: 14 }}>No inboxes available</Text>
+            <Text style={{ paddingHorizontal: 16, paddingVertical: 8, color: '#80838D', fontSize: 14 }}>No inboxes available</Text>
           )
         )}
       </ScrollView>
@@ -1383,13 +1383,13 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
 
   const insets = useSafeAreaInsets();
   const { isDark } = useTheme();
-  const bgColor = isDark ? '#0f172a' : '#ffffff';
-  const textPrimary = isDark ? '#f8fafc' : '#111827';
-  const textSecondary = isDark ? '#94a3b8' : '#374151';
-  const borderColor = isDark ? '#1e293b' : '#f3f4f6';
-  const inputContainerBg = isDark ? '#1e293b' : '#ffffff';
-  const inputBorderColor = isDark ? '#334155' : '#e2e8f0';
-  const toolbarBorderColor = isDark ? '#334155' : '#f1f5f9';
+  const bgColor = isDark ? '#101113' : '#ffffff';
+  const textPrimary = isDark ? '#EDEEF0' : '#282E34';
+  const textSecondary = isDark ? '#94a3b8' : '#626F7F';
+  const borderColor = isDark ? '#1B1C20' : '#F0F0F3';
+  const inputContainerBg = isDark ? '#1B1C20' : '#ffffff';
+  const inputBorderColor = isDark ? '#24262B' : '#EAEAEA';
+  const toolbarBorderColor = isDark ? '#24262B' : '#F0F0F3';
 
   if (showContactDetails) {
     return <ContactDetailsScreen conversation={conversation as Conversation} onBack={() => setShowContactDetails(false)} />;
@@ -1424,7 +1424,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                     style={{ width: 36, height: 36, borderRadius: 999 }}
                   />
                 ) : (
-                  <View style={{ width: 36, height: 36, borderRadius: 999, backgroundColor: '#d97706', alignItems: 'center', justifyContent: 'center' }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 999, backgroundColor: '#FA8900', alignItems: 'center', justifyContent: 'center' }}>
                     <Text style={{ fontSize: 16, fontWeight: '700', color: '#fff' }}>
                       {name.charAt(0).toUpperCase()}
                     </Text>
@@ -1438,14 +1438,14 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
             <Pressable hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 2, padding: 4 }}>
-              <PhoneIcon color={isDark ? '#94a3b8' : '#6b7280'} />
-              <ChevronDown color={isDark ? '#94a3b8' : '#6b7280'} />
+              <PhoneIcon color={isDark ? '#94a3b8' : '#626F7F'} />
+              <ChevronDown color={isDark ? '#94a3b8' : '#626F7F'} />
             </Pressable>
             <Pressable
               hitSlop={8}
               style={{
                 padding: 6,
-                backgroundColor: conversation?.status === 'resolved' ? (isDark ? '#064e3b' : '#dcfce7') : (isDark ? '#334155' : '#f3f4f6'),
+                backgroundColor: conversation?.status === 'resolved' ? (isDark ? '#1B1C20' : 'rgba(44,165,74,0.15)') : (isDark ? '#24262B' : '#F0F0F3'),
                 borderRadius: 999,
               }}
               onPress={async () => {
@@ -1462,9 +1462,9 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                   showToast({ message: 'Failed to update status' });
                 }
               }}>
-              <ResolveIcon color={conversation?.status === 'resolved' ? '#22c55e' : (isDark ? '#94a3b8' : '#6b7280')} />
+              <ResolveIcon color={conversation?.status === 'resolved' ? '#2CA54A' : (isDark ? '#94a3b8' : '#626F7F')} />
             </Pressable>
-            <Pressable hitSlop={8} style={{ padding: 4 }} onPress={() => setSheet('menu')}><MoreIcon color={isDark ? '#94a3b8' : '#6b7280'} /></Pressable>
+            <Pressable hitSlop={8} style={{ padding: 4 }} onPress={() => setSheet('menu')}><MoreIcon color={isDark ? '#94a3b8' : '#626F7F'} /></Pressable>
           </View>
         </View>
 
@@ -1474,7 +1474,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
             {conversation?.meta?.assignee?.thumbnail ? (
               <Image source={{ uri: conversation.meta.assignee.thumbnail }} style={{ width: 24, height: 24, borderRadius: 999 }} />
             ) : (
-              <View style={{ width: 24, height: 24, borderRadius: 999, backgroundColor: '#14b8a6', alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ width: 24, height: 24, borderRadius: 999, backgroundColor: '#725AFF', alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ color: '#fff', fontWeight: '700', fontSize: 11 }}>
                   {conversation?.meta?.assignee?.name ? conversation.meta.assignee.name.charAt(0).toUpperCase() : 'U'}
                 </Text>
@@ -1483,13 +1483,13 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
             <Text style={{ fontSize: 14, color: textSecondary, fontWeight: '500' }}>
               {conversation?.meta?.assignee?.name || 'Unassigned'}
             </Text>
-            <ChevronDown color={isDark ? '#94a3b8' : '#6b7280'} />
+            <ChevronDown color={isDark ? '#94a3b8' : '#626F7F'} />
           </Pressable>
 
-          <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: isDark ? '#334155' : '#d1d5db', backgroundColor: isDark ? '#1e293b' : '#ffffff', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, marginLeft: 'auto', maxWidth: '52%', flexShrink: 1 }} onPress={() => setSheet('stage')}>
+          <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: isDark ? '#24262B' : '#EAEAEA', backgroundColor: isDark ? '#1B1C20' : '#ffffff', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, marginLeft: 'auto', maxWidth: '52%', flexShrink: 1 }} onPress={() => setSheet('stage')}>
             <Text style={{ fontSize: 14 }}>{stageEmoji}</Text>
             <Text numberOfLines={1} style={{ fontSize: 14, fontWeight: '500', color: textPrimary, flexShrink: 1 }}>{stage}</Text>
-            <ChevronDown color={isDark ? '#94a3b8' : '#6b7280'} />
+            <ChevronDown color={isDark ? '#94a3b8' : '#626F7F'} />
           </Pressable>
 
           <Pressable
@@ -1503,11 +1503,11 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                 : 'transparent',
               borderWidth: conversation?.status === 'snoozed' ? 1 : 0,
               borderColor: conversation?.status === 'snoozed'
-                ? (isDark ? '#2563eb' : '#93c5fd')
+                ? (isDark ? '#725AFF' : '#725AFF')
                 : 'transparent',
             }}
             onPress={() => setSheet('snooze')}>
-            <SnoozeIcon color={conversation?.status === 'snoozed' ? '#2563eb' : (isDark ? '#94a3b8' : '#6b7280')} />
+            <SnoozeIcon color={conversation?.status === 'snoozed' ? '#725AFF' : (isDark ? '#94a3b8' : '#626F7F')} />
           </Pressable>
         </View>
 
@@ -1519,13 +1519,13 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
               justifyContent: 'space-between',
               paddingHorizontal: 14,
               paddingVertical: 8,
-              backgroundColor: isDark ? '#172554' : '#eff6ff',
+              backgroundColor: isDark ? '#1B1C20' : 'rgba(114,90,255,0.10)',
               borderBottomWidth: 1,
               borderBottomColor: isDark ? '#1e3a8a' : '#bfdbfe',
             }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
-              <SnoozeIcon color="#2563eb" />
-              <Text style={{ fontSize: 12.5, color: isDark ? '#93c5fd' : '#1e40af', fontWeight: '600' }} numberOfLines={1}>
+              <SnoozeIcon color="#725AFF" />
+              <Text style={{ fontSize: 12.5, color: isDark ? '#725AFF' : '#725AFF', fontWeight: '600' }} numberOfLines={1}>
                 {isArabic
                   ? (conversation?.snoozedUntil ? `مؤجلة حتى ${formatChatTime(conversation.snoozedUntil, isArabic)}` : 'مؤجلة حتى الرد القادم')
                   : (conversation?.snoozedUntil ? `Snoozed until ${formatChatTime(conversation.snoozedUntil, isArabic)}` : 'Snoozed until next reply')}
@@ -1547,7 +1547,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                   showToast({ message: isArabic ? 'تعذر فتح المحادثة' : 'Failed to reopen' });
                 }
               }}
-              style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, backgroundColor: '#2563eb' }}>
+              style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, backgroundColor: '#725AFF' }}>
               <Text style={{ color: '#ffffff', fontSize: 12, fontWeight: '700' }}>
                 {isArabic ? 'إلغاء التأجيل' : 'Reopen'}
               </Text>
@@ -1645,23 +1645,23 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                     width: 52,
                     height: 52,
                     borderRadius: 999,
-                    backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
+                    backgroundColor: isDark ? '#1B1C20' : '#F0F0F3',
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginBottom: 8,
                     borderWidth: 1.5,
-                    borderColor: isDark ? '#334155' : '#e2e8f0',
+                    borderColor: isDark ? '#24262B' : '#EAEAEA',
                   }}>
                   {conversation?.meta?.sender?.thumbnail ? (
                     <Image source={{ uri: conversation.meta.sender.thumbnail }} style={{ width: 48, height: 48, borderRadius: 999 }} />
                   ) : (
-                    <Text style={{ fontSize: 20, fontWeight: '700', color: isDark ? '#60a5fa' : '#2563eb' }}>
+                    <Text style={{ fontSize: 20, fontWeight: '700', color: isDark ? '#725AFF' : '#725AFF' }}>
                       {name.charAt(0).toUpperCase()}
                     </Text>
                   )}
                 </Pressable>
                 <Text style={{ fontSize: 15, fontWeight: '700', color: textPrimary, marginBottom: 2 }}>{name}</Text>
-                <Text style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#64748b', textAlign: 'center' }}>
+                <Text style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#80838D', textAlign: 'center' }}>
                   Conversation with <Text style={{ fontWeight: '600', color: textPrimary }}>{name}</Text>
                 </Text>
               </View>
@@ -1669,28 +1669,28 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
           }
           ListEmptyComponent={
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 32 }}>
-              <Text style={{ fontSize: 13, color: isDark ? '#64748b' : '#9ca3af' }}>No messages yet</Text>
+              <Text style={{ fontSize: 13, color: isDark ? '#80838D' : '#80838D' }}>No messages yet</Text>
             </View>
           }
           ListFooterComponent={
             <>
               {isLoadingMoreMessages && (
                 <View style={{ paddingVertical: 16, alignItems: 'center' }}>
-                  <ActivityIndicator size="small" color={isDark ? '#60a5fa' : '#2563eb'} />
+                  <ActivityIndicator size="small" color={isDark ? '#725AFF' : '#725AFF'} />
                 </View>
               )}
               {!isLoadingMoreMessages && messageLoadError && (
                 <Pressable
                   onPress={retryLoadMessages}
                   style={{ paddingVertical: 12, alignItems: 'center' }}>
-                  <Text style={{ color: isDark ? '#60a5fa' : '#2563eb', fontSize: 13, fontWeight: '600' }}>
+                  <Text style={{ color: isDark ? '#725AFF' : '#725AFF', fontSize: 13, fontWeight: '600' }}>
                     {isArabic ? 'فشل التحميل - اضغط للإعادة' : 'Failed to load - tap to retry'}
                   </Text>
                 </Pressable>
               )}
               {isAllMessagesFetched && messages.length > 0 && !isLoadingMoreMessages && (
                 <View style={{ paddingVertical: 16, alignItems: 'center' }}>
-                  <Text style={{ color: isDark ? '#475569' : '#9ca3af', fontSize: 12 }}>
+                  <Text style={{ color: isDark ? '#31343A' : '#80838D', fontSize: 12 }}>
                     {isArabic ? '— جميع الرسائل —' : '— All messages —'}
                   </Text>
                 </View>
@@ -1701,7 +1701,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
 
         {!isChatReady && (
           <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: bgColor, alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
-            <ActivityIndicator size="large" color={isDark ? '#60a5fa' : '#2563eb'} />
+            <ActivityIndicator size="large" color={isDark ? '#725AFF' : '#725AFF'} />
           </View>
         )}
 
@@ -1718,7 +1718,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
               position: 'absolute',
               bottom: 12,
               alignSelf: 'center',
-              backgroundColor: isDark ? '#2563eb' : '#111827',
+              backgroundColor: isDark ? '#725AFF' : '#282E34',
               paddingHorizontal: 16,
               paddingVertical: 8,
               borderRadius: 20,
@@ -1742,15 +1742,15 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
         <View style={{
           borderTopWidth: 1,
           borderTopColor: isPrivate
-            ? (isDark ? '#92400e' : '#fde68a')
-            : (isDark ? '#1e293b' : '#e2e8f0'),
+            ? (isDark ? '#1B1C20' : 'rgba(250,137,0,0.15)')
+            : (isDark ? '#1B1C20' : '#EAEAEA'),
           backgroundColor: isPrivate
             ? (isDark ? '#1c1400' : '#fffdf0')
             : inputContainerBg,
           paddingBottom: Math.max(insets.bottom, 8),
         }}>
           {!isPrivate && conversation?.canReply === false ? (
-            <View style={{ marginHorizontal: 16, marginTop: 8, borderRadius: 8, backgroundColor: isDark ? '#451a03' : '#fff7ed', paddingHorizontal: 10, paddingVertical: 8 }}>
+            <View style={{ marginHorizontal: 16, marginTop: 8, borderRadius: 8, backgroundColor: isDark ? '#1B1C20' : 'rgba(250,137,0,0.10)', paddingHorizontal: 10, paddingVertical: 8 }}>
               <Text style={{ color: isDark ? '#fed7aa' : '#9a3412', fontSize: 12, fontWeight: '600' }}>
                 {isArabic ? 'لا يمكن الرد على هذه المحادثة حاليًا.' : 'Replies are currently unavailable for this conversation.'}
               </Text>
@@ -1759,8 +1759,8 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
           {/* Private note banner */}
           {isPrivate && (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 16, paddingTop: 8 }}>
-              <LockIcon size={12} color={isDark ? '#fbbf24' : '#d97706'} />
-              <Text style={{ color: isDark ? '#fbbf24' : '#d97706', fontSize: 12, fontWeight: '600' }}>
+              <LockIcon size={12} color={isDark ? '#FA8900' : '#FA8900'} />
+              <Text style={{ color: isDark ? '#FA8900' : '#FA8900', fontSize: 12, fontWeight: '600' }}>
                 Comments are only visible to your team
               </Text>
             </View>
@@ -1779,22 +1779,22 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
           {isRecording ? (
             <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 18, paddingHorizontal: 14, paddingVertical: 12, backgroundColor: isDark ? '#3f1d24' : '#fff1f2', borderWidth: 1, borderColor: isDark ? '#7f1d1d' : '#fecdd3' }}>
-                <View style={{ width: 38, height: 38, borderRadius: 999, backgroundColor: '#ef4444', alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ width: 38, height: 38, borderRadius: 999, backgroundColor: '#FF382E', alignItems: 'center', justifyContent: 'center' }}>
                   <Text style={{ color: '#ffffff', fontSize: 17 }}>●</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
                     <Text style={{ color: isDark ? '#fecdd3' : '#9f1239', fontSize: 13, fontWeight: '700' }}>{isArabic ? 'جارٍ التسجيل' : 'Recording voice message'}</Text>
-                    <Text style={{ color: '#ef4444', fontSize: 14, fontWeight: '800', fontVariant: ['tabular-nums'] }}>{String(Math.floor(recordingSeconds / 60)).padStart(2, '0')}:{String(recordingSeconds % 60).padStart(2, '0')}</Text>
+                    <Text style={{ color: '#FF382E', fontSize: 14, fontWeight: '800', fontVariant: ['tabular-nums'] }}>{String(Math.floor(recordingSeconds / 60)).padStart(2, '0')}:{String(recordingSeconds % 60).padStart(2, '0')}</Text>
                   </View>
                   <View style={{ height: 5, borderRadius: 999, overflow: 'hidden', backgroundColor: isDark ? '#7f1d1d' : '#fecdd3' }}>
-                    <View style={{ width: `${18 + (recordingSeconds % 7) * 11}%`, height: '100%', borderRadius: 999, backgroundColor: '#ef4444' }} />
+                    <View style={{ width: `${18 + (recordingSeconds % 7) * 11}%`, height: '100%', borderRadius: 999, backgroundColor: '#FF382E' }} />
                   </View>
                 </View>
                 <Pressable onPress={() => finishVoiceRecording(false)} hitSlop={10} style={{ paddingHorizontal: 8, paddingVertical: 8 }}>
                   <Text style={{ color: isDark ? '#fecdd3' : '#9f1239', fontSize: 13, fontWeight: '700' }}>{isArabic ? 'إلغاء' : 'Cancel'}</Text>
                 </Pressable>
-                <Pressable onPress={() => finishVoiceRecording(true)} hitSlop={10} style={{ width: 38, height: 38, borderRadius: 999, backgroundColor: '#2563eb', alignItems: 'center', justifyContent: 'center' }}>
+                <Pressable onPress={() => finishVoiceRecording(true)} hitSlop={10} style={{ width: 38, height: 38, borderRadius: 999, backgroundColor: '#725AFF', alignItems: 'center', justifyContent: 'center' }}>
                   <Text style={{ color: '#ffffff', fontSize: 17, marginLeft: 2 }}>➤</Text>
                 </Pressable>
               </View>
@@ -1811,13 +1811,13 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                 onBlur={stopTyping}
                 multiline
                 placeholder={isPrivate ? 'Add a private note...' : 'Type a message...'}
-                placeholderTextColor={isDark ? '#64748b' : '#9ca3af'}
+                placeholderTextColor={isDark ? '#80838D' : '#80838D'}
                 style={{ flex: 1, color: textPrimary, fontSize: 14, maxHeight: 100 }}
               />
               <Pressable
                 hitSlop={8}
                 onPress={sendCurrentMessage}>
-                <SendIcon color={isPrivate ? (isDark ? '#fbbf24' : '#d97706') : '#3b82f6'} />
+                <SendIcon color={isPrivate ? (isDark ? '#FA8900' : '#FA8900') : '#725AFF'} />
               </Pressable>
             </View>
 
@@ -1836,9 +1836,9 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                   marginTop: 8,
                   maxHeight: 220,
                   borderWidth: 1,
-                  borderColor: isDark ? '#334155' : '#d1d5db',
+                  borderColor: isDark ? '#24262B' : '#EAEAEA',
                   borderRadius: 10,
-                  backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                  backgroundColor: isDark ? '#1B1C20' : '#ffffff',
                   overflow: 'hidden',
                 }}
                 keyboardShouldPersistTaps="handled">
@@ -1853,9 +1853,9 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                       paddingHorizontal: 12,
                       paddingVertical: 9,
                       borderBottomWidth: 1,
-                      borderBottomColor: isDark ? '#334155' : '#f3f4f6',
+                      borderBottomColor: isDark ? '#24262B' : '#F0F0F3',
                     }}>
-                    <Text style={{ color: '#0d9488', fontSize: 13, fontWeight: '700' }} numberOfLines={1}>
+                    <Text style={{ color: '#725AFF', fontSize: 13, fontWeight: '700' }} numberOfLines={1}>
                       /{response.short_code}
                     </Text>
                     <Text style={{ color: textSecondary, fontSize: 13, marginTop: 2 }} numberOfLines={1}>
@@ -1878,8 +1878,8 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
             paddingTop: 4,
             borderTopWidth: 1,
             borderTopColor: isPrivate
-              ? (isDark ? '#451a03' : '#fef3c7')
-              : (isDark ? '#334155' : '#f1f5f9'),
+              ? (isDark ? '#1B1C20' : 'rgba(250,137,0,0.15)')
+              : (isDark ? '#24262B' : '#F0F0F3'),
           }}>
             {/* Toggle icon — switches between message & note */}
             <Pressable
@@ -1892,23 +1892,23 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                 padding: 3,
                 borderRadius: 6,
                 backgroundColor: isPrivate
-                  ? (isDark ? '#451a03' : '#fef9c3')
+                  ? (isDark ? '#1B1C20' : 'rgba(250,137,0,0.15)')
                   : 'transparent',
               }}>
               {isPrivate
-                ? <LockIcon size={20} color={isDark ? '#fbbf24' : '#d97706'} />
-                : <ChatBlue color="#3b82f6" />
+                ? <LockIcon size={20} color={isDark ? '#FA8900' : '#FA8900'} />
+                : <ChatBlue color="#725AFF" />
               }
             </Pressable>
-            <View style={{ width: 1, height: 20, backgroundColor: isPrivate ? (isDark ? '#451a03' : '#fde68a') : (isDark ? '#334155' : '#e2e8f0') }} />
+            <View style={{ width: 1, height: 20, backgroundColor: isPrivate ? (isDark ? '#1B1C20' : 'rgba(250,137,0,0.15)') : (isDark ? '#24262B' : '#EAEAEA') }} />
             <Pressable hitSlop={8} style={{ width: 24, height: 24 }} onPress={() => setSheet('attachment')}>
-              <AttachmentIcon stroke={isPrivate ? (isDark ? '#a16207' : '#d97706') : '#2563eb'} />
+              <AttachmentIcon stroke={isPrivate ? (isDark ? '#FA8900' : '#FA8900') : '#725AFF'} />
             </Pressable>
             <Pressable hitSlop={8} onPress={() => setSheet('shortcut')}>
               <ShortcutBlue />
             </Pressable>
             <Pressable hitSlop={8} style={{ width: 24, height: 24 }} onPress={handleVoicePress}>
-              <VoiceNote stroke={isRecording ? '#ef4444' : (isDark ? '#94a3b8' : '#6b7280')} />
+              <VoiceNote stroke={isRecording ? '#FF382E' : (isDark ? '#94a3b8' : '#626F7F')} />
             </Pressable>
           </View> : null}
         </View>
@@ -2007,18 +2007,18 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
             <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>Assign User</Text>
             <View style={{ width: 24 }} />
           </View>
-          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#334155' : '#f3f4f6', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
-            <SearchIcon color={isDark ? '#94a3b8' : '#6b7280'} />
+          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
+            <SearchIcon color={isDark ? '#94a3b8' : '#626F7F'} />
             <TextInput
               value={assignSearch}
               onChangeText={setAssignSearch}
               placeholder="Search agents..."
-              placeholderTextColor={isDark ? '#94a3b8' : '#9ca3af'}
+              placeholderTextColor={isDark ? '#94a3b8' : '#80838D'}
               style={{ flex: 1, color: textPrimary, fontSize: 14, paddingVertical: 6 }}
             />
             {assignSearch ? (
               <Pressable onPress={() => setAssignSearch('')}>
-                <XIcon color={isDark ? '#94a3b8' : '#6b7280'} />
+                <XIcon color={isDark ? '#94a3b8' : '#626F7F'} />
               </Pressable>
             ) : null}
           </View>
@@ -2027,15 +2027,15 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
             style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14 }}
             onPress={handleAssignToMe}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={{ position: 'relative', width: 36, height: 36, borderRadius: 999, backgroundColor: '#14b8a6', alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ position: 'relative', width: 36, height: 36, borderRadius: 999, backgroundColor: '#725AFF', alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ color: '#fff', fontWeight: '700' }}>Me</Text>
-                <View style={{ position: 'absolute', bottom: -1, right: -1, width: 12, height: 12, borderRadius: 999, backgroundColor: '#22c55e', borderWidth: 2, borderColor: isDark ? '#1e293b' : '#fff' }} />
+                <View style={{ position: 'absolute', bottom: -1, right: -1, width: 12, height: 12, borderRadius: 999, backgroundColor: '#2CA54A', borderWidth: 2, borderColor: isDark ? '#1B1C20' : '#fff' }} />
               </View>
               <Text style={{ color: textPrimary, fontWeight: '500' }}>Assign to me</Text>
             </View>
             {conversation?.meta?.assignee?.id === currentUserId && (
               <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                <Path d="M5 13l4 4L19 7" stroke="#3b82f6" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+                <Path d="M5 13l4 4L19 7" stroke="#725AFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
             )}
           </Pressable>
@@ -2044,17 +2044,17 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
             style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14 }}
             onPress={handleUnassign}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 999, backgroundColor: isDark ? '#334155' : '#f9a8d4', alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ width: 36, height: 36, borderRadius: 999, backgroundColor: isDark ? '#24262B' : 'rgba(114,90,255,0.15)', alignItems: 'center', justifyContent: 'center' }}>
                 <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                  <Circle cx={12} cy={8} r={4} fill={isDark ? '#94a3b8' : '#db2777'} />
-                  <Path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" fill={isDark ? '#94a3b8' : '#db2777'} />
+                  <Circle cx={12} cy={8} r={4} fill={isDark ? '#94a3b8' : '#725AFF'} />
+                  <Path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" fill={isDark ? '#94a3b8' : '#725AFF'} />
                 </Svg>
               </View>
               <Text style={{ color: textPrimary, fontWeight: '500' }}>Unassign</Text>
             </View>
             {!conversation?.meta?.assignee && (
               <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                <Path d="M5 13l4 4L19 7" stroke="#3b82f6" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+                <Path d="M5 13l4 4L19 7" stroke="#725AFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
             )}
           </Pressable>
@@ -2077,14 +2077,14 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                       {ag.thumbnail ? (
                         <Image source={{ uri: ag.thumbnail }} style={{ width: 32, height: 32, borderRadius: 999 }} />
                       ) : (
-                        <View style={{ width: 32, height: 32, borderRadius: 999, backgroundColor: '#0d9488', alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ width: 32, height: 32, borderRadius: 999, backgroundColor: '#725AFF', alignItems: 'center', justifyContent: 'center' }}>
                           <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>{ag.name ? ag.name.charAt(0).toUpperCase() : 'A'}</Text>
                         </View>
                       )}
                       <Text style={{ color: textPrimary, fontWeight: '500', fontSize: 14 }}>{ag.name || ag.available_name}</Text>
                     </View>
                     {conversation?.meta?.assignee?.id === ag.id && (
-                      <Svg width={18} height={18} viewBox="0 0 24 24" fill="none"><Path d="M5 13l4 4L19 7" stroke="#3b82f6" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" /></Svg>
+                      <Svg width={18} height={18} viewBox="0 0 24 24" fill="none"><Path d="M5 13l4 4L19 7" stroke="#725AFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" /></Svg>
                     )}
                   </Pressable>
                 ))}
@@ -2099,12 +2099,12 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
             <Pressable onPress={() => setSheet(null)}><XIcon color={textPrimary} /></Pressable>
             <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>Select Stage</Text>
-            <Pressable onPress={() => setSheet(null)}><Text style={{ color: '#3b82f6', fontWeight: '600', fontSize: 14 }}>Done</Text></Pressable>
+            <Pressable onPress={() => setSheet(null)}><Text style={{ color: '#725AFF', fontWeight: '600', fontSize: 14 }}>Done</Text></Pressable>
           </View>
           <Pressable style={{ width: '100%', alignItems: 'flex-start', paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: borderColor }} onPress={() => updateLifecycleStage()}>
             <Text style={{ color: textSecondary, fontWeight: '500' }}>Clear Selection</Text>
           </Pressable>
-          <Text style={{ paddingHorizontal: 20, color: '#14b8a6', fontSize: 12, fontWeight: '600', textTransform: 'uppercase', marginTop: 8, marginBottom: 8 }}>Lifecycle Stages</Text>
+          <Text style={{ paddingHorizontal: 20, color: '#725AFF', fontSize: 12, fontWeight: '600', textTransform: 'uppercase', marginTop: 8, marginBottom: 8 }}>Lifecycle Stages</Text>
           <ScrollView style={{ maxHeight: stageSheetMaxHeight }} contentContainerStyle={{ paddingBottom: 4 }}>
           {lifecycleStages.map(s => (
             <Pressable key={s.label} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: borderColor }} onPress={() => updateLifecycleStage(s)}>
@@ -2116,7 +2116,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
             </Pressable>
           ))}
           </ScrollView>
-          <Text style={{ paddingHorizontal: 20, color: '#14b8a6', fontSize: 12, fontWeight: '600', textTransform: 'uppercase', marginTop: 8, marginBottom: 8 }}>Lost Stages</Text>
+          <Text style={{ paddingHorizontal: 20, color: '#725AFF', fontSize: 12, fontWeight: '600', textTransform: 'uppercase', marginTop: 8, marginBottom: 8 }}>Lost Stages</Text>
           <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 20, paddingVertical: 14 }} onPress={() => updateLifecycleStage({ label: 'Cold Lead', emoji: '🧊' })}>
             <Text style={{ fontSize: 20 }}>🧊</Text>
             <Text style={{ color: textPrimary, fontWeight: '500' }}>Cold Lead</Text>
@@ -2129,7 +2129,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
           <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <SnoozeIcon color="#2563eb" />
+                <SnoozeIcon color="#725AFF" />
                 <Text style={{ fontSize: 18, fontWeight: '700', color: textPrimary }}>
                   {isArabic ? 'تأجيل المحادثة' : 'Snooze Conversation'}
                 </Text>
@@ -2171,9 +2171,9 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                     paddingHorizontal: 14,
                     paddingVertical: 12,
                     borderRadius: 12,
-                    backgroundColor: isDark ? '#064e3b' : '#ecfdf5',
+                    backgroundColor: isDark ? '#1B1C20' : 'rgba(44,165,74,0.15)',
                     borderWidth: 1.5,
-                    borderColor: '#10b981',
+                    borderColor: '#2CA54A',
                     marginBottom: 4,
                   }}>
                   <Text style={{ fontSize: 20 }}>✨</Text>
@@ -2257,7 +2257,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                     paddingHorizontal: 14,
                     paddingVertical: 12,
                     borderRadius: 12,
-                    backgroundColor: isDark ? '#1e293b' : '#f8fafc',
+                    backgroundColor: isDark ? '#1B1C20' : '#EDEEF0',
                     borderWidth: 1,
                     borderColor: borderColor,
                   }}>
@@ -2279,8 +2279,8 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                   setCustomSnoozeTimeText(initialDate.toTimeString().slice(0, 5));
                   setCustomSnoozeOpen(true);
                 }}
-                style={{ paddingHorizontal: 14, paddingVertical: 12, borderRadius: 12, backgroundColor: isDark ? '#134e4a' : '#ecfdf5', borderWidth: 1, borderColor: '#14b8a6' }}>
-                <Text style={{ color: '#0d9488', fontSize: 14, fontWeight: '700', textAlign: 'center' }}>{isArabic ? 'اختيار تاريخ ووقت' : 'Pick Date & Time'}</Text>
+                style={{ paddingHorizontal: 14, paddingVertical: 12, borderRadius: 12, backgroundColor: isDark ? '#1B1C20' : 'rgba(44,165,74,0.15)', borderWidth: 1, borderColor: '#725AFF' }}>
+                <Text style={{ color: '#725AFF', fontSize: 14, fontWeight: '700', textAlign: 'center' }}>{isArabic ? 'اختيار تاريخ ووقت' : 'Pick Date & Time'}</Text>
               </Pressable>
               {customSnoozeOpen && (
                 <View style={{ gap: 8, marginTop: 8 }}>
@@ -2288,19 +2288,19 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                     value={customSnoozeDateText}
                     onChangeText={setCustomSnoozeDateText}
                     placeholder="YYYY-MM-DD"
-                    placeholderTextColor={isDark ? '#94a3b8' : '#9ca3af'}
+                    placeholderTextColor={isDark ? '#94a3b8' : '#80838D'}
                     keyboardType="numbers-and-punctuation"
-                    style={{ color: textPrimary, backgroundColor: isDark ? '#334155' : '#f3f4f6', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, textAlign: 'center' }}
+                    style={{ color: textPrimary, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, textAlign: 'center' }}
                   />
                   <TextInput
                     value={customSnoozeTimeText}
                     onChangeText={setCustomSnoozeTimeText}
                     placeholder="HH:MM"
-                    placeholderTextColor={isDark ? '#94a3b8' : '#9ca3af'}
+                    placeholderTextColor={isDark ? '#94a3b8' : '#80838D'}
                     keyboardType="numbers-and-punctuation"
-                    style={{ color: textPrimary, backgroundColor: isDark ? '#334155' : '#f3f4f6', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, textAlign: 'center' }}
+                    style={{ color: textPrimary, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, textAlign: 'center' }}
                   />
-                  <Pressable onPress={handleCustomSnoozeSubmit} style={{ paddingVertical: 11, borderRadius: 8, backgroundColor: '#14b8a6' }}>
+                  <Pressable onPress={handleCustomSnoozeSubmit} style={{ paddingVertical: 11, borderRadius: 8, backgroundColor: '#725AFF' }}>
                     <Text style={{ color: '#ffffff', fontSize: 14, fontWeight: '700', textAlign: 'center' }}>{isArabic ? 'تأكيد التأجيل' : 'Confirm Snooze'}</Text>
                   </Pressable>
                 </View>
@@ -2315,15 +2315,15 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
             <Pressable onPress={() => setSheet(null)}><XIcon color={textPrimary} /></Pressable>
             <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>Collaborators</Text>
-            <Pressable onPress={handleSaveCollaborators}><Text style={{ color: '#3b82f6', fontWeight: '600', fontSize: 14 }}>Done</Text></Pressable>
+            <Pressable onPress={handleSaveCollaborators}><Text style={{ color: '#725AFF', fontWeight: '600', fontSize: 14 }}>Done</Text></Pressable>
           </View>
-          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#334155' : '#f3f4f6', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
-            <SearchIcon color={isDark ? '#94a3b8' : '#6b7280'} />
+          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
+            <SearchIcon color={isDark ? '#94a3b8' : '#626F7F'} />
             <TextInput
               value={collaboratorSearch}
               onChangeText={setCollaboratorSearch}
               placeholder="Search collaborators..."
-              placeholderTextColor={isDark ? '#94a3b8' : '#9ca3af'}
+              placeholderTextColor={isDark ? '#94a3b8' : '#80838D'}
               style={{ flex: 1, color: textPrimary, fontSize: 14, paddingVertical: 6 }}
             />
           </View>
@@ -2341,13 +2341,13 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                       {agent.thumbnail ? (
                         <Image source={{ uri: agent.thumbnail }} style={{ width: 32, height: 32, borderRadius: 999 }} />
                       ) : (
-                        <View style={{ width: 32, height: 32, borderRadius: 999, backgroundColor: '#14b8a6', alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ width: 32, height: 32, borderRadius: 999, backgroundColor: '#725AFF', alignItems: 'center', justifyContent: 'center' }}>
                           <Text style={{ color: '#ffffff', fontWeight: '700' }}>{(agent.name || agent.available_name || 'A').charAt(0).toUpperCase()}</Text>
                         </View>
                       )}
                       <Text style={{ color: textPrimary, fontWeight: '500', fontSize: 14 }}>{agent.name || agent.available_name}</Text>
                     </View>
-                    {isSelected && <Text style={{ color: '#3b82f6', fontSize: 20, fontWeight: '700' }}>✓</Text>}
+                    {isSelected && <Text style={{ color: '#725AFF', fontSize: 20, fontWeight: '700' }}>✓</Text>}
                   </Pressable>
                 );
               })}
@@ -2362,18 +2362,18 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
             <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>Select Shortcut</Text>
             <Pressable onPress={() => setSheet(null)}><XIcon color={textPrimary} /></Pressable>
           </View>
-          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#334155' : '#f3f4f6', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
-            <SearchIcon color={isDark ? '#94a3b8' : '#6b7280'} />
+          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
+            <SearchIcon color={isDark ? '#94a3b8' : '#626F7F'} />
             <TextInput
               value={shortcutSearch}
               onChangeText={setShortcutSearch}
               placeholder="Search shortcuts..."
-              placeholderTextColor={isDark ? '#94a3b8' : '#9ca3af'}
+              placeholderTextColor={isDark ? '#94a3b8' : '#80838D'}
               style={{ flex: 1, color: textPrimary, fontSize: 14, paddingVertical: 6 }}
             />
             {shortcutSearch ? (
               <Pressable onPress={() => setShortcutSearch('')}>
-                <XIcon color={isDark ? '#94a3b8' : '#6b7280'} />
+                <XIcon color={isDark ? '#94a3b8' : '#626F7F'} />
               </Pressable>
             ) : null}
           </View>
@@ -2402,7 +2402,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                       });
                       setSheet(null);
                     }}>
-                    <Text style={{ color: '#38bdf8', fontWeight: '600', fontSize: 13, marginBottom: 2 }}>/{cr.short_code}</Text>
+                    <Text style={{ color: '#725AFF', fontWeight: '600', fontSize: 13, marginBottom: 2 }}>/{cr.short_code}</Text>
                     <Text style={{ color: textPrimary, fontSize: 14 }} numberOfLines={2}>{cr.content}</Text>
                   </Pressable>
                 ));
@@ -2410,8 +2410,8 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
 
               return (
                 <View style={{ alignItems: 'center', paddingVertical: 32, gap: 12 }}>
-                  <ShortcutIcon color={isDark ? '#94a3b8' : '#6b7280'} />
-                  <Text style={{ color: '#9ca3af', fontWeight: '500' }}>
+                  <ShortcutIcon color={isDark ? '#94a3b8' : '#626F7F'} />
+                  <Text style={{ color: '#80838D', fontWeight: '500' }}>
                     {shortcutSearch ? 'No matching shortcuts found' : 'No available shortcuts'}
                   </Text>
                 </View>
@@ -2428,9 +2428,9 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
             <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>Ongoing Workflow</Text>
             <View style={{ width: 24 }} />
           </View>
-          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#334155' : '#f3f4f6', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
-            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none"><Circle cx={11} cy={11} r={8} stroke="#14b8a6" strokeWidth={2} /><Path d="m21 21-4.35-4.35" stroke="#14b8a6" strokeWidth={2} strokeLinecap="round" /></Svg>
-            <Text style={{ color: '#14b8a6', fontSize: 14 }}>Search ongoing Workflows</Text>
+          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
+            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none"><Circle cx={11} cy={11} r={8} stroke="#725AFF" strokeWidth={2} /><Path d="m21 21-4.35-4.35" stroke="#725AFF" strokeWidth={2} strokeLinecap="round" /></Svg>
+            <Text style={{ color: '#725AFF', fontSize: 14 }}>Search ongoing Workflows</Text>
           </View>
           <Text style={{ color: textSecondary, fontSize: 14, fontWeight: '600', textAlign: 'center', paddingHorizontal: 32, paddingTop: 24, lineHeight: 22 }}>
             You can stop ongoing Workflows for this Contact here. Simply enable it in Workflow Settings and publish the Workflow on the web platform.
@@ -2445,18 +2445,18 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
             <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>Conversation Labels</Text>
             <View style={{ width: 24 }} />
           </View>
-          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#334155' : '#f3f4f6', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
-            <SearchIcon color={isDark ? '#94a3b8' : '#6b7280'} />
+          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
+            <SearchIcon color={isDark ? '#94a3b8' : '#626F7F'} />
             <TextInput
               value={labelSearch}
               onChangeText={setLabelSearch}
               placeholder="Search labels..."
-              placeholderTextColor={isDark ? '#94a3b8' : '#9ca3af'}
+              placeholderTextColor={isDark ? '#94a3b8' : '#80838D'}
               style={{ flex: 1, color: textPrimary, fontSize: 14, paddingVertical: 6 }}
             />
             {labelSearch ? (
               <Pressable onPress={() => setLabelSearch('')}>
-                <XIcon color={isDark ? '#94a3b8' : '#6b7280'} />
+                <XIcon color={isDark ? '#94a3b8' : '#626F7F'} />
               </Pressable>
             ) : null}
           </View>
@@ -2485,12 +2485,12 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                       }}
                       onPress={() => handleToggleLabel(lbl.title)}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                        <View style={{ width: 12, height: 12, borderRadius: 999, backgroundColor: lbl.color || '#3b82f6' }} />
+                        <View style={{ width: 12, height: 12, borderRadius: 999, backgroundColor: lbl.color || '#725AFF' }} />
                         <Text style={{ fontSize: 15, fontWeight: '500', color: textPrimary }}>{lbl.title}</Text>
                       </View>
                       {isSelected && (
                         <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                          <Path d="M5 13l4 4L19 7" stroke="#3b82f6" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+                          <Path d="M5 13l4 4L19 7" stroke="#725AFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
                         </Svg>
                       )}
                     </Pressable>
@@ -2500,7 +2500,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
 
               return (
                 <View style={{ alignItems: 'center', paddingVertical: 32, gap: 12 }}>
-                  <Text style={{ color: '#9ca3af', fontWeight: '500' }}>
+                  <Text style={{ color: '#80838D', fontWeight: '500' }}>
                     {labelSearch ? 'No matching labels' : 'No account labels found'}
                   </Text>
                 </View>
@@ -2521,12 +2521,12 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
   const { width: screenWidth } = useWindowDimensions();
   const horizontalPadding = screenWidth < 360 ? 12 : 16;
   const stageSheetMaxHeight = Math.min(420, Math.max(260, screenWidth * 0.72));
-  const bgColor = isDark ? '#0f172a' : '#ffffff';
-  const textPrimary = isDark ? '#f8fafc' : '#111827';
-  const textSecondary = isDark ? '#94a3b8' : '#6b7280';
-  const borderColor = isDark ? '#1e293b' : '#f3f4f6';
-  const inputBg = isDark ? '#1e293b' : '#ffffff';
-  const inputBorder = isDark ? '#334155' : '#e5e7eb';
+  const bgColor = isDark ? '#101113' : '#ffffff';
+  const textPrimary = isDark ? '#EDEEF0' : '#282E34';
+  const textSecondary = isDark ? '#94a3b8' : '#626F7F';
+  const borderColor = isDark ? '#1B1C20' : '#F0F0F3';
+  const inputBg = isDark ? '#1B1C20' : '#ffffff';
+  const inputBorder = isDark ? '#24262B' : '#EAEAEA';
 
   const contactId = conversation?.meta?.sender?.id;
   const sender = conversation?.meta?.sender;
@@ -2757,9 +2757,9 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
         <Text style={{ fontSize: 18, fontWeight: '600', color: textPrimary }}>Contact Details</Text>
         <Pressable onPress={handleSave} disabled={saving} hitSlop={8}>
           {saving ? (
-            <ActivityIndicator size="small" color="#3b82f6" />
+            <ActivityIndicator size="small" color="#725AFF" />
           ) : (
-            <Text style={{ color: '#3b82f6', fontWeight: '600', fontSize: 15 }}>Save</Text>
+            <Text style={{ color: '#725AFF', fontWeight: '600', fontSize: 15 }}>Save</Text>
           )}
         </Pressable>
       </View>
@@ -2779,7 +2779,7 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
               value={firstName}
               onChangeText={setFirstName}
               placeholder="First name"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#80838D"
               style={inputCls}
             />
           </View>
@@ -2791,7 +2791,7 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
               value={lastName}
               onChangeText={setLastName}
               placeholder="Last name"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#80838D"
               style={inputCls}
             />
           </View>
@@ -2801,7 +2801,7 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
             <Text style={labelCls}>Language</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 1, borderColor: inputBorder, backgroundColor: inputBg, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14 }}>
               <Text style={{ color: textSecondary, fontSize: 14, fontWeight: '500' }}>Add Language</Text>
-              <ChevronDown color={isDark ? '#94a3b8' : '#6b7280'} />
+              <ChevronDown color={isDark ? '#94a3b8' : '#626F7F'} />
             </View>
           </View>
 
@@ -2812,13 +2812,13 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 14, borderRightWidth: 1, borderRightColor: inputBorder }}>
                 <Text style={{ fontSize: 15 }}>🇪🇬</Text>
                 <Text style={{ fontSize: 14, color: textSecondary, marginLeft: 2, fontWeight: '500' }}>+20</Text>
-                <ChevronDown color={isDark ? '#94a3b8' : '#6b7280'} />
+                <ChevronDown color={isDark ? '#94a3b8' : '#626F7F'} />
               </View>
               <TextInput
                 value={phone}
                 onChangeText={setPhone}
                 placeholder="Phone number"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#80838D"
                 keyboardType="phone-pad"
                 style={{ flex: 1, paddingHorizontal: 12, paddingVertical: 14, color: textPrimary, fontSize: 14, fontWeight: '500' }}
               />
@@ -2834,8 +2834,8 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
                 <Text style={{ color: textPrimary, fontSize: 14, fontWeight: '500' }} numberOfLines={1}>{country || 'Egypt'}</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <XIcon color={isDark ? '#94a3b8' : '#9ca3af'} />
-                <ChevronDown color={isDark ? '#94a3b8' : '#9ca3af'} />
+                <XIcon color={isDark ? '#94a3b8' : '#80838D'} />
+                <ChevronDown color={isDark ? '#94a3b8' : '#80838D'} />
               </View>
             </View>
           </View>
@@ -2847,7 +2847,7 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
               value={email}
               onChangeText={setEmail}
               placeholder="Add Email"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#80838D"
               keyboardType="email-address"
               autoCapitalize="none"
               style={inputCls}
@@ -2866,10 +2866,10 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 {selectedAssignee?.name ? (
                   <Pressable hitSlop={8} onPress={(e) => { e.stopPropagation(); handleUnassign(); }}>
-                    <XIcon color={isDark ? '#94a3b8' : '#9ca3af'} />
+                    <XIcon color={isDark ? '#94a3b8' : '#80838D'} />
                   </Pressable>
                 ) : null}
-                <ChevronDown color={isDark ? '#94a3b8' : '#9ca3af'} />
+                <ChevronDown color={isDark ? '#94a3b8' : '#80838D'} />
               </View>
             </Pressable>
           </View>
@@ -2885,7 +2885,7 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
                 <Text style={{ color: textPrimary, fontSize: 14, fontWeight: '500' }} numberOfLines={1}>{stageName}</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <ChevronDown color={isDark ? '#94a3b8' : '#9ca3af'} />
+                <ChevronDown color={isDark ? '#94a3b8' : '#80838D'} />
               </View>
             </Pressable>
           </View>
@@ -2901,7 +2901,7 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, flex: 1, paddingRight: 8 }}>
                     {currentLabels.map((lbl: string, idx: number) => {
                       const lblObj = apiLabels.find(al => (al.title || '').toLowerCase() === String(lbl).toLowerCase());
-                      const badgeColor = lblObj?.color || '#3b82f6';
+                      const badgeColor = lblObj?.color || '#725AFF';
                       return (
                         <View
                           key={idx}
@@ -2917,19 +2917,19 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
                             borderRadius: 8,
                           }}>
                           <View style={{ width: 7, height: 7, borderRadius: 999, backgroundColor: badgeColor }} />
-                          <Text style={{ color: isDark ? '#ffffff' : (badgeColor === '#ffffff' ? '#111827' : badgeColor), fontSize: 12, fontWeight: '700' }} numberOfLines={1}>
+                          <Text style={{ color: isDark ? '#ffffff' : (badgeColor === '#ffffff' ? '#282E34' : badgeColor), fontSize: 12, fontWeight: '700' }} numberOfLines={1}>
                             {lbl}
                           </Text>
                         </View>
                       );
                     })}
                   </View>
-                  <ChevronDown color={isDark ? '#94a3b8' : '#9ca3af'} />
+                  <ChevronDown color={isDark ? '#94a3b8' : '#80838D'} />
                 </View>
               ) : (
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                   <Text style={{ color: textSecondary, fontSize: 14, fontWeight: '500' }}>Add Tags</Text>
-                  <ChevronDown color={isDark ? '#94a3b8' : '#9ca3af'} />
+                  <ChevronDown color={isDark ? '#94a3b8' : '#80838D'} />
                 </View>
               )}
             </Pressable>
@@ -2947,18 +2947,18 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
             <View style={{ width: 24 }} />
           </View>
 
-          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#334155' : '#f3f4f6', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
-            <SearchIcon color={isDark ? '#94a3b8' : '#6b7280'} />
+          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
+            <SearchIcon color={isDark ? '#94a3b8' : '#626F7F'} />
             <TextInput
               value={assignSearch}
               onChangeText={setAssignSearch}
               placeholder="Search agent..."
-              placeholderTextColor={isDark ? '#94a3b8' : '#9ca3af'}
+              placeholderTextColor={isDark ? '#94a3b8' : '#80838D'}
               style={{ flex: 1, color: textPrimary, fontSize: 14, paddingVertical: 6 }}
             />
             {assignSearch ? (
               <Pressable onPress={() => setAssignSearch('')}>
-                <XIcon color={isDark ? '#94a3b8' : '#6b7280'} />
+                <XIcon color={isDark ? '#94a3b8' : '#626F7F'} />
               </Pressable>
             ) : null}
           </View>
@@ -2968,14 +2968,14 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
             style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: borderColor }}
             onPress={handleUnassign}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={{ width: 32, height: 32, borderRadius: 999, backgroundColor: isDark ? '#334155' : '#e5e7eb', alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ width: 32, height: 32, borderRadius: 999, backgroundColor: isDark ? '#24262B' : '#EAEAEA', alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ color: textSecondary, fontWeight: '600', fontSize: 13 }}>✕</Text>
               </View>
               <Text style={{ color: textPrimary, fontWeight: '500', fontSize: 14 }}>Unassigned</Text>
             </View>
             {!selectedAssignee?.name && (
               <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                <Path d="M5 13l4 4L19 7" stroke="#3b82f6" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+                <Path d="M5 13l4 4L19 7" stroke="#725AFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
             )}
           </Pressable>
@@ -2999,7 +2999,7 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
                       {ag.thumbnail ? (
                         <Image source={{ uri: ag.thumbnail }} style={{ width: 32, height: 32, borderRadius: 999 }} />
                       ) : (
-                        <View style={{ width: 32, height: 32, borderRadius: 999, backgroundColor: '#0d9488', alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ width: 32, height: 32, borderRadius: 999, backgroundColor: '#725AFF', alignItems: 'center', justifyContent: 'center' }}>
                           <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>{(ag.name || 'A').charAt(0).toUpperCase()}</Text>
                         </View>
                       )}
@@ -3007,7 +3007,7 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
                     </View>
                     {isSelected && (
                       <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                        <Path d="M5 13l4 4L19 7" stroke="#3b82f6" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+                        <Path d="M5 13l4 4L19 7" stroke="#725AFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
                       </Svg>
                     )}
                   </Pressable>
@@ -3024,7 +3024,7 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
             <Pressable onPress={() => setSheet(null)}><XIcon color={textPrimary} /></Pressable>
             <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>Select Stage</Text>
-            <Pressable onPress={() => setSheet(null)}><Text style={{ color: '#3b82f6', fontWeight: '600', fontSize: 14 }}>Done</Text></Pressable>
+            <Pressable onPress={() => setSheet(null)}><Text style={{ color: '#725AFF', fontWeight: '600', fontSize: 14 }}>Done</Text></Pressable>
           </View>
 
           <ScrollView style={{ maxHeight: stageSheetMaxHeight }} contentContainerStyle={{ paddingBottom: 4 }}>
@@ -3062,21 +3062,21 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
             <Pressable onPress={() => setSheet(null)}><XIcon color={textPrimary} /></Pressable>
             <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>Conversation Tags</Text>
-            <Pressable onPress={() => setSheet(null)}><Text style={{ color: '#3b82f6', fontWeight: '600', fontSize: 14 }}>Done</Text></Pressable>
+            <Pressable onPress={() => setSheet(null)}><Text style={{ color: '#725AFF', fontWeight: '600', fontSize: 14 }}>Done</Text></Pressable>
           </View>
 
-          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#334155' : '#f3f4f6', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
-            <SearchIcon color={isDark ? '#94a3b8' : '#6b7280'} />
+          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
+            <SearchIcon color={isDark ? '#94a3b8' : '#626F7F'} />
             <TextInput
               value={labelSearch}
               onChangeText={setLabelSearch}
               placeholder="Search tags..."
-              placeholderTextColor={isDark ? '#94a3b8' : '#9ca3af'}
+              placeholderTextColor={isDark ? '#94a3b8' : '#80838D'}
               style={{ flex: 1, color: textPrimary, fontSize: 14, paddingVertical: 6 }}
             />
             {labelSearch ? (
               <Pressable onPress={() => setLabelSearch('')}>
-                <XIcon color={isDark ? '#94a3b8' : '#6b7280'} />
+                <XIcon color={isDark ? '#94a3b8' : '#626F7F'} />
               </Pressable>
             ) : null}
           </View>
@@ -3105,12 +3105,12 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
                       }}
                       onPress={() => handleToggleLabel(lbl.title)}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                        <View style={{ width: 12, height: 12, borderRadius: 999, backgroundColor: lbl.color || '#3b82f6' }} />
+                        <View style={{ width: 12, height: 12, borderRadius: 999, backgroundColor: lbl.color || '#725AFF' }} />
                         <Text style={{ fontSize: 15, fontWeight: '500', color: textPrimary }}>{lbl.title}</Text>
                       </View>
                       {isSelected && (
                         <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                          <Path d="M5 13l4 4L19 7" stroke="#3b82f6" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+                          <Path d="M5 13l4 4L19 7" stroke="#725AFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
                         </Svg>
                       )}
                     </Pressable>
@@ -3120,7 +3120,7 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
 
               return (
                 <View style={{ alignItems: 'center', paddingVertical: 32, gap: 12 }}>
-                  <Text style={{ color: '#9ca3af', fontWeight: '500' }}>
+                  <Text style={{ color: '#80838D', fontWeight: '500' }}>
                     {labelSearch ? 'No matching tags found' : 'No account tags found'}
                   </Text>
                 </View>
@@ -3422,11 +3422,11 @@ const InboxScreenDesign = () => {
   }, [conversations, searchQuery, serverSearchResults, searchTab]);
 
   const { isDark } = useTheme();
-  const bgColor = isDark ? '#0f172a' : '#ffffff';
-  const textPrimary = isDark ? '#f8fafc' : '#111827';
-  const textSecondary = isDark ? '#94a3b8' : '#6b7280';
-  const borderColor = isDark ? '#1e293b' : '#f3f4f6';
-  const inputBg = isDark ? '#1e293b' : '#f3f4f6';
+  const bgColor = isDark ? '#101113' : '#ffffff';
+  const textPrimary = isDark ? '#EDEEF0' : '#282E34';
+  const textSecondary = isDark ? '#94a3b8' : '#626F7F';
+  const borderColor = isDark ? '#1B1C20' : '#F0F0F3';
+  const inputBg = isDark ? '#1B1C20' : '#F0F0F3';
 
   const openConversationAction = (action: string) => {
     if (!actionConversation) return;
@@ -3581,8 +3581,8 @@ const InboxScreenDesign = () => {
                   style={{ width: 42, height: 42, borderRadius: 999 }}
                 />
               ) : (
-                <View style={{ width: 42, height: 42, borderRadius: 999, backgroundColor: '#fde68a', alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ fontSize: 16, fontWeight: '700', color: '#d97706' }}>
+                <View style={{ width: 42, height: 42, borderRadius: 999, backgroundColor: 'rgba(250,137,0,0.15)', alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: '#FA8900' }}>
                     {cname.charAt(0).toUpperCase()}
                   </Text>
                 </View>
@@ -3600,7 +3600,7 @@ const InboxScreenDesign = () => {
                 {cname}
               </Text>
               {isTyping ? (
-                <Text style={{ color: '#22c55e', fontSize: 13, fontWeight: '600', marginTop: 2 }}>
+                <Text style={{ color: '#2CA54A', fontSize: 13, fontWeight: '600', marginTop: 2 }}>
                   {isArabic ? 'يكتب الآن...' : 'Typing...'}
                 </Text>
               ) : (
@@ -3614,13 +3614,13 @@ const InboxScreenDesign = () => {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
               {item.status === 'snoozed' && (
                 <View style={{ marginRight: 2 }}>
-                  <SnoozeIcon color="#2563eb" />
+                  <SnoozeIcon color="#725AFF" />
                 </View>
               )}
               <Text style={{ color: textSecondary, fontSize: 12 }}>{ctime}</Text>
             </View>
             {item.unreadCount > 0 && (
-              <View style={{ backgroundColor: '#22c55e', borderRadius: 999, paddingHorizontal: 6, paddingVertical: 2 }}>
+              <View style={{ backgroundColor: '#2CA54A', borderRadius: 999, paddingHorizontal: 6, paddingVertical: 2 }}>
                 <Text style={{ color: 'white', fontSize: 11, fontWeight: '700' }}>{item.unreadCount}</Text>
               </View>
             )}
@@ -3631,7 +3631,7 @@ const InboxScreenDesign = () => {
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, paddingLeft: 54 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap', flex: 1, paddingRight: 8 }}>
             {/* Lifecycle Stage Badge */}
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, height: 22, backgroundColor: isDark ? '#1e293b' : '#f1f5f9', borderWidth: 1, borderColor: isDark ? '#334155' : '#e2e8f0', borderRadius: 6, paddingHorizontal: 7 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, height: 22, backgroundColor: isDark ? '#1B1C20' : '#F0F0F3', borderWidth: 1, borderColor: isDark ? '#24262B' : '#EAEAEA', borderRadius: 6, paddingHorizontal: 7 }}>
               <Text style={{ fontSize: 11 }}>{stageEmoji}</Text>
               <Text style={{ color: textPrimary, fontSize: 11, fontWeight: '600' }}>{stageName}</Text>
             </View>
@@ -3639,7 +3639,7 @@ const InboxScreenDesign = () => {
             {/* Labels Badges */}
             {convLabels.slice(0, 2).map((lbl, lIdx) => {
               const lblObj = apiLabels.find(al => (al.title || '').toLowerCase() === String(lbl).toLowerCase());
-              const dotColor = lblObj?.color || '#3b82f6';
+              const dotColor = lblObj?.color || '#725AFF';
               return (
                 <View
                   key={lIdx}
@@ -3662,7 +3662,7 @@ const InboxScreenDesign = () => {
               );
             })}
             {convLabels.length > 2 && (
-              <View style={{ backgroundColor: isDark ? '#334155' : '#e2e8f0', borderRadius: 6, paddingHorizontal: 5, paddingVertical: 3 }}>
+              <View style={{ backgroundColor: isDark ? '#24262B' : '#EAEAEA', borderRadius: 6, paddingHorizontal: 5, paddingVertical: 3 }}>
                 <Text style={{ fontSize: 10, fontWeight: '700', color: textSecondary }}>+{convLabels.length - 2}</Text>
               </View>
             )}
@@ -3673,7 +3673,7 @@ const InboxScreenDesign = () => {
             cassignee.thumbnail ? (
               <Image source={{ uri: cassignee.thumbnail }} style={{ width: 26, height: 26, borderRadius: 999 }} />
             ) : (
-              <View style={{ width: 26, height: 26, borderRadius: 999, backgroundColor: '#14b8a6', alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ width: 26, height: 26, borderRadius: 999, backgroundColor: '#725AFF', alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ color: '#fff', fontWeight: '700', fontSize: 11 }}>{cassigneeInitial}</Text>
               </View>
             )
@@ -3696,11 +3696,11 @@ const InboxScreenDesign = () => {
               value={searchQuery}
               onChangeText={setSearchQuery}
               placeholder={isArabic ? `البحث في صندوق ${activeLabel}...` : `Search in ${activeLabel} inbox...`}
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#80838D"
               style={{ flex: 1, color: textPrimary, fontSize: 14, textAlign: isArabic ? 'right' : 'left' }}
             />
             {isSearchingServer ? (
-              <ActivityIndicator size="small" color="#2563eb" />
+              <ActivityIndicator size="small" color="#725AFF" />
             ) : searchQuery ? (
               <Pressable onPress={() => setSearchQuery('')}>
                 <XIcon />
@@ -3708,7 +3708,7 @@ const InboxScreenDesign = () => {
             ) : null}
           </View>
           <Pressable onPress={() => { setShowSearch(false); setSearchQuery(''); setServerSearchResults([]); }}>
-            <Text style={{ color: '#3b82f6', fontWeight: '500', fontSize: 14 }}>{isArabic ? 'إلغاء' : 'Cancel'}</Text>
+            <Text style={{ color: '#725AFF', fontWeight: '500', fontSize: 14 }}>{isArabic ? 'إلغاء' : 'Cancel'}</Text>
           </Pressable>
         </View>
         <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingBottom: 12 }}>
@@ -3723,10 +3723,10 @@ const InboxScreenDesign = () => {
                   paddingHorizontal: 14,
                   paddingVertical: 6,
                   borderRadius: 999,
-                  backgroundColor: active ? (isDark ? '#f8fafc' : '#111827') : inputBg,
+                  backgroundColor: active ? (isDark ? '#EDEEF0' : '#282E34') : inputBg,
                 }}
               >
-                <Text style={{ fontSize: 13, fontWeight: '600', color: active ? (isDark ? '#0f172a' : '#ffffff') : textSecondary }}>{label}</Text>
+                <Text style={{ fontSize: 13, fontWeight: '600', color: active ? (isDark ? '#101113' : '#ffffff') : textSecondary }}>{label}</Text>
               </Pressable>
             );
           })}
@@ -3788,11 +3788,11 @@ const InboxScreenDesign = () => {
         {/* Conversation list */}
         {conversationsLoading && filteredConversations.length === 0 ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <ActivityIndicator size="small" color="#2563eb" />
+            <ActivityIndicator size="small" color="#725AFF" />
           </View>
         ) : !conversationsLoading && conversationLoadError && filteredConversations.length === 0 ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
-            <Text style={{ color: isDark ? '#f87171' : '#dc2626', fontSize: 14, fontWeight: '600', textAlign: 'center', marginBottom: 12 }}>
+            <Text style={{ color: isDark ? '#FF382E' : '#FF382E', fontSize: 14, fontWeight: '600', textAlign: 'center', marginBottom: 12 }}>
               {conversationLoadError || (isArabic ? 'فشل تحميل المحادثات' : 'Failed to load conversations')}
             </Text>
             <Pressable
@@ -3802,7 +3802,7 @@ const InboxScreenDesign = () => {
                 const fetchId = ++fetchIdRef.current;
                 fetchConversationsFromApi(1, fetchId);
               }}
-              style={{ paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8, backgroundColor: isDark ? '#2563eb' : '#111827' }}>
+              style={{ paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8, backgroundColor: isDark ? '#725AFF' : '#282E34' }}>
               <Text style={{ color: '#ffffff', fontSize: 14, fontWeight: '600' }}>{isArabic ? 'إعادة المحاولة' : 'Retry'}</Text>
             </Pressable>
           </View>
@@ -3913,7 +3913,7 @@ const InboxScreenDesign = () => {
                   }
                 }}
                 style={{ paddingHorizontal: 20, paddingVertical: 14, borderTopWidth: 1, borderTopColor: borderColor }}>
-                <Text style={{ color: '#14b8a6', fontSize: 14, fontWeight: '600', textAlign: 'center' }}>{option.label}</Text>
+                <Text style={{ color: '#725AFF', fontSize: 14, fontWeight: '600', textAlign: 'center' }}>{option.label}</Text>
               </Pressable>
             ))}
             <Pressable
@@ -3923,8 +3923,8 @@ const InboxScreenDesign = () => {
                 setCustomTimeText(tomorrow.toTimeString().slice(0, 5));
                 setCustomPickerMode(true);
               }}
-              style={{ marginHorizontal: 20, marginTop: 4, marginBottom: 8, paddingVertical: 12, borderRadius: 8, backgroundColor: isDark ? '#134e4a' : '#ecfdf5', borderWidth: 1, borderColor: '#14b8a6' }}>
-              <Text style={{ color: '#0d9488', fontSize: 14, fontWeight: '700', textAlign: 'center' }}>{isArabic ? 'اختيار تاريخ ووقت' : 'Pick Date & Time'}</Text>
+              style={{ marginHorizontal: 20, marginTop: 4, marginBottom: 8, paddingVertical: 12, borderRadius: 8, backgroundColor: isDark ? '#1B1C20' : 'rgba(44,165,74,0.15)', borderWidth: 1, borderColor: '#725AFF' }}>
+              <Text style={{ color: '#725AFF', fontSize: 14, fontWeight: '700', textAlign: 'center' }}>{isArabic ? 'اختيار تاريخ ووقت' : 'Pick Date & Time'}</Text>
             </Pressable>
             {customPickerMode && (
               <View style={{ marginHorizontal: 20, marginBottom: 8, gap: 8 }}>
@@ -3932,19 +3932,19 @@ const InboxScreenDesign = () => {
                   value={customDateText}
                   onChangeText={setCustomDateText}
                   placeholder="YYYY-MM-DD"
-                  placeholderTextColor={isDark ? '#94a3b8' : '#9ca3af'}
+                  placeholderTextColor={isDark ? '#94a3b8' : '#80838D'}
                   keyboardType="numbers-and-punctuation"
-                  style={{ color: textPrimary, backgroundColor: isDark ? '#334155' : '#f3f4f6', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, textAlign: 'center' }}
+                  style={{ color: textPrimary, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, textAlign: 'center' }}
                 />
                 <TextInput
                   value={customTimeText}
                   onChangeText={setCustomTimeText}
                   placeholder="HH:MM"
-                  placeholderTextColor={isDark ? '#94a3b8' : '#9ca3af'}
+                  placeholderTextColor={isDark ? '#94a3b8' : '#80838D'}
                   keyboardType="numbers-and-punctuation"
-                  style={{ color: textPrimary, backgroundColor: isDark ? '#334155' : '#f3f4f6', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, textAlign: 'center' }}
+                  style={{ color: textPrimary, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, textAlign: 'center' }}
                 />
-                <Pressable onPress={handleCustomSnoozeSubmit} style={{ paddingVertical: 11, borderRadius: 8, backgroundColor: '#14b8a6' }}>
+                <Pressable onPress={handleCustomSnoozeSubmit} style={{ paddingVertical: 11, borderRadius: 8, backgroundColor: '#725AFF' }}>
                   <Text style={{ color: '#ffffff', fontSize: 14, fontWeight: '700', textAlign: 'center' }}>{isArabic ? 'تأكيد التأجيل' : 'Confirm Snooze'}</Text>
                 </Pressable>
               </View>
@@ -3959,8 +3959,8 @@ const InboxScreenDesign = () => {
         {showSort && (
           <View style={{ position: 'absolute', inset: 0, zIndex: 50 }} onStartShouldSetResponder={() => true} onResponderRelease={() => setShowSort(false)}>
             <View style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)' }} />
-            <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: isDark ? '#1e293b' : 'white', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingBottom: 32 }} onStartShouldSetResponder={() => true}>
-              <View style={{ width: 40, height: 4, backgroundColor: isDark ? '#475569' : '#d1d5db', borderRadius: 999, alignSelf: 'center', marginTop: 12, marginBottom: 4 }} />
+            <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: isDark ? '#1B1C20' : 'white', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingBottom: 32 }} onStartShouldSetResponder={() => true}>
+              <View style={{ width: 40, height: 4, backgroundColor: isDark ? '#31343A' : '#EAEAEA', borderRadius: 999, alignSelf: 'center', marginTop: 12, marginBottom: 4 }} />
               {[
                 { label: 'Newest Message', value: 'newest' as const },
                 { label: 'Oldest Message', value: 'oldest' as const },
@@ -3985,7 +3985,7 @@ const InboxScreenDesign = () => {
                     {opt.label}
                   </Text>
                   {sortBy === opt.value && (
-                    <Text style={{ color: '#2563eb', fontSize: 16, fontWeight: '700' }}>✓</Text>
+                    <Text style={{ color: '#725AFF', fontSize: 16, fontWeight: '700' }}>✓</Text>
                   )}
                 </Pressable>
               ))}

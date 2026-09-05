@@ -13,7 +13,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     splash: {
       image: './assets/splash.png',
       resizeMode: 'contain',
-      backgroundColor: '#0f172a',
+      backgroundColor: '#101113',
       enableFullScreenImage_legacy: true,
     },
     ios: {
@@ -57,6 +57,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       ],
       '@react-native-firebase/messaging',
     ],
-    androidNavigationBar: { backgroundColor: '#ffffff' },
+    androidNavigationBar: { backgroundColor: '#101113' },
   };
 };

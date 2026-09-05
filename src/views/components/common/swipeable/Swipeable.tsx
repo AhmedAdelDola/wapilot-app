@@ -128,7 +128,7 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
   } = props;
 
   const { isDark } = useTheme();
-  const defaultBg = isDark ? '#0f172a' : '#ffffff';
+  const defaultBg = isDark ? '#101113' : '#ffffff';
   const hapticWarning = useHaptic('success');
   const hapticSelection = useHaptic();
 
@@ -136,7 +136,7 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
   const isGestureActive = useSharedValue(false);
 
   const maxTranslation = WIDTH * 0.6;
-  const tappedBgStyle = isDark ? '#1e293b' : ((tailwind.color('bg-gray-200') as string) || '#e5e7eb');
+  const tappedBgStyle = isDark ? '#1B1C20' : ((tailwind.color('bg-gray-200') as string) || '#EAEAEA');
   const maxSnapPointLeft = -maxTranslation;
   const maxSnapPointRight = maxTranslation;
 

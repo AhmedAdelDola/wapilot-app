@@ -8,7 +8,7 @@ type EmptyConversationsIconProps = {
 
 export const EmptyConversationsIcon = ({
   size = 64,
-  color = '#9CA3AF',
+  color = '#80838D',
 }: EmptyConversationsIconProps) => {
   return (
     <Svg width={size} height={size} viewBox="0 0 64 64" fill="none">

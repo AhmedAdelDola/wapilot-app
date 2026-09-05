@@ -112,7 +112,7 @@ const CallsScreen = () => {
 
           <View style={tailwind.style('flex-1 items-center justify-center px-8')}>
             <EmptyState
-              icon={<EmptyCallsIcon size={64} color="#9CA3AF" />}
+              icon={<EmptyCallsIcon size={64} color="#80838D" />}
               title="No calls"
               subtitle="Set up calls in Channel settings in Web"
             />

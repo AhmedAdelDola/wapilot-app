@@ -190,7 +190,7 @@ export const AudioBubblePlayer = React.memo((props: AudioPlayerProps) => {
       <Pressable disabled={isSoundLoading} hitSlop={10} onPress={togglePlayback}>
         {isSoundLoading ? (
           <Animated.View>
-            <Spinner size={16} stroke={isUser ? 'white' : '#111827'} />
+            <Spinner size={16} stroke={isUser ? 'white' : '#282E34'} />
           </Animated.View>
         ) : isCurrentAudioSrcPlaying ? (
           <Animated.View entering={FadeIn} exiting={FadeOut}>
@@ -198,7 +198,7 @@ export const AudioBubblePlayer = React.memo((props: AudioPlayerProps) => {
               icon={
                 <PauseIcon
                   fillOpacity={isUser ? '1' : '0.7'}
-                  fill={isUser ? 'white' : '#111827'}
+                  fill={isUser ? 'white' : '#282E34'}
                 />
               }
               size={16}
@@ -210,7 +210,7 @@ export const AudioBubblePlayer = React.memo((props: AudioPlayerProps) => {
               icon={
                 <PlayIcon
                   fillOpacity={isUser ? '1' : '0.7'}
-                  fill={isUser ? 'white' : '#111827'}
+                  fill={isUser ? 'white' : '#282E34'}
                 />
               }
               size={16}
@@ -289,7 +289,7 @@ export const AudioBubblePlayer = React.memo((props: AudioPlayerProps) => {
           style={tailwind.style(
             'w-8 h-8 rounded-full self-center items-center justify-center bg-gray-200',
           )}>
-          <Icon icon={<PlayIcon fill="#9ca3af" fillOpacity={1} />} size={12} />
+          <Icon icon={<PlayIcon fill="#80838D" fillOpacity={1} />} size={12} />
         </View>
       )}
     </View>

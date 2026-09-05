@@ -15,7 +15,7 @@ import i18n from 'i18n';
 
 const SearchScreen = () => {
   const { isDark } = useTheme();
-  const bgColor = isDark ? '#0f172a' : '#ffffff';
+  const bgColor = isDark ? '#101113' : '#ffffff';
   const {
     searchText,
     recentSearches,

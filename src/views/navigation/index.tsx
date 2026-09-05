@@ -22,11 +22,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { transformNotification } from '@/utils/camelCaseKeys';
 import { SsoUtils } from '@/utils/ssoUtils';
 import { useAppDispatch } from '@/hooks';
-import Inter40020 from '@/assets/fonts/Inter-400-20.ttf';
-import Inter42020 from '@/assets/fonts/Inter-420-20.ttf';
-import Inter50024 from '@/assets/fonts/Inter-500-24.ttf';
-import Inter58024 from '@/assets/fonts/Inter-580-24.ttf';
-import Inter60020 from '@/assets/fonts/Inter-600-20.ttf';
+import GontserratRegular from '@/assets/fonts/Gontserrat-Regular.ttf';
+import GontserratItalic from '@/assets/fonts/Gontserrat-Italic.ttf';
+import GontserratBold from '@/assets/fonts/Gontserrat-Bold.ttf';
+import GontserratBoldItalic from '@/assets/fonts/Gontserrat-BoldItalic.ttf';
 
 try {
   messaging().setBackgroundMessageHandler(async (remoteMessage: { messageId?: string; data?: Record<string, string> }) => {});
@@ -36,11 +35,10 @@ try {
 
 export const AppNavigationContainer = () => {
   const [fontsLoaded] = useFonts({
-    'Inter-400-20': Inter40020,
-    'Inter-420-20': Inter42020,
-    'Inter-500-24': Inter50024,
-    'Inter-580-24': Inter58024,
-    'Inter-600-20': Inter60020,
+    'Gontserrat-Regular': GontserratRegular,
+    'Gontserrat-Italic': GontserratItalic,
+    'Gontserrat-Bold': GontserratBold,
+    'Gontserrat-BoldItalic': GontserratBoldItalic,
   });
 
   const routeNameRef = useRef<string | undefined>(undefined);

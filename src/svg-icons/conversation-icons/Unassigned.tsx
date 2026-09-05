@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
 
-export const UnassignedIcon = ({ stroke = '#8D8D8D' }: { stroke?: string }) => {
+export const UnassignedIcon = ({ stroke = '#80838D' }: { stroke?: string }) => {
   return (
     <Svg width="22" height="23" viewBox="0 0 22 23" fill="none">
       <Path

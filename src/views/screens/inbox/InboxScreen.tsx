@@ -91,7 +91,7 @@ const conversationMatchesLifecycleStage = (conversation: Conversation, stage: Li
   );
 };
 
-const MenuIcon = ({ stroke = '#111827' }: { stroke?: string }) => (
+const MenuIcon = ({ stroke = '#282E34' }: { stroke?: string }) => (
   <Svg width="22" height="22" viewBox="0 0 24 24" fill="none">
     <Path
       d="M3 12h18M3 6h18M3 18h18"
@@ -386,7 +386,7 @@ const InboxScreen = () => {
           label: 'All Conversations',
           icon: (
             <View style={tailwind.style('w-6 h-6 rounded-full items-center justify-center', isDark ? 'bg-blue-900/40' : 'bg-blue-100')}>
-              <ChatIcon stroke={isDark ? '#60a5fa' : '#2563eb'} />
+              <ChatIcon stroke={isDark ? '#725AFF' : '#725AFF'} />
             </View>
           ),
           count: counts.all_count || allConversations.length,
@@ -396,7 +396,7 @@ const InboxScreen = () => {
           label: 'Assigned to Me',
           icon: (
             <View style={tailwind.style('w-6 h-6 rounded-full items-center justify-center', isDark ? 'bg-emerald-900/40' : 'bg-emerald-100')}>
-              <SelfAssign  stroke={isDark ? '#34d399' : '#086DE0'}  />
+              <SelfAssign  stroke={isDark ? '#2CA54A' : '#725AFF'}  />
             </View>
           ),
           count: counts.mine_count,
@@ -407,7 +407,7 @@ const InboxScreen = () => {
           icon: (
             <View style={tailwind.style('w-6 h-6 rounded-full items-center justify-center overflow-hidden', isDark ? 'bg-amber-900/40' : 'bg-amber-100')}>
               <View style={{ width: 18, height: 18 }}>
-                <UnassignedIcon stroke={isDark ? '#fbbf24' : '#8D8D8D'} />
+                <UnassignedIcon stroke={isDark ? '#FA8900' : '#80838D'} />
               </View>
             </View>
           ),
@@ -449,7 +449,7 @@ const InboxScreen = () => {
           <View
             style={[
               tailwind.style('w-3.5 h-3.5 rounded-full'),
-              { backgroundColor: label.color || '#3B82F6' },
+              { backgroundColor: label.color || '#725AFF' },
             ]}
           />
         ),
@@ -467,10 +467,10 @@ const InboxScreen = () => {
       items: (lifecycleStages.length > 0
         ? lifecycleStages
         : [
-            { id: 1, name: 'New Lead', color: '#10B981' },
-            { id: 2, name: 'Hot Lead', color: '#EF4444' },
-            { id: 3, name: 'Payment', color: '#3B82F6' },
-            { id: 4, name: 'Customer', color: '#F59E0B' },
+            { id: 1, name: 'New Lead', color: '#2CA54A' },
+            { id: 2, name: 'Hot Lead', color: '#FF382E' },
+            { id: 3, name: 'Payment', color: '#725AFF' },
+            { id: 4, name: 'Customer', color: '#FA8900' },
           ]
       ).map(stage => ({
         id: `stage_${stage.id}`,
@@ -479,7 +479,7 @@ const InboxScreen = () => {
           <View
             style={[
               tailwind.style('w-3.5 h-3.5 rounded-full'),
-              { backgroundColor: stage.color || '#10B981' },
+              { backgroundColor: stage.color || '#2CA54A' },
             ]}
           />
         ),
@@ -505,12 +505,12 @@ const InboxScreen = () => {
     if (shouldShowError) {
       return (
         <View style={tailwind.style('flex-1 items-center justify-center px-8')}>
-          <Text style={{ color: isDark ? '#f87171' : '#dc2626', fontSize: 14, fontWeight: '600', textAlign: 'center', marginBottom: 12 }}>
+          <Text style={{ color: isDark ? '#FF382E' : '#FF382E', fontSize: 14, fontWeight: '600', textAlign: 'center', marginBottom: 12 }}>
             {conversationLoadError || 'Failed to load conversations'}
           </Text>
           <Pressable
             onPress={handleRetryLoad}
-            style={{ paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8, backgroundColor: isDark ? '#2563eb' : '#111827' }}>
+            style={{ paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8, backgroundColor: isDark ? '#725AFF' : '#282E34' }}>
             <Text style={{ color: '#ffffff', fontSize: 14, fontWeight: '600' }}>Retry</Text>
           </Pressable>
         </View>
@@ -529,7 +529,7 @@ const InboxScreen = () => {
       return (
         <View style={tailwind.style('flex-1 items-center justify-center px-8')}>
           <EmptyState
-            icon={<EmptyConversationsIcon size={64} color="#D1D5DB" />}
+            icon={<EmptyConversationsIcon size={64} color="#EAEAEA" />}
             title="No conversations to show"
           />
         </View>
@@ -580,7 +580,7 @@ const InboxScreen = () => {
               <Pressable onPress={() => drawerRef.current?.openDrawer()} hitSlop={8}>
                 <MenuIcon />
               </Pressable>
-              <Text style={{ fontSize: 20, fontWeight: '600', color: isDark ? '#f8fafc' : '#111827' }} numberOfLines={1}>
+              <Text style={{ fontSize: 20, fontWeight: '600', color: isDark ? '#EDEEF0' : '#282E34' }} numberOfLines={1}>
                 {getSelectedTitle()}
               </Text>
             </View>
@@ -588,12 +588,12 @@ const InboxScreen = () => {
               <Pressable
                 onPress={() => navigation.dispatch(StackActions.push('SearchScreen'))}
                 hitSlop={8}>
-                <SearchIcon stroke={isDark ? '#f8fafc' : '#111827'} />
+                <SearchIcon stroke={isDark ? '#EDEEF0' : '#282E34'} />
               </Pressable>
               <Pressable
                 onPress={() => setShowAddContact(true)}
                 hitSlop={8}>
-                <Icon icon={<UserCircleIcon color={isDark ? '#f8fafc' : '#111827'} />} size={22} />
+                <Icon icon={<UserCircleIcon color={isDark ? '#EDEEF0' : '#282E34'} />} size={22} />
               </Pressable>
             </View>
           </View>

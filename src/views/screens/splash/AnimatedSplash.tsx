@@ -5,10 +5,10 @@ import * as SplashScreen from 'expo-splash-screen';
 const { width } = Dimensions.get('window');
 
 const ICONS = [
-  require('@/assets/images/splash-icon-1.png'),
-  require('@/assets/images/splash-icon-2.png'),
-  require('@/assets/images/splash-icon-3.png'),
-  require('@/assets/images/splash-icon-4.png'),
+  require('@/assets/images/brand/solid.png'),
+  require('@/assets/images/brand/graded.png'),
+  require('@/assets/images/brand/condensed-white.png'),
+  require('@/assets/images/brand/condensed-black.png'),
 ];
 
 type AnimatedSplashProps = {
@@ -58,7 +58,7 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
   }, []);
 
   return (
-    <View style={[styles.container, { backgroundColor: isDark ? '#0f172a' : '#ffffff' }]}>
+    <View style={[styles.container, { backgroundColor: isDark ? '#101113' : '#ffffff' }]}>
       <StatusBar translucent backgroundColor="transparent" barStyle={isDark ? 'light-content' : 'dark-content'} />
       <View style={styles.content}>
         <Animated.View style={{ opacity: fadeAnim }}>

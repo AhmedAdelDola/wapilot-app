@@ -29,19 +29,19 @@ export const ChatQuoteBar = ({
         paddingTop: 8,
         paddingBottom: 4,
         borderBottomWidth: 1,
-        borderBottomColor: isDark ? '#334155' : '#e5e7eb',
-        backgroundColor: isDark ? '#1e293b' : '#f8fafc',
+        borderBottomColor: isDark ? '#24262B' : '#EAEAEA',
+        backgroundColor: isDark ? '#1B1C20' : '#EDEEF0',
       }}>
-      <Pressable onPress={onPress} style={{ flex: 1, borderLeftWidth: 3, borderLeftColor: '#3b82f6', paddingLeft: 10 }}>
-        <Text style={{ fontSize: 11, fontWeight: '700', color: isDark ? '#60a5fa' : '#2563eb' }}>
+      <Pressable onPress={onPress} style={{ flex: 1, borderLeftWidth: 3, borderLeftColor: '#725AFF', paddingLeft: 10 }}>
+        <Text style={{ fontSize: 11, fontWeight: '700', color: isDark ? '#725AFF' : '#725AFF' }}>
           {isArabic ? 'رد على' : 'Replying to'} {quoteMessage.sender?.name || ''}
         </Text>
-        <Text numberOfLines={1} style={{ fontSize: 13, color: isDark ? '#cbd5e1' : '#64748b', marginTop: 2 }}>
+        <Text numberOfLines={1} style={{ fontSize: 13, color: isDark ? '#B0B4BA' : '#80838D', marginTop: 2 }}>
           {preview}
         </Text>
       </Pressable>
       <Pressable onPress={onClose} hitSlop={12} style={{ padding: 8 }}>
-        <Text style={{ fontSize: 18, color: isDark ? '#94a3b8' : '#6b7280' }}>×</Text>
+        <Text style={{ fontSize: 18, color: isDark ? '#94a3b8' : '#626F7F' }}>×</Text>
       </Pressable>
     </View>
   );

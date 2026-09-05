@@ -70,7 +70,7 @@ const UpdateNotificationsScreen = () => {
           disabled={isSaving}
           hitSlop={16}>
           {isSaving ? (
-            <ActivityIndicator size="small" color="#6B7280" />
+            <ActivityIndicator size="small" color="#626F7F" />
           ) : (
             <Text style={tailwind.style('text-[16px] font-inter-normal-20 text-gray-950')}>
               Save

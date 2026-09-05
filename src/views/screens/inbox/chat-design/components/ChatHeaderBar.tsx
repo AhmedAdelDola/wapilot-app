@@ -2,7 +2,7 @@ import React from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-const ArrowLeft = ({ color = '#111827' }: { color?: string }) => (
+const ArrowLeft = ({ color = '#282E34' }: { color?: string }) => (
   <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
     <Path d="M19 12H5M12 19l-7-7 7-7" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
@@ -83,15 +83,15 @@ export const ChatHeaderBar = ({
   onStartCall,
   onOpenFileViewer,
 }: ChatHeaderBarProps) => {
-  const textPrimary = isDark ? '#f8fafc' : '#111827';
-  const textSecondary = isDark ? '#94a3b8' : '#374151';
-  const borderColor = isDark ? '#1e293b' : '#f3f4f6';
+  const textPrimary = isDark ? '#EDEEF0' : '#282E34';
+  const textSecondary = isDark ? '#94a3b8' : '#626F7F';
+  const borderColor = isDark ? '#1B1C20' : '#F0F0F3';
 
   const isResolved = conversation?.status === 'resolved';
   const isSnoozed = conversation?.status === 'snoozed';
 
   return (
-    <View style={{ backgroundColor: isDark ? '#0f172a' : '#ffffff' }}>
+    <View style={{ backgroundColor: isDark ? '#101113' : '#ffffff' }}>
       {/* Top Header Row */}
       <View
         style={{
@@ -126,7 +126,7 @@ export const ChatHeaderBar = ({
                   width: 38,
                   height: 38,
                   borderRadius: 999,
-                  backgroundColor: '#d97706',
+                  backgroundColor: '#FA8900',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
@@ -148,8 +148,8 @@ export const ChatHeaderBar = ({
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
           {onStartCall && (
             <Pressable onPress={onStartCall} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 2, padding: 6 }}>
-              <PhoneIcon color={isDark ? '#94a3b8' : '#6b7280'} />
-              <ChevronDown color={isDark ? '#94a3b8' : '#6b7280'} />
+              <PhoneIcon color={isDark ? '#94a3b8' : '#626F7F'} />
+              <ChevronDown color={isDark ? '#94a3b8' : '#626F7F'} />
             </Pressable>
           )}
 
@@ -159,15 +159,15 @@ export const ChatHeaderBar = ({
             style={{
               padding: 6,
               backgroundColor: isResolved
-                ? (isDark ? '#064e3b' : '#dcfce7')
-                : (isDark ? '#334155' : '#f3f4f6'),
+                ? (isDark ? '#1B1C20' : 'rgba(44,165,74,0.15)')
+                : (isDark ? '#24262B' : '#F0F0F3'),
               borderRadius: 999,
             }}>
-            <ResolveIcon color={isResolved ? '#22c55e' : (isDark ? '#94a3b8' : '#6b7280')} />
+            <ResolveIcon color={isResolved ? '#2CA54A' : (isDark ? '#94a3b8' : '#626F7F')} />
           </Pressable>
 
           <Pressable hitSlop={8} style={{ padding: 6 }} onPress={onOpenMenuSheet}>
-            <MoreIcon color={isDark ? '#94a3b8' : '#6b7280'} />
+            <MoreIcon color={isDark ? '#94a3b8' : '#626F7F'} />
           </Pressable>
         </View>
       </View>
@@ -198,7 +198,7 @@ export const ChatHeaderBar = ({
                 width: 22,
                 height: 22,
                 borderRadius: 999,
-                backgroundColor: '#14b8a6',
+                backgroundColor: '#725AFF',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
@@ -212,7 +212,7 @@ export const ChatHeaderBar = ({
           <Text style={{ fontSize: 13.5, color: textSecondary, fontWeight: '500' }}>
             {conversation?.meta?.assignee?.name || 'Unassigned'}
           </Text>
-          <ChevronDown color={isDark ? '#94a3b8' : '#6b7280'} />
+          <ChevronDown color={isDark ? '#94a3b8' : '#626F7F'} />
         </Pressable>
 
         {/* Stage Badge */}
@@ -222,8 +222,8 @@ export const ChatHeaderBar = ({
             alignItems: 'center',
             gap: 6,
             borderWidth: 1,
-            borderColor: isDark ? '#334155' : '#d1d5db',
-            backgroundColor: isDark ? '#1e293b' : '#ffffff',
+            borderColor: isDark ? '#24262B' : '#EAEAEA',
+            backgroundColor: isDark ? '#1B1C20' : '#ffffff',
             borderRadius: 8,
             paddingHorizontal: 9,
             paddingVertical: 5,
@@ -238,7 +238,7 @@ export const ChatHeaderBar = ({
             style={{ fontSize: 13, fontWeight: '500', color: textPrimary, flexShrink: 1 }}>
             {stage}
           </Text>
-          <ChevronDown color={isDark ? '#94a3b8' : '#6b7280'} />
+          <ChevronDown color={isDark ? '#94a3b8' : '#626F7F'} />
         </Pressable>
 
         {/* Snooze Button */}
@@ -250,10 +250,10 @@ export const ChatHeaderBar = ({
             borderRadius: 8,
             backgroundColor: isSnoozed ? (isDark ? '#1e3a8a' : '#dbeafe') : 'transparent',
             borderWidth: isSnoozed ? 1 : 0,
-            borderColor: isSnoozed ? (isDark ? '#2563eb' : '#93c5fd') : 'transparent',
+            borderColor: isSnoozed ? (isDark ? '#725AFF' : '#725AFF') : 'transparent',
           }}
           onPress={onOpenSnoozeSheet}>
-          <SnoozeIcon color={isSnoozed ? '#2563eb' : (isDark ? '#94a3b8' : '#6b7280')} />
+          <SnoozeIcon color={isSnoozed ? '#725AFF' : (isDark ? '#94a3b8' : '#626F7F')} />
         </Pressable>
       </View>
     </View>

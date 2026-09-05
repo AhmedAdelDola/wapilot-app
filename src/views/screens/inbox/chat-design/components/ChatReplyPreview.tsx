@@ -25,7 +25,7 @@ export const ChatReplyPreview = ({
       onPress={onPress}
       style={{
         borderLeftWidth: 3,
-        borderLeftColor: isOutgoing ? 'rgba(255,255,255,0.55)' : '#3b82f6',
+        borderLeftColor: isOutgoing ? 'rgba(255,255,255,0.55)' : '#725AFF',
         paddingLeft: 8,
         marginBottom: 6,
         opacity: 0.95,
@@ -34,7 +34,7 @@ export const ChatReplyPreview = ({
         style={{
           fontSize: 11,
           fontWeight: '700',
-          color: isOutgoing ? 'rgba(255,255,255,0.9)' : isDark ? '#60a5fa' : '#2563eb',
+          color: isOutgoing ? 'rgba(255,255,255,0.9)' : isDark ? '#725AFF' : '#725AFF',
           marginBottom: 2,
         }}>
         {senderName}
@@ -44,7 +44,7 @@ export const ChatReplyPreview = ({
           numberOfLines={2}
           style={{
             fontSize: 12,
-            color: isOutgoing ? 'rgba(255,255,255,0.8)' : isDark ? '#cbd5e1' : '#64748b',
+            color: isOutgoing ? 'rgba(255,255,255,0.8)' : isDark ? '#B0B4BA' : '#80838D',
           }}>
           {previewText}
         </Text>
@@ -52,7 +52,7 @@ export const ChatReplyPreview = ({
         <Text
           style={{
             fontSize: 12,
-            color: isOutgoing ? 'rgba(255,255,255,0.8)' : isDark ? '#cbd5e1' : '#64748b',
+            color: isOutgoing ? 'rgba(255,255,255,0.8)' : isDark ? '#B0B4BA' : '#80838D',
           }}>
           {attachment.fileType || 'Attachment'}
         </Text>

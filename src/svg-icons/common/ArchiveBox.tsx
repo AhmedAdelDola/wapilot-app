@@ -6,7 +6,7 @@ type ArchiveBoxIconProps = {
   color?: string;
 };
 
-export const ArchiveBoxIcon = ({ size = 64, color = '#6B7280' }: ArchiveBoxIconProps) => {
+export const ArchiveBoxIcon = ({ size = 64, color = '#626F7F' }: ArchiveBoxIconProps) => {
   return (
     <Svg width={size} height={size} viewBox="0 0 64 64" fill="none">
       <Path

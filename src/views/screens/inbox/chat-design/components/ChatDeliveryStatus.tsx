@@ -43,7 +43,7 @@ export const ChatDeliveryStatus = ({
 
   const tickColor = isDark ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.85)';
   const doubleTickColor =
-    status === MESSAGE_STATUS.READ ? '#93c5fd' : tickColor;
+    status === MESSAGE_STATUS.READ ? '#725AFF' : tickColor;
 
   if (status === MESSAGE_STATUS.DELIVERED || status === MESSAGE_STATUS.READ) {
     return (

@@ -75,7 +75,7 @@ const InboxList = () => {
           'flex-1 items-center justify-center pt-8',
           `pb-[${TAB_BAR_HEIGHT}px]`,
         )}>
-        <ActivityIndicator size="small" color={isDark ? '#38bdf8' : '#2563eb'} />
+        <ActivityIndicator size="small" color={isDark ? '#725AFF' : '#725AFF'} />
       </Animated.View>
     );
   });
@@ -164,7 +164,7 @@ const InboxList = () => {
   return shouldShowEmptyLoader ? (
     <Animated.View
       style={tailwind.style('flex-1 items-center justify-center', `pb-[${TAB_BAR_HEIGHT}px]`)}>
-      <ActivityIndicator color={isDark ? '#38bdf8' : '#2563eb'} />
+      <ActivityIndicator color={isDark ? '#725AFF' : '#725AFF'} />
     </Animated.View>
   ) : notifications.length === 0 ? (
     <Animated.ScrollView
@@ -179,7 +179,7 @@ const InboxList = () => {
         onSelect={handleFilterSelect}
       />
       <EmptyState
-        icon={<InboxEmptyIcon size={64} color={isDark ? '#64748b' : '#9ca3af'} />}
+        icon={<InboxEmptyIcon size={64} color={isDark ? '#80838D' : '#80838D'} />}
         title={emptyMsg.title}
         subtitle={emptyMsg.subtitle}
       />
@@ -210,8 +210,8 @@ const InboxList = () => {
 
 const NotificationsScreen = () => {
   const { isDark } = useTheme();
-  const bgColor = isDark ? '#0f172a' : '#ffffff';
-  const textPrimary = isDark ? '#f8fafc' : '#030712';
+  const bgColor = isDark ? '#101113' : '#ffffff';
+  const textPrimary = isDark ? '#EDEEF0' : '#282E34';
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: bgColor }}>

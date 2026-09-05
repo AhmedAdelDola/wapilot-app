@@ -155,7 +155,7 @@ const LoginScreen = () => {
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
               <Image
                 // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
-                source={isDark ? require('@/assets/images/logo-dark.png') : require('@/assets/images/logo-light.png')}
+                source={isDark ? require('@/assets/images/brand/condensed-white.png') : require('@/assets/images/brand/condensed-black.png')}
                 style={{ width: 140, height: 40 }}
                 resizeMode="contain"
               />
@@ -289,7 +289,7 @@ const LoginScreen = () => {
       <BottomSheetModal
         ref={languagesModalSheetRef}
         backdropComponent={BottomSheetBackdrop}
-        handleIndicatorStyle={{ backgroundColor: isDark ? '#4B5563' : 'rgba(0,0,0,0.3)', width: 32, height: 4, borderRadius: 11 }}
+        handleIndicatorStyle={{ backgroundColor: isDark ? '#626F7F' : 'rgba(0,0,0,0.3)', width: 32, height: 4, borderRadius: 11 }}
         detached
         enablePanDownToClose
         animationConfigs={animationConfigs}

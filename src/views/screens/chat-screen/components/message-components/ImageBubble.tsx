@@ -14,7 +14,7 @@ export const ImageBubbleContainer = (props: ImageContainerProps) => {
       resizeMode="contain"
       modalImageResizeMode="contain"
       overlayBackgroundColor="#000000"
-      imageBackgroundColor="#F3F4F6"
+      imageBackgroundColor="#F0F0F3"
       isTranslucent
       style={[tailwind.style('bg-gray-100 overflow-hidden'), imageStyle]}
     />

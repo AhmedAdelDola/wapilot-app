@@ -6,7 +6,7 @@ type InboxEmptyIconProps = {
   color?: string;
 };
 
-export const InboxEmptyIcon = ({ size = 64, color = '#374151' }: InboxEmptyIconProps) => {
+export const InboxEmptyIcon = ({ size = 64, color = '#626F7F' }: InboxEmptyIconProps) => {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Polyline

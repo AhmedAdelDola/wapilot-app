@@ -71,7 +71,7 @@ const ChangeWorkspaceScreen = () => {
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholder="Search"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor="#80838D"
           />
         </View>
 

@@ -52,7 +52,7 @@ const ReportBugScreen = () => {
           disabled={!canSend || isSending}
           hitSlop={16}>
           {isSending ? (
-            <ActivityIndicator size="small" color="#6B7280" />
+            <ActivityIndicator size="small" color="#626F7F" />
           ) : (
             <Text
               style={tailwind.style(
@@ -107,7 +107,7 @@ const ReportBugScreen = () => {
           value={bugSummary}
           onChangeText={setBugSummary}
           placeholder="Please be as detailed as possible. What did you expect and what happened instead?"
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor="#80838D"
           multiline
           textAlignVertical="top"
         />

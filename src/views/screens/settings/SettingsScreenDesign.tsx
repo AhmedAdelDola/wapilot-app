@@ -38,7 +38,7 @@ import { profileService } from '@/models/services/profileService';
 import { showToast } from '@/utils/toastUtils';
 
 // ---------- Icons ----------
-const ChevronRight = ({ color = '#9ca3af' }: { color?: string }) => (
+const ChevronRight = ({ color = '#80838D' }: { color?: string }) => (
   <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
     <Path d="M9 6l6 6-6 6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
@@ -92,7 +92,7 @@ const ChatIcon = ({ color = '#94a3b8' }: { color?: string }) => (
 
 const LogoutIcon = () => (
   <Svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <Path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke="#ef4444" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke="#FF382E" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
 );
 
@@ -104,7 +104,7 @@ const Toggle = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => (
       width: 48,
       height: 24,
       borderRadius: 999,
-      backgroundColor: on ? '#3b82f6' : '#d1d5db',
+      backgroundColor: on ? '#725AFF' : '#EAEAEA',
       justifyContent: 'center',
       paddingHorizontal: 2,
     }}>
@@ -128,7 +128,7 @@ const rowCls = {
   paddingVertical: 16,
   paddingHorizontal: 16,
   borderBottomWidth: 1,
-  borderBottomColor: '#f3f4f6',
+  borderBottomColor: '#F0F0F3',
 };
 
 // ---------- Settings Screen (reference-exact with full API integration) ----------
@@ -142,11 +142,11 @@ const SettingsScreenDesign = () => {
   const { isDark, themeSetting } = useTheme();
 
   // Dynamic theme colors
-  const bgColor = isDark ? '#0f172a' : '#ffffff';
-  const textPrimary = isDark ? '#f8fafc' : '#111827';
-  const textSecondary = isDark ? '#94a3b8' : '#6b7280';
-  const borderColor = isDark ? '#1e293b' : '#f3f4f6';
-  const iconBg = isDark ? '#1e293b' : '#f3f4f6';
+  const bgColor = isDark ? '#101113' : '#ffffff';
+  const textPrimary = isDark ? '#EDEEF0' : '#282E34';
+  const textSecondary = isDark ? '#94a3b8' : '#626F7F';
+  const borderColor = isDark ? '#1B1C20' : '#F0F0F3';
+  const iconBg = isDark ? '#1B1C20' : '#F0F0F3';
 
   const dynamicRowCls = {
     flexDirection: 'row' as const,
@@ -316,7 +316,7 @@ const SettingsScreenDesign = () => {
         <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={{ paddingBottom: 32 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2563eb" />}>
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#725AFF" />}>
           {/* Profile */}
           <Pressable style={dynamicRowCls} onPress={() => navigation.navigate('ProfileScreen')}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -327,7 +327,7 @@ const SettingsScreenDesign = () => {
                   height: 52,
                   borderRadius: 999,
                   borderWidth: 2,
-                  borderColor: isOnline ? '#22c55e' : '#f59e0b',
+                  borderColor: isOnline ? '#2CA54A' : '#FA8900',
                   padding: 2,
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -340,7 +340,7 @@ const SettingsScreenDesign = () => {
                       width: 44,
                       height: 44,
                       borderRadius: 999,
-                      backgroundColor: '#14b8a6',
+                      backgroundColor: '#725AFF',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}>
@@ -356,9 +356,9 @@ const SettingsScreenDesign = () => {
                     width: 15,
                     height: 15,
                     borderRadius: 999,
-                    backgroundColor: isOnline ? '#22c55e' : '#f59e0b',
+                    backgroundColor: isOnline ? '#2CA54A' : '#FA8900',
                     borderWidth: 2.5,
-                    borderColor: isDark ? '#0f172a' : 'white',
+                    borderColor: isDark ? '#101113' : 'white',
                   }}
                 />
               </View>
@@ -375,7 +375,7 @@ const SettingsScreenDesign = () => {
             <Text
               style={{
                 fontSize: 12,
-                color: isDark ? '#64748b' : '#9ca3af',
+                color: isDark ? '#80838D' : '#80838D',
                 fontWeight: '600',
                 textTransform: 'uppercase',
                 letterSpacing: 1,
@@ -394,13 +394,13 @@ const SettingsScreenDesign = () => {
                 </View>
                 <Text style={{ color: textPrimary, fontSize: 15, fontWeight: '500' }}>
                   {`Set yourself as `}
-                  <Text style={{ fontWeight: '700', color: isOnline ? '#d97706' : '#059669' }}>
+                  <Text style={{ fontWeight: '700', color: isOnline ? '#FA8900' : '#059669' }}>
                     {targetStatusText}
                   </Text>
                 </Text>
               </View>
               {updatingAvailability && (
-                <ActivityIndicator size="small" color={isOnline ? '#d97706' : '#059669'} />
+                <ActivityIndicator size="small" color={isOnline ? '#FA8900' : '#059669'} />
               )}
             </Pressable>
           </View>
@@ -410,7 +410,7 @@ const SettingsScreenDesign = () => {
             <Text
               style={{
                 fontSize: 12,
-                color: isDark ? '#64748b' : '#9ca3af',
+                color: isDark ? '#80838D' : '#80838D',
                 fontWeight: '600',
                 textTransform: 'uppercase',
                 letterSpacing: 1,
@@ -457,7 +457,7 @@ const SettingsScreenDesign = () => {
             <Text
               style={{
                 fontSize: 12,
-                color: isDark ? '#64748b' : '#9ca3af',
+                color: isDark ? '#80838D' : '#80838D',
                 fontWeight: '600',
                 textTransform: 'uppercase',
                 letterSpacing: 1,
@@ -497,7 +497,7 @@ const SettingsScreenDesign = () => {
             <Text
               style={{
                 fontSize: 12,
-                color: isDark ? '#64748b' : '#9ca3af',
+                color: isDark ? '#80838D' : '#80838D',
                 fontWeight: '600',
                 textTransform: 'uppercase',
                 letterSpacing: 1,
@@ -526,7 +526,7 @@ const SettingsScreenDesign = () => {
                 <View style={dynamicIconBox}>
                   <LogoutIcon />
                 </View>
-                <Text style={{ color: '#ef4444', fontWeight: '500', flex: 1 }}>Log out</Text>
+                <Text style={{ color: '#FF382E', fontWeight: '500', flex: 1 }}>Log out</Text>
               </View>
               <ChevronRight />
             </Pressable>
@@ -534,7 +534,7 @@ const SettingsScreenDesign = () => {
 
           {/* Footer App Version */}
           <View style={{ alignItems: 'center', paddingTop: 28, paddingBottom: 16 }}>
-            <Text style={{ fontSize: 13, color: isDark ? '#64748b' : '#9ca3af' }}>{appVersionDetails}</Text>
+            <Text style={{ fontSize: 13, color: isDark ? '#80838D' : '#80838D' }}>{appVersionDetails}</Text>
           </View>
         </ScrollView>
 
@@ -547,9 +547,9 @@ const SettingsScreenDesign = () => {
 // ---------- Get Support Sheet (reference-exact with WhatsApp integration) ----------
 const GetSupportSheetLocal = ({ onClose }: { onClose: () => void }) => {
   const { isDark } = useTheme();
-  const bgColor = isDark ? '#1e293b' : 'white';
-  const textPrimary = isDark ? '#f8fafc' : '#111827';
-  const textSecondary = isDark ? '#94a3b8' : '#6b7280';
+  const bgColor = isDark ? '#1B1C20' : 'white';
+  const textPrimary = isDark ? '#EDEEF0' : '#282E34';
+  const textSecondary = isDark ? '#94a3b8' : '#626F7F';
   const handleOpenWhatsApp = () => {
     Linking.openURL('https://wa.me/201026047788').catch(() => {
       Alert.alert('Error', 'Could not open WhatsApp');
@@ -575,7 +575,7 @@ const GetSupportSheetLocal = ({ onClose }: { onClose: () => void }) => {
           style={{
             width: 40,
             height: 4,
-            backgroundColor: isDark ? '#475569' : '#d1d5db',
+            backgroundColor: isDark ? '#31343A' : '#EAEAEA',
             borderRadius: 999,
             alignSelf: 'center',
             marginTop: 12,

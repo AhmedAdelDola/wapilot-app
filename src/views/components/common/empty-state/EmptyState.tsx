@@ -24,8 +24,8 @@ export const EmptyState = ({ icon, title, subtitle }: EmptyStateProps) => {
       <Text
         style={{
           fontSize: 18,
-          fontFamily: 'Inter-500-24',
-          color: isDark ? '#f8fafc' : '#030712',
+          fontFamily: 'Gontserrat-Bold',
+          color: isDark ? '#EDEEF0' : '#282E34',
           textAlign: 'center',
           marginBottom: 8,
           fontWeight: '600',
@@ -36,8 +36,8 @@ export const EmptyState = ({ icon, title, subtitle }: EmptyStateProps) => {
         <Text
           style={{
             fontSize: 14,
-            fontFamily: 'Inter-400-20',
-            color: isDark ? '#94a3b8' : '#4b5563',
+            fontFamily: 'Gontserrat-Regular',
+            color: isDark ? '#94a3b8' : '#626F7F',
             textAlign: 'center',
             lineHeight: 20,
           }}>

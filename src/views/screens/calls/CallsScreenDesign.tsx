@@ -35,7 +35,7 @@ const HamburgerIcon = ({ color = 'currentColor' }: { color?: string }) => (
   </Svg>
 );
 
-const SearchIcon = ({ color = '#9ca3af' }: { color?: string }) => (
+const SearchIcon = ({ color = '#80838D' }: { color?: string }) => (
   <Svg width="20" height="20" viewBox="0 0 24 24" fill="none">
     <Circle cx="11" cy="11" r="8" stroke={color} strokeWidth="2" />
     <Path d="m21 21-4.35-4.35" stroke={color} strokeWidth="2" strokeLinecap="round" />
@@ -55,11 +55,11 @@ const UserCircleIcon = ({ color = 'currentColor' }: { color?: string }) => (
     <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth="1.8" />
     <Circle cx="12" cy="9" r="3" stroke={color} strokeWidth="1.8" />
     <Path d="M5.5 20c0-3 3-5 6.5-5s6.5 2 6.5 5" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
-    <Circle cx="18" cy="5" r="4" fill="#22c55e" />
+    <Circle cx="18" cy="5" r="4" fill="#2CA54A" />
   </Svg>
 );
 
-const PhoneMissedIcon = ({ color = '#9ca3af' }: { color?: string }) => (
+const PhoneMissedIcon = ({ color = '#80838D' }: { color?: string }) => (
   <Svg width="52" height="52" viewBox="0 0 24 24" fill="none">
     <Path d="M6.62 10.79a15.053 15.053 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02L6.62 10.79z" stroke={color} strokeWidth="1.5" />
     <Path d="M17 3l-4 4m4 0l-4-4" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
@@ -90,11 +90,11 @@ const AllInboxIcon = ({ active }: { active: boolean }) => (
   <Svg width="20" height="20" viewBox="0 0 24 24" fill="none">
     <Path
       d="M4 4h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"
-      stroke={active ? '#3b82f6' : 'currentColor'}
+      stroke={active ? '#725AFF' : 'currentColor'}
       strokeWidth="1.8"
       fill={active ? '#dbeafe' : 'none'}
     />
-    <Path d="M3 12h4l2 3h6l2-3h4" stroke={active ? '#3b82f6' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round" />
+    <Path d="M3 12h4l2 3h6l2-3h4" stroke={active ? '#725AFF' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round" />
   </Svg>
 );
 
@@ -189,18 +189,18 @@ const FilterChip = ({ label, active, onPress }: { label: string; active: boolean
         paddingVertical: 6,
         borderRadius: 999,
         backgroundColor: active
-          ? (isDark ? '#3b82f6' : '#111827')
-          : (isDark ? '#1e293b' : '#f3f4f6'),
+          ? (isDark ? '#725AFF' : '#282E34')
+          : (isDark ? '#1B1C20' : '#F0F0F3'),
         borderWidth: 1,
         borderColor: active
-          ? (isDark ? '#3b82f6' : '#111827')
-          : (isDark ? '#334155' : '#e5e7eb'),
+          ? (isDark ? '#725AFF' : '#282E34')
+          : (isDark ? '#24262B' : '#EAEAEA'),
       }}>
       <Text
         style={{
           fontSize: 14,
           fontWeight: '600',
-          color: active ? '#ffffff' : (isDark ? '#cbd5e1' : '#374151'),
+          color: active ? '#ffffff' : (isDark ? '#B0B4BA' : '#626F7F'),
         }}>
         {label}
       </Text>
@@ -325,12 +325,12 @@ const InboxDrawer = ({
   });
 
   const { isDark } = useTheme();
-  const bgColor = isDark ? '#0f172a' : '#ffffff';
-  const textPrimary = isDark ? '#f8fafc' : '#111827';
-  const textSecondary = isDark ? '#94a3b8' : '#374151';
-  const dividerColor = isDark ? '#1e293b' : '#f3f4f6';
-  const activeItemBg = isDark ? '#1e293b' : '#eff6ff';
-  const activeItemText = isDark ? '#60a5fa' : '#2563eb';
+  const bgColor = isDark ? '#101113' : '#ffffff';
+  const textPrimary = isDark ? '#EDEEF0' : '#282E34';
+  const textSecondary = isDark ? '#94a3b8' : '#626F7F';
+  const dividerColor = isDark ? '#1B1C20' : '#F0F0F3';
+  const activeItemBg = isDark ? '#1B1C20' : 'rgba(114,90,255,0.10)';
+  const activeItemText = isDark ? '#725AFF' : '#725AFF';
 
   return (
     <View style={{ flex: 1, backgroundColor: bgColor }}>
@@ -338,10 +338,10 @@ const InboxDrawer = ({
         <Text style={{ fontSize: 24, fontWeight: '700', color: textPrimary }}>Calls Inbox</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <Pressable hitSlop={8}>
-            <UserCircleIcon color={isDark ? '#94a3b8' : '#374151'} />
+            <UserCircleIcon color={isDark ? '#94a3b8' : '#626F7F'} />
           </Pressable>
           <Pressable hitSlop={8}>
-            <FilterIcon color={isDark ? '#94a3b8' : '#374151'} />
+            <FilterIcon color={isDark ? '#94a3b8' : '#626F7F'} />
           </Pressable>
         </View>
       </View>
@@ -370,7 +370,7 @@ const InboxDrawer = ({
                 {icon}
                 <Text style={{ fontWeight: '500', color: isActive ? activeItemText : textSecondary }}>{label}</Text>
               </View>
-              <Text style={{ fontSize: 14, color: isActive ? activeItemText : '#9ca3af' }}>{count}</Text>
+              <Text style={{ fontSize: 14, color: isActive ? activeItemText : '#80838D' }}>{count}</Text>
             </Pressable>
           );
         })}
@@ -379,10 +379,10 @@ const InboxDrawer = ({
 
         <Pressable onPress={() => setLifecycleOpen(!lifecycleOpen)} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <LifecycleIcon color={isDark ? '#94a3b8' : '#374151'} />
+            <LifecycleIcon color={isDark ? '#94a3b8' : '#626F7F'} />
             <Text style={{ fontWeight: '600', color: textPrimary }}>Lifecycle Stages</Text>
           </View>
-          <ChevronDown color={isDark ? '#94a3b8' : '#374151'} />
+          <ChevronDown color={isDark ? '#94a3b8' : '#626F7F'} />
         </Pressable>
         {lifecycleOpen &&
           lifecycle.map(({ key, label, emoji, count }) => (
@@ -391,7 +391,7 @@ const InboxDrawer = ({
                 <Text style={{ fontSize: 18, width: 24, textAlign: 'center' }}>{emoji}</Text>
                 <Text style={{ color: textSecondary, fontSize: 14, fontWeight: '500', flexShrink: 1 }} numberOfLines={1}>{label}</Text>
               </View>
-              <Text style={{ fontSize: 14, color: '#9ca3af' }}>{count}</Text>
+              <Text style={{ fontSize: 14, color: '#80838D' }}>{count}</Text>
             </Pressable>
           ))}
 
@@ -399,10 +399,10 @@ const InboxDrawer = ({
 
         <Pressable onPress={() => setCustoOpen(!custoOpen)} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <CustoIcon color={isDark ? '#94a3b8' : '#374151'} />
+            <CustoIcon color={isDark ? '#94a3b8' : '#626F7F'} />
             <Text style={{ fontWeight: '600', color: textPrimary }}>Inboxes</Text>
           </View>
-          <ChevronDown color={isDark ? '#94a3b8' : '#374151'} />
+          <ChevronDown color={isDark ? '#94a3b8' : '#626F7F'} />
         </Pressable>
         {custoOpen && (
           inboxes.length > 0 ? (
@@ -411,12 +411,12 @@ const InboxDrawer = ({
               return (
                 <Pressable key={String(inb.id)} onPress={() => { onSelect(`inbox_${inb.id}`, inb.name); onClose(); }} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
                   <Text style={{ color: textSecondary, fontSize: 14, fontWeight: '500' }}>{inb.name}</Text>
-                  <Text style={{ fontSize: 14, color: '#6b7280' }}>{inbCount}</Text>
+                  <Text style={{ fontSize: 14, color: '#626F7F' }}>{inbCount}</Text>
                 </Pressable>
               );
             })
           ) : (
-            <Text style={{ paddingHorizontal: 16, paddingVertical: 8, color: '#9ca3af', fontSize: 14 }}>No inboxes</Text>
+            <Text style={{ paddingHorizontal: 16, paddingVertical: 8, color: '#80838D', fontSize: 14 }}>No inboxes</Text>
           )
         )}
       </ScrollView>
@@ -493,11 +493,11 @@ const CallsScreenDesign = () => {
   }, [conversations, searchQuery]);
 
   const { isDark } = useTheme();
-  const bgColor = isDark ? '#0f172a' : '#ffffff';
-  const textPrimary = isDark ? '#f8fafc' : '#111827';
-  const textSecondary = isDark ? '#94a3b8' : '#6b7280';
-  const borderColor = isDark ? '#1e293b' : '#f3f4f6';
-  const inputBg = isDark ? '#1e293b' : '#f3f4f6';
+  const bgColor = isDark ? '#101113' : '#ffffff';
+  const textPrimary = isDark ? '#EDEEF0' : '#282E34';
+  const textSecondary = isDark ? '#94a3b8' : '#626F7F';
+  const borderColor = isDark ? '#1B1C20' : '#F0F0F3';
+  const inputBg = isDark ? '#1B1C20' : '#F0F0F3';
 
   if (showAddContact) {
     return <AddContactScreen onBack={() => setShowAddContact(false)} />;
@@ -515,7 +515,7 @@ const CallsScreenDesign = () => {
               value={searchQuery}
               onChangeText={setSearchQuery}
               placeholder="Search for Contacts"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#80838D"
               style={{ flex: 1, color: textPrimary, fontSize: 14 }}
             />
             {searchQuery ? (
@@ -525,7 +525,7 @@ const CallsScreenDesign = () => {
             ) : null}
           </View>
           <Pressable onPress={() => { setShowSearch(false); setSearchQuery(''); }} hitSlop={8}>
-            <Text style={{ color: '#3b82f6', fontSize: 14, fontWeight: '500' }}>Cancel</Text>
+            <Text style={{ color: '#725AFF', fontSize: 14, fontWeight: '500' }}>Cancel</Text>
           </Pressable>
         </View>
 
@@ -539,8 +539,8 @@ const CallsScreenDesign = () => {
                 {item.meta?.sender?.thumbnail ? (
                   <Image source={{ uri: item.meta.sender.thumbnail }} style={{ width: 44, height: 44, borderRadius: 999 }} />
                 ) : (
-                  <View style={{ width: 44, height: 44, borderRadius: 999, backgroundColor: '#fde68a', alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ color: '#d97706', fontSize: 16, fontWeight: '700' }}>{name.charAt(0).toUpperCase()}</Text>
+                  <View style={{ width: 44, height: 44, borderRadius: 999, backgroundColor: 'rgba(250,137,0,0.15)', alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ color: '#FA8900', fontSize: 16, fontWeight: '700' }}>{name.charAt(0).toUpperCase()}</Text>
                   </View>
                 )}
                 <View style={{ flex: 1 }}>
@@ -593,7 +593,7 @@ const CallsScreenDesign = () => {
         {/* Calls List */}
         {conversationsLoading && filteredConversations.length === 0 ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <ActivityIndicator size="small" color="#2563eb" />
+            <ActivityIndicator size="small" color="#725AFF" />
           </View>
         ) : filteredConversations.length === 0 ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, paddingBottom: 64 }}>
@@ -605,7 +605,7 @@ const CallsScreenDesign = () => {
           </View>
         ) : (
           <ScrollView
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2563eb" />}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#725AFF" />}
             contentContainerStyle={{ paddingBottom: 80 }}>
             {filteredConversations.map(item => {
               const name = getContactName(item.meta?.sender);
@@ -616,8 +616,8 @@ const CallsScreenDesign = () => {
                   {item.meta?.sender?.thumbnail ? (
                     <Image source={{ uri: item.meta.sender.thumbnail }} style={{ width: 44, height: 44, borderRadius: 999 }} />
                   ) : (
-                    <View style={{ width: 44, height: 44, borderRadius: 999, backgroundColor: '#fde68a', alignItems: 'center', justifyContent: 'center' }}>
-                      <Text style={{ color: '#d97706', fontSize: 16, fontWeight: '700' }}>{name.charAt(0).toUpperCase()}</Text>
+                    <View style={{ width: 44, height: 44, borderRadius: 999, backgroundColor: 'rgba(250,137,0,0.15)', alignItems: 'center', justifyContent: 'center' }}>
+                      <Text style={{ color: '#FA8900', fontSize: 16, fontWeight: '700' }}>{name.charAt(0).toUpperCase()}</Text>
                     </View>
                   )}
                   <View style={{ flex: 1 }}>
@@ -651,8 +651,8 @@ const CallsScreenDesign = () => {
         {showSort && (
           <View style={{ position: 'absolute', inset: 0, zIndex: 50 }} onStartShouldSetResponder={() => true} onResponderRelease={() => setShowSort(false)}>
             <View style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)' }} />
-            <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: isDark ? '#1e293b' : 'white', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingBottom: 32 }} onStartShouldSetResponder={() => true}>
-              <View style={{ width: 40, height: 4, backgroundColor: isDark ? '#475569' : '#d1d5db', borderRadius: 999, alignSelf: 'center', marginTop: 12, marginBottom: 8 }} />
+            <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: isDark ? '#1B1C20' : 'white', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingBottom: 32 }} onStartShouldSetResponder={() => true}>
+              <View style={{ width: 40, height: 4, backgroundColor: isDark ? '#31343A' : '#EAEAEA', borderRadius: 999, alignSelf: 'center', marginTop: 12, marginBottom: 8 }} />
               {[
                 { label: 'Newest', order: 'latest' as const },
                 { label: 'Oldest', order: 'oldest' as const },
@@ -662,7 +662,7 @@ const CallsScreenDesign = () => {
                   onPress={() => { setSortOrder(opt.order); setShowSort(false); }}
                   style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingVertical: 16, borderBottomWidth: i === 1 ? 0 : 1, borderBottomColor: borderColor }}>
                   <Text style={{ color: textPrimary, fontSize: 16, fontWeight: sortOrder === opt.order ? '600' : '400' }}>{opt.label}</Text>
-                  {sortOrder === opt.order && <Text style={{ color: '#3b82f6', fontWeight: '700' }}>✓</Text>}
+                  {sortOrder === opt.order && <Text style={{ color: '#725AFF', fontWeight: '700' }}>✓</Text>}
                 </Pressable>
               ))}
             </View>

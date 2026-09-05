@@ -34,8 +34,8 @@ export const BottomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
       style={{
         flexDirection: 'row',
         borderTopWidth: 1,
-        borderTopColor: isDark ? '#1e293b' : '#f3f4f6',
-        backgroundColor: isDark ? '#0f172a' : '#ffffff',
+        borderTopColor: isDark ? '#1B1C20' : '#F0F0F3',
+        backgroundColor: isDark ? '#101113' : '#ffffff',
       }}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
@@ -52,8 +52,8 @@ export const BottomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
           }
         };
 
-        const activeColor = isDark ? '#ffffff' : '#111827';
-        const inactiveColor = isDark ? '#64748b' : '#9ca3af';
+        const activeColor = isDark ? '#ffffff' : '#282E34';
+        const inactiveColor = isDark ? '#80838D' : '#80838D';
         const itemColor = isFocused ? activeColor : inactiveColor;
 
         return (
@@ -73,7 +73,7 @@ export const BottomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
             <Text
               style={{
                 fontSize: 10,
-                fontFamily: 'Inter-500-24',
+                fontFamily: 'Gontserrat-Bold',
                 marginTop: 4,
                 color: itemColor,
                 fontWeight: isFocused ? '600' : '400',

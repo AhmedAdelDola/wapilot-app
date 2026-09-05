@@ -56,32 +56,32 @@ const ForgotPassword = () => {
   };
 
   return (
-    <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: isDark ? '#0f172a' : '#ffffff' }}>
+    <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
       <StatusBar
         translucent
-        backgroundColor={isDark ? '#0f172a' : '#ffffff'}
+        backgroundColor={isDark ? '#101113' : '#ffffff'}
         barStyle={isDark ? 'light-content' : 'dark-content'}
       />
-      <View style={{ flex: 1, backgroundColor: isDark ? '#0f172a' : '#ffffff' }}>
+      <View style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
         <Animated.ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 64 }}>
           <Icon icon={<KeyRoundIcon stroke={isDark ? '#94a3b8' : '#858585'} />} size={40} />
           <View style={{ paddingTop: 24, gap: 16 }}>
-            <Animated.Text style={{ color: isDark ? '#f8fafc' : '#111827', fontSize: 24, fontWeight: '600' }}>
+            <Animated.Text style={{ color: isDark ? '#EDEEF0' : '#282E34', fontSize: 24, fontWeight: '600' }}>
               {i18n.t('FORGOT_PASSWORD.TITLE')}
             </Animated.Text>
-            <Animated.Text style={{ fontSize: 15, lineHeight: 22, color: isDark ? '#94a3b8' : '#374151' }}>
+            <Animated.Text style={{ fontSize: 15, lineHeight: 22, color: isDark ? '#94a3b8' : '#626F7F' }}>
               {i18n.t('FORGOT_PASSWORD.SUB_TITLE')}
             </Animated.Text>
           </View>
 
           {isSuccess ? (
             <View style={{ marginTop: 40, alignItems: 'center', gap: 12 }}>
-              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: '#dcfce7', alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(44,165,74,0.15)', alignItems: 'center', justifyContent: 'center' }}>
                 <Animated.Text style={{ fontSize: 28 }}>✓</Animated.Text>
               </View>
-              <Animated.Text style={{ color: isDark ? '#f8fafc' : '#111827', fontSize: 16, fontWeight: '600', textAlign: 'center' }}>
+              <Animated.Text style={{ color: isDark ? '#EDEEF0' : '#282E34', fontSize: 16, fontWeight: '600', textAlign: 'center' }}>
                 {i18n.t('FORGOT_PASSWORD.API_SUCCESS')}
               </Animated.Text>
             </View>
@@ -98,7 +98,7 @@ const ForgotPassword = () => {
                 }}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <View style={{ paddingTop: 32, marginBottom: 32, gap: 8 }}>
-                    <Animated.Text style={{ color: isDark ? '#f8fafc' : '#111827', fontSize: 14, fontWeight: '500' }}>
+                    <Animated.Text style={{ color: isDark ? '#EDEEF0' : '#282E34', fontSize: 14, fontWeight: '500' }}>
                       {i18n.t('LOGIN.EMAIL')}
                     </Animated.Text>
                     <TextInput
@@ -106,21 +106,21 @@ const ForgotPassword = () => {
                         height: 44,
                         borderRadius: 12,
                         borderWidth: 1,
-                        borderColor: errors.email ? '#ef4444' : isDark ? '#334155' : '#e5e7eb',
-                        backgroundColor: isDark ? '#1e293b' : '#f9fafb',
-                        color: isDark ? '#f8fafc' : '#111827',
+                        borderColor: errors.email ? '#FF382E' : isDark ? '#24262B' : '#EAEAEA',
+                        backgroundColor: isDark ? '#1B1C20' : 'rgba(0,0,0,0.03)',
+                        color: isDark ? '#EDEEF0' : '#282E34',
                         paddingHorizontal: 12,
                         fontSize: 15,
                       }}
                       onBlur={onBlur}
                       onChangeText={onChange}
                       value={value}
-                      placeholderTextColor={isDark ? '#64748b' : '#9ca3af'}
+                      placeholderTextColor={isDark ? '#80838D' : '#80838D'}
                       keyboardType="email-address"
                       autoCapitalize="none"
                     />
                     {errors.email && (
-                      <Animated.Text style={{ color: '#ef4444', fontSize: 12 }}>
+                      <Animated.Text style={{ color: '#FF382E', fontSize: 12 }}>
                         {errors.email.message}
                       </Animated.Text>
                     )}
@@ -130,13 +130,13 @@ const ForgotPassword = () => {
               />
 
               {error && (
-                <Animated.Text style={{ color: '#ef4444', fontSize: 13, marginBottom: 12, textAlign: 'center' }}>
+                <Animated.Text style={{ color: '#FF382E', fontSize: 13, marginBottom: 12, textAlign: 'center' }}>
                   {error}
                 </Animated.Text>
               )}
 
               {isLoading ? (
-                <View style={{ height: 45, borderRadius: 7, backgroundColor: '#3b82f6', alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ height: 45, borderRadius: 7, backgroundColor: '#725AFF', alignItems: 'center', justifyContent: 'center' }}>
                   <ActivityIndicator color="#ffffff" />
                 </View>
               ) : (

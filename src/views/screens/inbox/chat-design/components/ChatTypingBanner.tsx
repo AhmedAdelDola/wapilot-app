@@ -23,7 +23,7 @@ export const ChatTypingBanner = ({ typingText, isDark }: ChatTypingBannerProps) 
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: isDark ? '#1e293b' : '#ffffff',
+          backgroundColor: isDark ? '#1B1C20' : '#ffffff',
           borderRadius: 999,
           paddingHorizontal: 12,
           paddingVertical: 6,
@@ -32,7 +32,7 @@ export const ChatTypingBanner = ({ typingText, isDark }: ChatTypingBannerProps) 
           shadowRadius: 4,
           elevation: 2,
         }}>
-        <Text style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#64748b', fontWeight: '500' }}>
+        <Text style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#80838D', fontWeight: '500' }}>
           {typingText}
         </Text>
         <Image

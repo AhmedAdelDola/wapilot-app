@@ -31,22 +31,22 @@ const getSenderThumbnail = (sender?: any): string | null => {
 
 const C = {
   outgoing: {
-    bg: '#2563eb',
+    bg: '#725AFF',
     text: '#ffffff',
     time: 'rgba(255,255,255,0.75)',
-    avatarBg: '#dcfce7',
+    avatarBg: 'rgba(44,165,74,0.15)',
     avatarText: '#15803d',
   },
   incoming: {
     bgLight: '#ffffff',
-    bgDark: '#1e293b',
-    textLight: '#0f172a',
-    textDark: '#f8fafc',
-    border: '#e2e8f0',
-    borderDark: '#334155',
-    time: '#9ca3af',
+    bgDark: '#1B1C20',
+    textLight: '#101113',
+    textDark: '#EDEEF0',
+    border: '#EAEAEA',
+    borderDark: '#24262B',
+    time: '#80838D',
     avatarBg: '#dbeafe',
-    avatarText: '#2563eb',
+    avatarText: '#725AFF',
     avatarBgDark: '#1e3a5f',
   },
   private: {
@@ -54,29 +54,29 @@ const C = {
     bgDark: '#271904',
     borderLight: '#fef08a',
     borderDark: '#78350f',
-    accent: '#f59e0b',
+    accent: '#FA8900',
     textLight: '#78350f',
-    textDark: '#fef3c7',
-    labelLight: '#d97706',
-    labelDark: '#fbbf24',
+    textDark: 'rgba(250,137,0,0.15)',
+    labelLight: '#FA8900',
+    labelDark: '#FA8900',
     timeLight: '#b45309',
-    timeDark: '#a16207',
+    timeDark: '#FA8900',
   },
   date: {
-    bgLight: '#f1f5f9',
-    bgDark: '#1e293b',
-    borderLight: '#e2e8f0',
-    borderDark: '#334155',
-    textLight: '#64748b',
+    bgLight: '#F0F0F3',
+    bgDark: '#1B1C20',
+    borderLight: '#EAEAEA',
+    borderDark: '#24262B',
+    textLight: '#80838D',
     textDark: '#94a3b8',
   },
   activity: {
-    textLight: '#64748b',
+    textLight: '#80838D',
     textDark: '#94a3b8',
-    timeLight: '#9ca3af',
-    timeDark: '#64748b',
+    timeLight: '#80838D',
+    timeDark: '#80838D',
   },
-  highlight: '#60a5fa',
+  highlight: '#725AFF',
 };
 
 // ── Props ────────────────────────────────────────────────────────────
@@ -329,7 +329,7 @@ const LinkifiedText = React.memo(
       <Text selectable style={{ color, fontSize: fontSize || 15, lineHeight: lineHeight || 22, textAlign }}>
         {parts.map((part, i) =>
           part.isLink ? (
-            <Text key={i} style={{ color: '#60a5fa', textDecorationLine: 'underline' }} onPress={() => Linking.openURL(part.url!)}>
+            <Text key={i} style={{ color: '#725AFF', textDecorationLine: 'underline' }} onPress={() => Linking.openURL(part.url!)}>
               {part.text}
             </Text>
           ) : (
@@ -428,7 +428,7 @@ export const MessageAttachmentView = ({
         padding: 10,
         marginBottom: 6,
         borderRadius: 12,
-        backgroundColor: isOutgoing ? 'rgba(255,255,255,0.18)' : isDark ? '#334155' : '#f1f5f9',
+        backgroundColor: isOutgoing ? 'rgba(255,255,255,0.18)' : isDark ? '#24262B' : '#F0F0F3',
       }}>
       <View
         style={{
@@ -437,35 +437,35 @@ export const MessageAttachmentView = ({
           borderRadius: 999,
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: isAudio ? '#0d9488' : 'transparent',
+          backgroundColor: isAudio ? '#725AFF' : 'transparent',
         }}>
         {isAudio ? (
           <Text style={{ color: '#ffffff', fontSize: 15, marginLeft: isPlaying ? 0 : 2 }}>{isPlaying ? 'Ⅱ' : '▶'}</Text>
         ) : (
-          <AttachmentIcon stroke={isOutgoing ? '#ffffff' : '#0d9488'} />
+          <AttachmentIcon stroke={isOutgoing ? '#ffffff' : '#725AFF'} />
         )}
       </View>
       <View style={{ flex: 1 }}>
         {isAudio ? (
           <>
             <View style={{ height: 20, justifyContent: 'center' }}>
-              <View style={{ height: 4, borderRadius: 999, overflow: 'hidden', backgroundColor: isOutgoing ? 'rgba(255,255,255,0.35)' : '#cbd5e1' }}>
+              <View style={{ height: 4, borderRadius: 999, overflow: 'hidden', backgroundColor: isOutgoing ? 'rgba(255,255,255,0.35)' : '#B0B4BA' }}>
                 <View
                   style={{
                     height: '100%',
                     width: `${Math.min(100, Math.max(0, progress * 100))}%`,
                     borderRadius: 999,
-                    backgroundColor: isOutgoing ? '#ffffff' : '#14b8a6',
+                    backgroundColor: isOutgoing ? '#ffffff' : '#725AFF',
                   }}
                 />
               </View>
             </View>
-            <Text style={{ color: isOutgoing ? 'rgba(255,255,255,0.85)' : isDark ? '#cbd5e1' : '#64748b', fontSize: 10 }}>
+            <Text style={{ color: isOutgoing ? 'rgba(255,255,255,0.85)' : isDark ? '#B0B4BA' : '#80838D', fontSize: 10 }}>
               {duration > 0 ? `${formatTime(progress * duration)} / ${formatTime(duration)}` : 'Voice message'}
             </Text>
           </>
         ) : (
-          <Text style={{ color: isOutgoing ? '#ffffff' : isDark ? '#f8fafc' : '#1f2937', fontSize: 13, fontWeight: '600' }} numberOfLines={2}>
+          <Text style={{ color: isOutgoing ? '#ffffff' : isDark ? '#EDEEF0' : '#1B1C20', fontSize: 13, fontWeight: '600' }} numberOfLines={2}>
             {fileName}
           </Text>
         )}
@@ -606,7 +606,7 @@ export const ChatMessageBubble = React.memo(
           )}
 
           {!isOutgoing && senderName ? (
-            <Text style={{ fontSize: 11, fontWeight: '600', color: isDark ? '#60a5fa' : '#2563eb', marginBottom: 2 }}>
+            <Text style={{ fontSize: 11, fontWeight: '600', color: isDark ? '#725AFF' : '#725AFF', marginBottom: 2 }}>
               {senderName}
             </Text>
           ) : null}

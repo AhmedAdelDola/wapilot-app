@@ -17,7 +17,7 @@ export const UserCircleIcon = ({ color = '#858585' }: { color?: string }) => {
       <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth="1.8" />
       <Circle cx="12" cy="9" r="3" stroke={color} strokeWidth="1.8" />
       <Path d="M5.5 20c0-3 3-5 6.5-5s6.5 2 6.5 5" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
-      <Circle cx="18" cy="5" r="4" fill="#22c55e" />
+      <Circle cx="18" cy="5" r="4" fill="#2CA54A" />
     </Svg>
   );
 };
@@ -27,7 +27,7 @@ export const ChatBubbleIcon = () => {
     <Svg width="52" height="52" viewBox="0 0 24 24" fill="none">
       <Path
         d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-        stroke="#9ca3af"
+        stroke="#80838D"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"

@@ -54,7 +54,7 @@ export const SidebarSection = ({
           {title}
         </Text>
         <Animated.View style={animatedChevronStyle}>
-          <CaretBottomSmall color={isDark ? '#9ca3af' : '#6b7280'} />
+          <CaretBottomSmall color={isDark ? '#80838D' : '#626F7F'} />
         </Animated.View>
       </Pressable>
       {isExpanded && (

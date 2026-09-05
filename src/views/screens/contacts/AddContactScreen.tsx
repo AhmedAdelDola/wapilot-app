@@ -5,14 +5,14 @@ import Svg, { Path } from 'react-native-svg';
 import { contactService } from '@/models/services/contactService';
 import { useTheme } from '@/theme';
 
-const ArrowLeftIcon = ({ color = '#111827' }: { color?: string }) => (
+const ArrowLeftIcon = ({ color = '#282E34' }: { color?: string }) => (
   <Svg width="22" height="22" viewBox="0 0 24 24" fill="none">
     <Path d="M19 12H5" stroke={color} strokeWidth="2" strokeLinecap="round" />
     <Path d="M12 19l-7-7 7-7" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
 );
 
-const ChevronDown = ({ color = '#374151' }: { color?: string }) => (
+const ChevronDown = ({ color = '#626F7F' }: { color?: string }) => (
   <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
     <Path d="M6 9l6 6 6-6" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
@@ -57,27 +57,27 @@ const AddContactScreen = ({ onBack }: AddContactScreenProps) => {
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
-    borderColor: isDark ? '#334155' : '#e5e7eb',
+    borderColor: isDark ? '#24262B' : '#EAEAEA',
     borderRadius: 12,
-    backgroundColor: isDark ? '#1e293b' : '#ffffff',
-    color: isDark ? '#f8fafc' : '#374151',
+    backgroundColor: isDark ? '#1B1C20' : '#ffffff',
+    color: isDark ? '#EDEEF0' : '#626F7F',
     fontSize: 14,
   };
 
-  const labelStyle = { fontWeight: '600' as const, color: isDark ? '#f8fafc' : '#111827', marginBottom: 6, fontSize: 14 };
+  const labelStyle = { fontWeight: '600' as const, color: isDark ? '#EDEEF0' : '#282E34', marginBottom: 6, fontSize: 14 };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#0f172a' : '#ffffff' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 24, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: isDark ? '#334155' : '#f3f4f6' }}>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 24, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: isDark ? '#24262B' : '#F0F0F3' }}>
         <Pressable onPress={onBack} hitSlop={8}>
-          <ArrowLeftIcon color={isDark ? '#f8fafc' : '#111827'} />
+          <ArrowLeftIcon color={isDark ? '#EDEEF0' : '#282E34'} />
         </Pressable>
-        <Text style={{ fontSize: 18, fontWeight: '600', color: isDark ? '#f8fafc' : '#111827' }}>Add Contact</Text>
+        <Text style={{ fontSize: 18, fontWeight: '600', color: isDark ? '#EDEEF0' : '#282E34' }}>Add Contact</Text>
         <Pressable onPress={handleSave} disabled={saving} hitSlop={8}>
           {saving ? (
-            <ActivityIndicator size="small" color="#2563eb" />
+            <ActivityIndicator size="small" color="#725AFF" />
           ) : (
-            <Text style={{ color: '#2563eb', fontWeight: '600', fontSize: 14 }}>Save</Text>
+            <Text style={{ color: '#725AFF', fontWeight: '600', fontSize: 14 }}>Save</Text>
           )}
         </Pressable>
       </View>
@@ -85,25 +85,25 @@ const AddContactScreen = ({ onBack }: AddContactScreenProps) => {
       <ScrollView style={{ flex: 1, paddingHorizontal: 16, paddingTop: 20, paddingBottom: 32 }} contentContainerStyle={{ gap: 20 }}>
         <View>
           <Text style={labelStyle}>First Name</Text>
-          <TextInput value={firstName} onChangeText={setFirstName} placeholder="Add First Name" placeholderTextColor={isDark ? '#64748b' : '#9ca3af'} style={inputStyle} />
+          <TextInput value={firstName} onChangeText={setFirstName} placeholder="Add First Name" placeholderTextColor={isDark ? '#80838D' : '#80838D'} style={inputStyle} />
         </View>
         <View>
           <Text style={labelStyle}>Last Name</Text>
-          <TextInput value={lastName} onChangeText={setLastName} placeholder="Add Last Name" placeholderTextColor={isDark ? '#64748b' : '#9ca3af'} style={inputStyle} />
+          <TextInput value={lastName} onChangeText={setLastName} placeholder="Add Last Name" placeholderTextColor={isDark ? '#80838D' : '#80838D'} style={inputStyle} />
         </View>
         <View>
           <Text style={labelStyle}>Phone</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: isDark ? '#334155' : '#e5e7eb', borderRadius: 12, overflow: 'hidden', backgroundColor: isDark ? '#1e293b' : '#ffffff' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 14, borderRightWidth: 1, borderRightColor: isDark ? '#334155' : '#e5e7eb' }}>
-              <Text style={{ fontSize: 14, color: isDark ? '#f8fafc' : '#374151' }}>📞</Text>
-              <ChevronDown color={isDark ? '#f8fafc' : '#374151'} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: isDark ? '#24262B' : '#EAEAEA', borderRadius: 12, overflow: 'hidden', backgroundColor: isDark ? '#1B1C20' : '#ffffff' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 14, borderRightWidth: 1, borderRightColor: isDark ? '#24262B' : '#EAEAEA' }}>
+              <Text style={{ fontSize: 14, color: isDark ? '#EDEEF0' : '#626F7F' }}>📞</Text>
+              <ChevronDown color={isDark ? '#EDEEF0' : '#626F7F'} />
             </View>
-            <TextInput value={phone} onChangeText={setPhone} placeholder="Add Phone Number" placeholderTextColor={isDark ? '#64748b' : '#9ca3af'} keyboardType="phone-pad" style={{ flex: 1, paddingHorizontal: 12, paddingVertical: 14, color: isDark ? '#f8fafc' : '#374151', fontSize: 14 }} />
+            <TextInput value={phone} onChangeText={setPhone} placeholder="Add Phone Number" placeholderTextColor={isDark ? '#80838D' : '#80838D'} keyboardType="phone-pad" style={{ flex: 1, paddingHorizontal: 12, paddingVertical: 14, color: isDark ? '#EDEEF0' : '#626F7F', fontSize: 14 }} />
           </View>
         </View>
         <View>
           <Text style={labelStyle}>Email</Text>
-          <TextInput value={email} onChangeText={setEmail} placeholder="Add Email" placeholderTextColor={isDark ? '#64748b' : '#9ca3af'} keyboardType="email-address" style={inputStyle} />
+          <TextInput value={email} onChangeText={setEmail} placeholder="Add Email" placeholderTextColor={isDark ? '#80838D' : '#80838D'} keyboardType="email-address" style={inputStyle} />
         </View>
       </ScrollView>
     </SafeAreaView>

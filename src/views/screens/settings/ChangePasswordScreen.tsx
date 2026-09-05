@@ -74,7 +74,7 @@ const ChangePasswordScreen = () => {
           disabled={!hasChanges || isSaving}
           hitSlop={16}>
           {isSaving ? (
-            <ActivityIndicator size="small" color="#6B7280" />
+            <ActivityIndicator size="small" color="#626F7F" />
           ) : (
             <Text
               style={tailwind.style(
@@ -104,7 +104,7 @@ const ChangePasswordScreen = () => {
             }
           }}
           placeholder="Enter current password"
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor="#80838D"
           secureTextEntry
         />
         {errors.existingPassword ? (
@@ -129,7 +129,7 @@ const ChangePasswordScreen = () => {
             }
           }}
           placeholder="Enter new password"
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor="#80838D"
           secureTextEntry
         />
         {errors.newPassword ? (
@@ -154,7 +154,7 @@ const ChangePasswordScreen = () => {
             }
           }}
           placeholder="Confirm new password"
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor="#80838D"
           secureTextEntry
         />
         {errors.confirmPassword ? (
