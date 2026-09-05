@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useTheme } from '@/theme';
+import { SvgProps } from 'react-native-svg';
 
 import { BellIcon } from '@/svg-icons/tabs/BellIcon';
 import { InboxIcon } from '@/svg-icons/tabs/InboxIcon';
@@ -11,17 +12,28 @@ import { TabParamList } from './AppTabs';
 
 type NavIconProps = { focused: boolean; routeName: keyof TabParamList; color: string };
 
+const ICON_SIZE = 22;
+
 const TabBarIcon = ({ focused, routeName, color }: NavIconProps) => {
+  const props = { width: ICON_SIZE, height: ICON_SIZE, color, stroke: color } as Partial<SvgProps>;
+  let icon: React.ReactNode;
   switch (routeName) {
     case 'Notifications':
-      return <BellIcon stroke={color} />;
+      icon = <BellIcon {...props} />;
+      break;
     case 'Inbox':
-      return <InboxIcon stroke={color} />;
+      icon = <InboxIcon {...props} />;
+      break;
     case 'Calls':
-      return <CallsIconOutline />;
+      icon = <CallsIconOutline width={ICON_SIZE} height={ICON_SIZE} />;
+      break;
     case 'Settings':
-      return <GearIcon stroke={color} />;
+      icon = <GearIcon {...props} />;
+      break;
+    default:
+      return null;
   }
+  return <View style={{ width: ICON_SIZE, height: ICON_SIZE }}>{icon}</View>;
 };
 
 export const BottomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
