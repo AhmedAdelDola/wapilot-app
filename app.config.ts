@@ -49,6 +49,15 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       'expo-image-picker',
       'expo-document-picker',
       [
+        'expo-build-properties',
+        {
+          ios: {
+            useFrameworks: 'static',
+            forceStaticLinking: ['RNFBApp', 'RNFBMessaging'],
+          },
+        },
+      ],
+      [
         '@react-native-firebase/app',
         {
           androidGoogleServicesFile: './google-services.json',
