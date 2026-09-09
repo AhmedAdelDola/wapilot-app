@@ -1,7 +1,7 @@
 const DEVICE_DEFAULTS = {
   getVersion: () => '1.0.0',
   getBuildNumber: () => '1',
-  getBundleId: () => 'com.messagepro.app',
+  getBundleId: () => 'com.message.pro.com',
   getSystemName: () => 'Android',
   getSystemVersion: () => '14',
   getDeviceId: () => 'unknown',

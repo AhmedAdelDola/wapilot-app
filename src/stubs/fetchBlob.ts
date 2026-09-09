@@ -4,14 +4,14 @@ const getDocumentDir = (): string => {
   if (Platform.OS === 'ios') {
     return '/var/mobile/Containers/Data/Application/Documents';
   }
-  return '/data/user/0/com.messagepro.app/files';
+  return '/data/user/0/com.message.pro.com/files';
 };
 
 const getCacheDir = (): string => {
   if (Platform.OS === 'ios') {
     return '/var/mobile/Containers/Data/Application/Library/Caches';
   }
-  return '/data/user/0/com.messagepro.app/cache';
+  return '/data/user/0/com.message.pro.com/cache';
 };
 
 // In-memory path → size tracking for stat
