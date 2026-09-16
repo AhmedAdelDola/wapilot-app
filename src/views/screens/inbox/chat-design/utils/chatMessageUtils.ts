@@ -9,6 +9,11 @@ const htmlToPlainText = (value: string): string => {
   if (!/[<>&]/.test(value)) return value;
 
   return value
+    .replace(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gi, (_, href, text) => {
+      const cleanText = text.replace(/<[^>]+>/g, '').trim();
+      if (!cleanText || cleanText === href) return href;
+      return `${cleanText} (${href})`;
+    })
     .replace(/<\s*(br|\/p|\/div|\/li|\/tr|\/h[1-6])\s*\/?>/gi, '\n')
     .replace(/<\/(ul|ol|table)>/gi, '\n')
     .replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, '')

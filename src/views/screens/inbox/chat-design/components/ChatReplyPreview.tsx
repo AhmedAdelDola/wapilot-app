@@ -45,6 +45,7 @@ export const ChatReplyPreview = ({
           style={{
             fontSize: 12,
             color: isOutgoing ? 'rgba(255,255,255,0.8)' : isDark ? '#B0B4BA' : '#80838D',
+            textAlign: /[\u0600-\u06FF]/.test(previewText) ? 'right' : 'left',
           }}>
           {previewText}
         </Text>
