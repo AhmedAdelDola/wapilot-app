@@ -82,9 +82,9 @@ export const OutgoingMessageBubble = React.memo(
           accessibilityRole="text"
           accessibilityLabel={`Message from ${senderName || contactName}: ${messageText}`}
           style={{
-            maxWidth: '82%',
+            ...(messageText.length > 10 ? { flex: 1 } : {}),
+            maxWidth: '75%',
             minWidth: 70,
-            flexShrink: 1,
             alignSelf: 'flex-end',
             backgroundColor: bubbleBg,
             borderWidth: 0,
@@ -115,14 +115,12 @@ export const OutgoingMessageBubble = React.memo(
             ))}
 
           {messageText ? (
-            <View style={{ width: '100%' }}>
-              <LinkifiedText
-                text={messageText}
-                color={textColor}
-                linkColor="#e0e7ff"
-                textAlign={isRTL ? 'right' : 'left'}
-              />
-            </View>
+            <LinkifiedText
+              text={messageText}
+              color={textColor}
+              linkColor="#ffffff"
+              textAlign={isRTL ? 'right' : 'left'}
+            />
           ) : null}
 
           {time ? (

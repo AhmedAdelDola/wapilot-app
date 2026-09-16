@@ -319,12 +319,14 @@ export const LinkifiedText = React.memo(
   ({
     text,
     color,
+    linkColor,
     fontSize,
     lineHeight,
     textAlign,
   }: {
     text: string;
     color: string;
+    linkColor?: string;
     fontSize?: number;
     lineHeight?: number;
     textAlign?: 'left' | 'right' | 'center';
@@ -348,23 +350,49 @@ export const LinkifiedText = React.memo(
       return segments;
     }, [text]);
 
+    const isRTL = isArabicString(text);
+    const displayText = isRTL ? `\u200F${text}\u200F` : text;
+
     if (parts.length <= 1) {
       return (
-        <Text selectable style={{ color, fontSize: fontSize || 15, lineHeight: lineHeight || 22, textAlign }}>
-          {text}
+        <Text
+          style={{
+            color,
+            fontSize: fontSize || 15,
+            lineHeight: lineHeight || 22,
+            textAlign: textAlign || (isRTL ? 'right' : 'left'),
+            writingDirection: isRTL ? 'rtl' : 'ltr',
+            paddingHorizontal: 2,
+          }}>
+          {displayText}
         </Text>
       );
     }
 
     return (
-      <Text selectable style={{ color, fontSize: fontSize || 15, lineHeight: lineHeight || 22, textAlign }}>
+      <Text
+        style={{
+          color,
+          fontSize: fontSize || 15,
+          lineHeight: lineHeight || 22,
+          textAlign: textAlign || (isRTL ? 'right' : 'left'),
+          writingDirection: isRTL ? 'rtl' : 'ltr',
+          paddingHorizontal: 2,
+        }}>
         {parts.map((part, i) =>
           part.isLink ? (
-            <Text key={i} style={{ color: '#725AFF', textDecorationLine: 'underline' }} onPress={() => Linking.openURL(part.url!)}>
+            <Text
+              key={i}
+              style={{
+                color: linkColor || '#725AFF',
+                textDecorationLine: 'underline',
+                fontWeight: '600',
+              }}
+              onPress={() => Linking.openURL(part.url!)}>
               {part.text}
             </Text>
           ) : (
-            <Text key={i}>{part.text}</Text>
+            <Text key={i} style={{ color }}>{isRTL ? `\u200F${part.text}\u200F` : part.text}</Text>
           ),
         )}
       </Text>
