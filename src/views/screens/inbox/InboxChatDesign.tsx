@@ -16,6 +16,7 @@ import {
   Image,
   Linking,
   useWindowDimensions,
+  FlatList,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -55,7 +56,7 @@ import type { ConversationListResponse } from '@/viewmodels/store/conversation/c
 import type { Message } from '@/models/types';
 import { MESSAGE_TYPES } from '@/constants';
 import { useTheme } from '@/theme';
-import { useHaptic } from '@/utils';
+import { useHaptic, formatChatTime, parseDate, getContactName, matchesStage } from '@/utils';
 import { showToast } from '@/utils/toastUtils';
 import { selectLocale } from '@/viewmodels/store/settings/settingsSelectors';
 import { selectTypingUsers, selectTypingUsersByConversationId } from '@/viewmodels/store/conversation/conversationTypingSlice';
@@ -70,13 +71,19 @@ import { AudioStatus, startPlayer, pausePlayer, resumePlayer } from '@/views/scr
 import type { PlayBackType } from 'react-native-audio-recorder-player';
 import { ChatDeliveryStatus } from './chat-design/components/ChatDeliveryStatus';
 import { ChatReplyPreview } from './chat-design/components/ChatReplyPreview';
-import { ChatQuoteBar } from './chat-design/components/ChatQuoteBar';
+import { ReplyPreviewBar } from '@/views/components/chat';
+import {
+  SnoozeConversationSheet,
+  AssigneeSelectionSheet,
+  LifecycleStageSheet,
+  LabelSelectionSheet,
+} from '@/views/components/sheets';
 import { ChatTypingBanner } from './chat-design/components/ChatTypingBanner';
 import { ChatMentionSuggestions, extractMentionQuery, insertMention } from './chat-design/components/ChatMentionSuggestions';
 import { ChatSearchSheet } from './chat-design/components/ChatSearchSheet';
 import { ChatMessageBubble } from './chat-design/components/ChatMessageBubble';
 import { useChatTyping } from './chat-design/hooks/useChatTyping';
-import { getMessageText } from './chat-design/utils/chatMessageUtils';
+import { getMessageText, isActivityMessage, isOutgoingMessage, isPrivateMessage } from './chat-design/utils/chatMessageUtils';
 import { ConversationParticipantService } from '@/models/services/conversationParticipantService';
 import { Swipeable } from '@/views/components/common';
 
@@ -122,83 +129,6 @@ const getConversationTimestamp = (item?: any): number => {
   return candidates.length > 0 ? Math.max(...candidates) : 0;
 };
 
-const parseDate = (rawTime?: number | string | null): Date | null => {
-  if (!rawTime) return null;
-  if (typeof rawTime === 'string') {
-    const num = Number(rawTime);
-    if (!isNaN(num) && num > 0) {
-      return new Date(num > 1e11 ? num : num * 1000);
-    }
-    const d = new Date(rawTime);
-    return isNaN(d.getTime()) ? null : d;
-  }
-  if (typeof rawTime === 'number') {
-    if (rawTime <= 0) return null;
-    return new Date(rawTime > 1e11 ? rawTime : rawTime * 1000);
-  }
-  return null;
-};
-
-const formatChatTime = (rawTime?: number | string | null, isArabic = false): string => {
-  if (!rawTime) return '';
-  let timestamp: number;
-  if (typeof rawTime === 'string') {
-    const num = Number(rawTime);
-    if (!isNaN(num) && num > 0) {
-      timestamp = num > 1e11 ? num : num * 1000;
-    } else {
-      const d = new Date(rawTime);
-      if (isNaN(d.getTime())) return '';
-      timestamp = d.getTime();
-    }
-  } else if (typeof rawTime === 'number') {
-    if (rawTime <= 0) return '';
-    timestamp = rawTime > 1e11 ? rawTime : rawTime * 1000;
-  } else {
-    return '';
-  }
-
-  const date = new Date(timestamp);
-  const now = new Date();
-
-  // Reset hours to compare calendar days reliably
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const yesterdayStart = todayStart - 86400000;
-  const itemDateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-
-  if (itemDateStart === todayStart) {
-    let hours = date.getHours();
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const ampm = hours >= 12 ? (isArabic ? 'م' : 'PM') : (isArabic ? 'ص' : 'AM');
-    hours = hours % 12 || 12;
-    return `${hours}:${minutes} ${ampm}`;
-  }
-
-  if (itemDateStart === yesterdayStart) {
-    return isArabic ? 'أمس' : 'Yesterday';
-  }
-
-  const diffDays = Math.round((todayStart - itemDateStart) / 86400000);
-  if (diffDays < 7 && diffDays > 0) {
-    const daysEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const daysAr = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-    return isArabic ? daysAr[date.getDay()] : daysEn[date.getDay()];
-  }
-
-  const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const monthsAr = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-
-  if (date.getFullYear() === now.getFullYear()) {
-    return isArabic
-      ? `${date.getDate()} ${monthsAr[date.getMonth()]}`
-      : `${monthsEn[date.getMonth()]} ${date.getDate()}`;
-  }
-
-  return isArabic
-    ? `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
-    : `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-};
-
 const formatMessageTime = (rawTime?: number | string | null): string => {
   const date = parseDate(rawTime);
   if (!date) return '';
@@ -239,30 +169,6 @@ const isSameDay = (time1?: number | string | null, time2?: number | string | nul
     d1.getMonth() === d2.getMonth() &&
     d1.getFullYear() === d2.getFullYear()
   );
-};
-
-const getContactName = (sender?: any): string => {
-  if (!sender) return 'Unknown';
-  if (typeof sender.name === 'string' && sender.name.trim()) return sender.name.trim();
-  if (typeof sender.available_name === 'string' && sender.available_name.trim()) return sender.available_name.trim();
-  if (typeof sender.availableName === 'string' && sender.availableName.trim()) return sender.availableName.trim();
-  if (sender.additional_attributes?.name && typeof sender.additional_attributes.name === 'string' && sender.additional_attributes.name.trim()) {
-    return sender.additional_attributes.name.trim();
-  }
-  if (sender.additionalAttributes?.name && typeof sender.additionalAttributes.name === 'string' && sender.additionalAttributes.name.trim()) {
-    return sender.additionalAttributes.name.trim();
-  }
-  if (sender.custom_attributes?.name && typeof sender.custom_attributes.name === 'string' && sender.custom_attributes.name.trim()) {
-    return sender.custom_attributes.name.trim();
-  }
-  if (sender.customAttributes?.name && typeof sender.customAttributes.name === 'string' && sender.customAttributes.name.trim()) {
-    return sender.customAttributes.name.trim();
-  }
-  if (typeof sender.phone_number === 'string' && sender.phone_number.trim()) return sender.phone_number.trim();
-  if (typeof sender.phoneNumber === 'string' && sender.phoneNumber.trim()) return sender.phoneNumber.trim();
-  if (typeof sender.email === 'string' && sender.email.trim()) return sender.email.trim();
-  if (typeof sender.identifier === 'string' && sender.identifier.trim()) return sender.identifier.trim();
-  return 'Unknown';
 };
 
 // ---------- Icons ----------
@@ -511,81 +417,6 @@ const InboxDrawer = ({
     { key: 'unassigned', label: 'Unassigned', icon: <UnassignedIcon color={isDark ? '#EAEAEA' : '#626F7F'} />, count: apiUnassignedCount },
   ], [apiAllCount, apiMineCount, apiUnassignedCount, isDark]);
 
-const matchesStage = (c: any, stageName: string, stageId?: number): boolean => {
-  if (!c) return false;
-  const sLower = stageName.toLowerCase().trim();
-  const sKey = sLower.replace(/\s+/g, '_');
-  const sFirst = sLower.split(/\s+/)[0];
-  const senderStage = c.meta?.sender?.lifecycleStage ?? c.meta?.sender?.lifecycle_stage;
-
-  if (
-    (stageId && String(senderStage?.id) === String(stageId)) ||
-    (senderStage?.name && senderStage.name.toLowerCase().trim() === sLower)
-  ) {
-    return true;
-  }
-
-  if (Array.isArray(c.labels) && c.labels.length > 0) {
-    const hasMatch = c.labels.some((l: any) => {
-      if (typeof l !== 'string') return false;
-      const ll = l.toLowerCase().trim();
-      return (
-        ll === sLower ||
-        ll === sKey ||
-        ll === sFirst ||
-        ll.includes(sLower) ||
-        sLower.includes(ll) ||
-        (stageId && ll === String(stageId))
-      );
-    });
-    if (hasMatch) return true;
-  }
-
-  const caStage =
-    c.customAttributes?.lifecycle_stage ||
-    c.customAttributes?.stage ||
-    c.customAttributes?.lifecycleStage ||
-    c.custom_attributes?.lifecycle_stage ||
-    c.custom_attributes?.stage ||
-    c.additionalAttributes?.lifecycle_stage;
-
-  if (caStage) {
-    const caStr = String(caStage).toLowerCase().trim();
-    if (
-      caStr === sLower ||
-      caStr === sKey ||
-      caStr === sFirst ||
-      caStr.includes(sLower) ||
-      sLower.includes(caStr) ||
-      (stageId && caStr === String(stageId))
-    ) {
-      return true;
-    }
-  }
-
-  const senderCa =
-    c.meta?.sender?.customAttributes?.lifecycle_stage ||
-    c.meta?.sender?.customAttributes?.stage ||
-    c.meta?.sender?.custom_attributes?.lifecycle_stage ||
-    c.meta?.sender?.additionalAttributes?.lifecycle_stage;
-
-  if (senderCa) {
-    const scaStr = String(senderCa).toLowerCase().trim();
-    if (
-      scaStr === sLower ||
-      scaStr === sKey ||
-      scaStr === sFirst ||
-      scaStr.includes(sLower) ||
-      sLower.includes(scaStr) ||
-      (stageId && scaStr === String(stageId))
-    ) {
-      return true;
-    }
-  }
-
-  return false;
-};
-
   const lifecycle = useMemo(() => (
     apiLifecycleStages.length > 0
       ? apiLifecycleStages
@@ -753,7 +584,6 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
   const scrollViewRef = React.useRef<any>(null);
   const messagePositionsRef = React.useRef<Record<number, number>>({});
   const initialScrolledRef = React.useRef(false);
-  const shouldScrollToEndRef = React.useRef(false);
   const loadingOlderRef = React.useRef(false);
   const conversationIdRef = React.useRef(conversationId);
   const isNearBottomRef = React.useRef(true);
@@ -765,6 +595,10 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
   const messageLoadError = useAppSelector(selectMessageLoadError);
   const conversation = useAppSelector(state => selectConversationById(state, conversationId));
   const messages = useAppSelector(state => getMessagesByConversationId(state, { conversationId }));
+  const reversedMessages = React.useMemo(() => {
+    if (!messages || messages.length === 0) return [];
+    return [...messages].reverse();
+  }, [messages]);
   const messageMap = React.useMemo(() => {
     const map = new Map<number | string, (typeof messages)[0]>();
     for (let i = 0; i < messages.length; i++) {
@@ -843,9 +677,6 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
     setFileViewer({ uri, name });
   }, []);
 
-  // Android/Fabric can retain the reduced KeyboardAvoidingView height after
-  // dismissal. Re-mounting it resets the composer to its original position.
-  const [keyboardAvoiderKey, setKeyboardAvoiderKey] = useState(0);
   const [chatKeyboardHeight, setChatKeyboardHeight] = useState(0);
 
   React.useEffect(() => {
@@ -853,21 +684,12 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
       event => {
         setChatKeyboardHeight(event.endCoordinates.height);
-        setTimeout(() => {
-          scrollViewRef.current?.scrollToEnd({ animated: true });
-        }, 50);
       },
     );
     const hideSub = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
       () => {
         setChatKeyboardHeight(0);
-        setKeyboardAvoiderKey(key => key + 1);
-        // The re-mounted ScrollView starts at its top; restore the current
-        // conversation position after the layout has settled.
-        setTimeout(() => {
-          scrollViewRef.current?.scrollToEnd({ animated: false });
-        }, 100);
       },
     );
     return () => {
@@ -913,23 +735,13 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
   }, [conversationId, oldestMessageId, isAllMessagesFetched]);
 
   const [isInitialLoadDone, setIsInitialLoadDone] = useState(false);
-  const [isChatReady, setIsChatReady] = useState(false);
-
-  React.useEffect(() => {
-    if (isInitialLoadDone && messages.length > 0 && !initialScrolledRef.current) {
-      initialScrolledRef.current = true;
-      setIsChatReady(true);
-      requestAnimationFrame(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: false });
-      });
-    }
-  }, [isInitialLoadDone, messages.length]);
+  const [isChatReady, setIsChatReady] = useState(true);
 
   React.useEffect(() => {
     conversationIdRef.current = conversationId;
-    initialScrolledRef.current = false;
+    initialScrolledRef.current = true;
     setIsInitialLoadDone(false);
-    setIsChatReady(false);
+    setIsChatReady(true);
     setShowNewMessagesBadge(false);
     isNearBottomRef.current = true;
     loadingOlderRef.current = false;
@@ -953,14 +765,8 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
       const lastMsg = messages[messages.length - 1];
       if (lastMsg && lastMsg.id !== prevLastMsgIdRef.current) {
         prevLastMsgIdRef.current = lastMsg.id;
-        if (initialScrolledRef.current) {
-          if (isNearBottomRef.current) {
-            requestAnimationFrame(() => {
-              scrollViewRef.current?.scrollToEnd({ animated: true });
-            });
-          } else {
-            setShowNewMessagesBadge(true);
-          }
+        if (!isNearBottomRef.current) {
+          setShowNewMessagesBadge(true);
         }
       }
     }
@@ -985,11 +791,11 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
 
   const scrollToMessage = useCallback((messageId: number) => {
     setHighlightedMessageId(messageId);
-    const idx = messages.findIndex(m => m.id === messageId);
+    const idx = reversedMessages.findIndex(m => m.id === messageId);
     if (idx >= 0) {
       scrollViewRef.current?.scrollToIndex({ index: idx, animated: true, viewPosition: 0.3 });
     }
-  }, [messages]);
+  }, [reversedMessages]);
 
   const handleLayoutMessage = useCallback((id: number, y: number) => {
     messagePositionsRef.current[id] = y;
@@ -1002,7 +808,9 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
       showToast({ message: isArabic ? 'هذه القناة لا تسمح بالرد الآن' : 'This channel does not allow replies right now' });
       return;
     }
-    shouldScrollToEndRef.current = true;
+    isNearBottomRef.current = true;
+    setShowNewMessagesBadge(false);
+    scrollViewRef.current?.scrollToOffset({ offset: 0, animated: true });
     dispatch(conversationActions.sendMessage({
       conversationId,
       message: content,
@@ -1204,7 +1012,9 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
           type: asset.mimeType || 'application/octet-stream',
           name: asset.name,
         };
-        shouldScrollToEndRef.current = true;
+        isNearBottomRef.current = true;
+        setShowNewMessagesBadge(false);
+        scrollViewRef.current?.scrollToOffset({ offset: 0, animated: true });
         dispatch(
           conversationActions.sendMessage({
             conversationId,
@@ -1221,7 +1031,9 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
 
   const sendMediaAssets = (assets: Array<{ uri: string; mimeType?: string | null; fileName?: string | null }>) => {
     if (!assets.length) return;
-    shouldScrollToEndRef.current = true;
+    isNearBottomRef.current = true;
+    setShowNewMessagesBadge(false);
+    scrollViewRef.current?.scrollToOffset({ offset: 0, animated: true });
     assets.forEach((asset, index) => {
       dispatch(conversationActions.sendMessage({
         conversationId,
@@ -1270,7 +1082,9 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
       setRecordingSeconds(0);
       await Audio.setAudioModeAsync({ allowsRecordingIOS: false, playsInSilentModeIOS: true });
       if (send && uri) {
-        shouldScrollToEndRef.current = true;
+        isNearBottomRef.current = true;
+        setShowNewMessagesBadge(false);
+        scrollViewRef.current?.scrollToOffset({ offset: 0, animated: true });
         dispatch(conversationActions.sendMessage({
           conversationId,
           message: '',
@@ -1400,9 +1214,8 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: bgColor }}>
       <StatusBar translucent backgroundColor={bgColor} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <KeyboardAvoidingView
-        key={keyboardAvoiderKey}
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}>
         {/* Header row 1 */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingTop: 16, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: borderColor }}>
@@ -1557,11 +1370,14 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
 
         {/* Chat area */}
         <View style={{ flex: 1, position: 'relative' }}>
-        <FlashList
+        <FlatList
           ref={scrollViewRef}
-          data={messages}
+          inverted
+          data={reversedMessages}
           renderItem={({ item: m, index: idx }) => {
-            const showDateHeader = idx === 0 || !isSameDay(messages[idx - 1]?.createdAt, m.createdAt);
+            const showDateHeader =
+              idx === reversedMessages.length - 1 ||
+              !isSameDay(reversedMessages[idx + 1]?.createdAt, m.createdAt);
 
             return (
               <ChatMessageBubble
@@ -1601,72 +1417,22 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
             );
           }}
           keyExtractor={item => String(item.id ?? Math.random())}
-          estimatedItemSize={80}
-          scrollEnabled={isChatReady}
-          contentContainerStyle={{ paddingTop: 16, paddingBottom: 24 }}
+          contentContainerStyle={{ paddingTop: 8, paddingBottom: 16 }}
           onScroll={({ nativeEvent }) => {
-            if (!initialScrolledRef.current || !isInitialLoadDone) return;
-
-            const { contentOffset, contentSize, layoutMeasurement } = nativeEvent;
-            const distanceFromBottom = contentSize.height - layoutMeasurement.height - contentOffset.y;
-            isNearBottomRef.current = distanceFromBottom < 100;
-
-            if (isNearBottomRef.current) {
+            const isAtBottom = nativeEvent.contentOffset.y < 80;
+            isNearBottomRef.current = isAtBottom;
+            if (isAtBottom) {
               setShowNewMessagesBadge(false);
-            }
-
-            // Trigger pagination when near top
-            if (
-              contentOffset.y <= contentSize.height * 0.25 &&
-              !loadingOlderRef.current &&
-              !isAllMessagesFetched
-            ) {
-              loadPreviousMessages();
             }
           }}
           onEndReached={() => {
-            // Fallback pagination trigger for FlashList
             if (!loadingOlderRef.current && !isAllMessagesFetched) {
               loadPreviousMessages();
             }
           }}
           onEndReachedThreshold={0.3}
-          style={{ flex: 1, paddingHorizontal: 16, opacity: isChatReady ? 1 : 0 }}
-          ListHeaderComponent={
-            isAllMessagesFetched ? (
-              <View style={{ alignItems: 'center', marginTop: 8, marginBottom: 16, paddingHorizontal: 20 }}>
-                <Pressable
-                  onPress={() => {
-                    if (conversation?.meta?.sender?.thumbnail) {
-                      setFileViewer({ uri: conversation.meta.sender.thumbnail, name });
-                    }
-                  }}
-                  style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: 999,
-                    backgroundColor: isDark ? '#1B1C20' : '#F0F0F3',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: 8,
-                    borderWidth: 1.5,
-                    borderColor: isDark ? '#24262B' : '#EAEAEA',
-                  }}>
-                  {conversation?.meta?.sender?.thumbnail ? (
-                    <Image source={{ uri: conversation.meta.sender.thumbnail }} style={{ width: 48, height: 48, borderRadius: 999 }} />
-                  ) : (
-                    <Text style={{ fontSize: 20, fontWeight: '700', color: isDark ? '#725AFF' : '#725AFF' }}>
-                      {name.charAt(0).toUpperCase()}
-                    </Text>
-                  )}
-                </Pressable>
-                <Text style={{ fontSize: 15, fontWeight: '700', color: textPrimary, marginBottom: 2 }}>{name}</Text>
-                <Text style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#80838D', textAlign: 'center' }}>
-                  Conversation with <Text style={{ fontWeight: '600', color: textPrimary }}>{name}</Text>
-                </Text>
-              </View>
-            ) : null
-          }
+          style={{ flex: 1 }}
+          ListHeaderComponent={<View style={{ height: 8 }} />}
           ListEmptyComponent={
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 32 }}>
               <Text style={{ fontSize: 13, color: isDark ? '#80838D' : '#80838D' }}>No messages yet</Text>
@@ -1676,22 +1442,51 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
             <>
               {isLoadingMoreMessages && (
                 <View style={{ paddingVertical: 16, alignItems: 'center' }}>
-                  <ActivityIndicator size="small" color={isDark ? '#725AFF' : '#725AFF'} />
+                  <ActivityIndicator size="small" color="#725AFF" />
                 </View>
               )}
               {!isLoadingMoreMessages && messageLoadError && (
                 <Pressable
                   onPress={retryLoadMessages}
                   style={{ paddingVertical: 12, alignItems: 'center' }}>
-                  <Text style={{ color: isDark ? '#725AFF' : '#725AFF', fontSize: 13, fontWeight: '600' }}>
+                  <Text style={{ color: '#725AFF', fontSize: 13, fontWeight: '600' }}>
                     {isArabic ? 'فشل التحميل - اضغط للإعادة' : 'Failed to load - tap to retry'}
                   </Text>
                 </Pressable>
               )}
-              {isAllMessagesFetched && messages.length > 0 && !isLoadingMoreMessages && (
-                <View style={{ paddingVertical: 16, alignItems: 'center' }}>
-                  <Text style={{ color: isDark ? '#31343A' : '#80838D', fontSize: 12 }}>
-                    {isArabic ? '— جميع الرسائل —' : '— All messages —'}
+              {isAllMessagesFetched && (
+                <View style={{ alignItems: 'center', marginTop: 16, marginBottom: 16, paddingHorizontal: 20 }}>
+                  <Pressable
+                    onPress={() => {
+                      if (conversation?.meta?.sender?.thumbnail) {
+                        setFileViewer({ uri: conversation.meta.sender.thumbnail, name });
+                      }
+                    }}
+                    style={{
+                      width: 52,
+                      height: 52,
+                      borderRadius: 999,
+                      backgroundColor: isDark ? '#1B1C20' : '#F0F0F3',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: 8,
+                      borderWidth: 1.5,
+                      borderColor: isDark ? '#24262B' : '#EAEAEA',
+                    }}>
+                    {conversation?.meta?.sender?.thumbnail ? (
+                      <Image source={{ uri: conversation.meta.sender.thumbnail }} style={{ width: 48, height: 48, borderRadius: 999 }} />
+                    ) : (
+                      <Text style={{ fontSize: 20, fontWeight: '700', color: '#725AFF' }}>
+                        {name.charAt(0).toUpperCase()}
+                      </Text>
+                    )}
+                  </Pressable>
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: textPrimary, marginBottom: 2 }}>{name}</Text>
+                  <Text style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#80838D', textAlign: 'center' }}>
+                    Conversation with <Text style={{ fontWeight: '600', color: textPrimary }}>{name}</Text>
+                  </Text>
+                  <Text style={{ color: isDark ? '#31343A' : '#80838D', fontSize: 12, marginTop: 12 }}>
+                    {isArabic ? '— بداية المحادثة —' : '— Beginning of conversation —'}
                   </Text>
                 </View>
               )}
@@ -1699,20 +1494,12 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
           }
         />
 
-        {!isChatReady && (
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: bgColor, alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
-            <ActivityIndicator size="large" color={isDark ? '#725AFF' : '#725AFF'} />
-          </View>
-        )}
-
-        {showNewMessagesBadge && isChatReady && (
+        {showNewMessagesBadge && (
           <Pressable
             onPress={() => {
               setShowNewMessagesBadge(false);
               isNearBottomRef.current = true;
-              requestAnimationFrame(() => {
-                scrollViewRef.current?.scrollToEnd({ animated: true });
-              });
+              scrollViewRef.current?.scrollToOffset({ offset: 0, animated: true });
             }}
             style={{
               position: 'absolute',
@@ -1767,7 +1554,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
           )}
 
           {quotedMessage ? (
-            <ChatQuoteBar
+            <ReplyPreviewBar
               quoteMessage={quotedMessage}
               isDark={isDark}
               isArabic={isArabic}
@@ -1999,316 +1786,104 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
           ))}
         </BottomSheet>
       ) : null}
+      <AssigneeSelectionSheet
+        isOpen={sheet === 'assign'}
+        currentAssigneeId={conversation?.meta?.assignee?.id}
+        currentUserId={currentUserId}
+        assignableAgents={assignableAgents}
+        isDark={isDark}
+        onClose={() => setSheet(null)}
+        onAssignToMe={handleAssignToMe}
+        onUnassign={handleUnassign}
+        onAssignAgent={handleAssignAgent}
+      />
 
-      {sheet === 'assign' && (
-        <BottomSheet onClose={() => setSheet(null)}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
-            <Pressable onPress={() => setSheet(null)}><XIcon color={textPrimary} /></Pressable>
-            <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>Assign User</Text>
-            <View style={{ width: 24 }} />
-          </View>
-          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
-            <SearchIcon color={isDark ? '#94a3b8' : '#626F7F'} />
-            <TextInput
-              value={assignSearch}
-              onChangeText={setAssignSearch}
-              placeholder="Search agents..."
-              placeholderTextColor={isDark ? '#94a3b8' : '#80838D'}
-              style={{ flex: 1, color: textPrimary, fontSize: 14, paddingVertical: 6 }}
-            />
-            {assignSearch ? (
-              <Pressable onPress={() => setAssignSearch('')}>
-                <XIcon color={isDark ? '#94a3b8' : '#626F7F'} />
-              </Pressable>
-            ) : null}
-          </View>
+      <LifecycleStageSheet
+        isOpen={sheet === 'stage'}
+        currentStageName={stage}
+        stages={lifecycleStages}
+        isDark={isDark}
+        maxHeight={stageSheetMaxHeight}
+        onClose={() => setSheet(null)}
+        onSelectStage={s => {
+          setSheet(null);
+          updateLifecycleStage(
+            s
+              ? {
+                  id: s.id as number | undefined,
+                  emoji: s.emoji || s.icon || '🌱',
+                  label: s.label || s.name || '',
+                }
+              : undefined,
+          );
+        }}
+      />
 
-          <Pressable
-            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14 }}
-            onPress={handleAssignToMe}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={{ position: 'relative', width: 36, height: 36, borderRadius: 999, backgroundColor: '#725AFF', alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: '#fff', fontWeight: '700' }}>Me</Text>
-                <View style={{ position: 'absolute', bottom: -1, right: -1, width: 12, height: 12, borderRadius: 999, backgroundColor: '#2CA54A', borderWidth: 2, borderColor: isDark ? '#1B1C20' : '#fff' }} />
-              </View>
-              <Text style={{ color: textPrimary, fontWeight: '500' }}>Assign to me</Text>
-            </View>
-            {conversation?.meta?.assignee?.id === currentUserId && (
-              <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                <Path d="M5 13l4 4L19 7" stroke="#725AFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-              </Svg>
-            )}
-          </Pressable>
-
-          <Pressable
-            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14 }}
-            onPress={handleUnassign}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 999, backgroundColor: isDark ? '#24262B' : 'rgba(114,90,255,0.15)', alignItems: 'center', justifyContent: 'center' }}>
-                <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                  <Circle cx={12} cy={8} r={4} fill={isDark ? '#94a3b8' : '#725AFF'} />
-                  <Path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" fill={isDark ? '#94a3b8' : '#725AFF'} />
-                </Svg>
-              </View>
-              <Text style={{ color: textPrimary, fontWeight: '500' }}>Unassign</Text>
-            </View>
-            {!conversation?.meta?.assignee && (
-              <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                <Path d="M5 13l4 4L19 7" stroke="#725AFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-              </Svg>
-            )}
-          </Pressable>
-
-          {assignableAgents && assignableAgents.length > 0 && (
-            <ScrollView style={{ maxHeight: 220 }}>
-              {assignableAgents
-                .filter(ag => {
-                  if (!assignSearch.trim()) return true;
-                  const q = assignSearch.toLowerCase();
-                  const aname = (ag.name || ag.available_name || '').toLowerCase();
-                  return aname.includes(q);
-                })
-                .map(ag => (
-                  <Pressable
-                    key={ag.id}
-                    style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderTopWidth: 1, borderTopColor: borderColor }}
-                    onPress={() => handleAssignAgent(ag.id, ag.name || ag.available_name || 'Agent')}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                      {ag.thumbnail ? (
-                        <Image source={{ uri: ag.thumbnail }} style={{ width: 32, height: 32, borderRadius: 999 }} />
-                      ) : (
-                        <View style={{ width: 32, height: 32, borderRadius: 999, backgroundColor: '#725AFF', alignItems: 'center', justifyContent: 'center' }}>
-                          <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>{ag.name ? ag.name.charAt(0).toUpperCase() : 'A'}</Text>
-                        </View>
-                      )}
-                      <Text style={{ color: textPrimary, fontWeight: '500', fontSize: 14 }}>{ag.name || ag.available_name}</Text>
-                    </View>
-                    {conversation?.meta?.assignee?.id === ag.id && (
-                      <Svg width={18} height={18} viewBox="0 0 24 24" fill="none"><Path d="M5 13l4 4L19 7" stroke="#725AFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" /></Svg>
-                    )}
-                  </Pressable>
-                ))}
-            </ScrollView>
-          )}
-          <View style={{ height: 8 }} />
-        </BottomSheet>
-      )}
-
-      {sheet === 'stage' && (
-        <BottomSheet onClose={() => setSheet(null)}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
-            <Pressable onPress={() => setSheet(null)}><XIcon color={textPrimary} /></Pressable>
-            <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>Select Stage</Text>
-            <Pressable onPress={() => setSheet(null)}><Text style={{ color: '#725AFF', fontWeight: '600', fontSize: 14 }}>Done</Text></Pressable>
-          </View>
-          <Pressable style={{ width: '100%', alignItems: 'flex-start', paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: borderColor }} onPress={() => updateLifecycleStage()}>
-            <Text style={{ color: textSecondary, fontWeight: '500' }}>Clear Selection</Text>
-          </Pressable>
-          <Text style={{ paddingHorizontal: 20, color: '#725AFF', fontSize: 12, fontWeight: '600', textTransform: 'uppercase', marginTop: 8, marginBottom: 8 }}>Lifecycle Stages</Text>
-          <ScrollView style={{ maxHeight: stageSheetMaxHeight }} contentContainerStyle={{ paddingBottom: 4 }}>
-          {lifecycleStages.map(s => (
-            <Pressable key={s.label} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: borderColor }} onPress={() => updateLifecycleStage(s)}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <Text style={{ fontSize: 20 }}>{s.emoji}</Text>
-                <Text style={{ color: textPrimary, fontWeight: '500' }}>{s.label}</Text>
-              </View>
-              {stage === s.label && <Svg width={18} height={18} viewBox="0 0 24 24" fill="none"><Path d="M5 13l4 4L19 7" stroke="#16a34a" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" /></Svg>}
-            </Pressable>
-          ))}
-          </ScrollView>
-          <Text style={{ paddingHorizontal: 20, color: '#725AFF', fontSize: 12, fontWeight: '600', textTransform: 'uppercase', marginTop: 8, marginBottom: 8 }}>Lost Stages</Text>
-          <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 20, paddingVertical: 14 }} onPress={() => updateLifecycleStage({ label: 'Cold Lead', emoji: '🧊' })}>
-            <Text style={{ fontSize: 20 }}>🧊</Text>
-            <Text style={{ color: textPrimary, fontWeight: '500' }}>Cold Lead</Text>
-          </Pressable>
-        </BottomSheet>
-      )}
-
-      {sheet === 'snooze' && (
-        <BottomSheet onClose={() => setSheet(null)}>
-          <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <SnoozeIcon color="#725AFF" />
-                <Text style={{ fontSize: 18, fontWeight: '700', color: textPrimary }}>
-                  {isArabic ? 'تأجيل المحادثة' : 'Snooze Conversation'}
-                </Text>
-              </View>
-              <Pressable onPress={() => setSheet(null)} hitSlop={8}>
-                <XIcon color={textPrimary} />
-              </Pressable>
-            </View>
-            <Text style={{ fontSize: 13, color: textSecondary, marginBottom: 16 }}>
-              {isArabic
-                ? `سيتم إخفاء المحادثة مع ${name} مؤقتاً حتى الوقت المحدد أو حتى يرسل العميل رداً جديداً.`
-                : `Temporarily snooze conversation with ${name} until selected time or until next customer reply.`}
-            </Text>
-
-            <View style={{ gap: 8, paddingBottom: 24 }}>
-              {conversation?.status === 'snoozed' && (
-                <Pressable
-                  onPress={async () => {
-                    hapticTrigger?.();
-                    setSheet(null);
-                    try {
-                      await dispatch(
-                        conversationActions.toggleConversationStatus({
-                          conversationId,
-                          payload: { status: 'open' },
-                        }),
-                      ).unwrap();
-                      showToast({
-                        message: isArabic ? 'تم إلغاء التأجيل وفتح المحادثة' : 'Conversation reopened',
-                      });
-                    } catch (e) {
-                      showToast({ message: isArabic ? 'تعذر فتح المحادثة' : 'Failed to reopen' });
-                    }
-                  }}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 12,
-                    paddingHorizontal: 14,
-                    paddingVertical: 12,
-                    borderRadius: 12,
-                    backgroundColor: isDark ? '#1B1C20' : 'rgba(44,165,74,0.15)',
-                    borderWidth: 1.5,
-                    borderColor: '#2CA54A',
-                    marginBottom: 4,
-                  }}>
-                  <Text style={{ fontSize: 20 }}>✨</Text>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 14, fontWeight: '700', color: isDark ? '#6ee7b7' : '#047857', marginBottom: 2 }}>
-                      {isArabic ? 'إلغاء التأجيل وفتح المحادثة' : 'Reopen Conversation (Un-snooze)'}
-                    </Text>
-                    <Text style={{ fontSize: 12, color: isDark ? '#a7f3d0' : '#065f46' }}>
-                      {isArabic ? 'إعادة المحادثة فوراً إلى صندوق المحادثات المفتوحة' : 'Move conversation back to open inbox immediately'}
-                    </Text>
-                  </View>
-                </Pressable>
-              )}
-              {[
-                {
-                  id: 'next_reply',
-                  label: isArabic ? 'حتى الرد التالي' : 'Until Next Reply',
-                  desc: isArabic ? 'يتم إلغاء التأجيل بمجرد وصول رسالة من العميل' : 'Snooze until the customer responds',
-                  icon: '💬',
-                  snoozedUntil: null,
+      <SnoozeConversationSheet
+        isOpen={sheet === 'snooze'}
+        contactName={name}
+        isSnoozed={conversation?.status === 'snoozed'}
+        isDark={isDark}
+        isArabic={isArabic}
+        onClose={() => setSheet(null)}
+        onReopen={async () => {
+          hapticTrigger?.();
+          setSheet(null);
+          try {
+            await dispatch(
+              conversationActions.toggleConversationStatus({
+                conversationId,
+                payload: { status: 'open' },
+              }),
+            ).unwrap();
+            showToast({
+              message: isArabic ? 'تم إلغاء التأجيل وفتح المحادثة' : 'Conversation reopened',
+            });
+          } catch (e) {
+            showToast({ message: isArabic ? 'تعذر فتح المحادثة' : 'Failed to reopen' });
+          }
+        }}
+        onSnooze={async (snoozedUntil, optLabel) => {
+          hapticTrigger?.();
+          setSheet(null);
+          try {
+            await dispatch(
+              conversationActions.toggleConversationStatus({
+                conversationId,
+                payload: {
+                  status: 'snoozed',
+                  snoozed_until: snoozedUntil,
                 },
-                {
-                  id: 'tomorrow',
-                  label: isArabic ? 'غداً صباحاً (9:00 ص)' : 'Tomorrow Morning (9:00 AM)',
-                  desc: isArabic ? 'تأجيل حتى صباح الغد' : 'Snooze until 9:00 AM tomorrow',
-                  icon: '☀️',
-                  getTimestamp: () => {
-                    const d = new Date();
-                    d.setDate(d.getDate() + 1);
-                    d.setHours(9, 0, 0, 0);
-                    return Math.floor(d.getTime() / 1000);
-                  },
+              }),
+            ).unwrap();
+            showToast({
+              message: isArabic ? `تم تأجيل المحادثة: ${optLabel}` : `Conversation snoozed: ${optLabel}`,
+            });
+          } catch (e) {
+            showToast({ message: isArabic ? 'تعذر تأجيل المحادثة' : 'Failed to snooze conversation' });
+          }
+        }}
+        onCustomSnooze={async ts => {
+          hapticTrigger?.();
+          setSheet(null);
+          try {
+            await dispatch(
+              conversationActions.toggleConversationStatus({
+                conversationId,
+                payload: {
+                  status: 'snoozed',
+                  snoozed_until: ts,
                 },
-                {
-                  id: '2_hours',
-                  label: isArabic ? 'بعد ساعتين' : 'In 2 Hours',
-                  desc: isArabic ? 'تأجيل لمدة ساعتين' : 'Snooze for 2 hours',
-                  icon: '⏱️',
-                  getTimestamp: () => Math.floor((Date.now() + 2 * 3600 * 1000) / 1000),
-                },
-                {
-                  id: 'next_week',
-                  label: isArabic ? 'الأسبوع القادم (الإثنين 9:00 ص)' : 'Next Week (Monday 9:00 AM)',
-                  desc: isArabic ? 'تأجيل حتى بداية الأسبوع القادم' : 'Snooze until next Monday',
-                  icon: '📅',
-                  getTimestamp: () => {
-                    const d = new Date();
-                    d.setDate(d.getDate() + ((1 + 7 - d.getDay()) % 7 || 7));
-                    d.setHours(9, 0, 0, 0);
-                    return Math.floor(d.getTime() / 1000);
-                  },
-                },
-              ].map(opt => (
-                <Pressable
-                  key={opt.id}
-                  onPress={async () => {
-                    hapticTrigger?.();
-                    setSheet(null);
-                    const snoozedUntil = 'getTimestamp' in opt && opt.getTimestamp ? opt.getTimestamp() : null;
-                    try {
-                      await dispatch(
-                        conversationActions.toggleConversationStatus({
-                          conversationId,
-                          payload: {
-                            status: 'snoozed',
-                            snoozed_until: snoozedUntil,
-                          },
-                        }),
-                      ).unwrap();
-                      showToast({
-                        message: isArabic ? `تم تأجيل المحادثة: ${opt.label}` : `Conversation snoozed: ${opt.label}`,
-                      });
-                    } catch (e) {
-                      showToast({ message: isArabic ? 'تعذر تأجيل المحادثة' : 'Failed to snooze conversation' });
-                    }
-                  }}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 12,
-                    paddingHorizontal: 14,
-                    paddingVertical: 12,
-                    borderRadius: 12,
-                    backgroundColor: isDark ? '#1B1C20' : '#EDEEF0',
-                    borderWidth: 1,
-                    borderColor: borderColor,
-                  }}>
-                  <Text style={{ fontSize: 20 }}>{opt.icon}</Text>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: textPrimary, marginBottom: 2 }}>
-                      {opt.label}
-                    </Text>
-                    <Text style={{ fontSize: 12, color: textSecondary }}>
-                      {opt.desc}
-                    </Text>
-                  </View>
-                </Pressable>
-              ))}
-              <Pressable
-                onPress={() => {
-                  const initialDate = new Date(Date.now() + 60 * 60 * 1000);
-                  setCustomSnoozeDateText(initialDate.toISOString().slice(0, 10));
-                  setCustomSnoozeTimeText(initialDate.toTimeString().slice(0, 5));
-                  setCustomSnoozeOpen(true);
-                }}
-                style={{ paddingHorizontal: 14, paddingVertical: 12, borderRadius: 12, backgroundColor: isDark ? '#1B1C20' : 'rgba(44,165,74,0.15)', borderWidth: 1, borderColor: '#725AFF' }}>
-                <Text style={{ color: '#725AFF', fontSize: 14, fontWeight: '700', textAlign: 'center' }}>{isArabic ? 'اختيار تاريخ ووقت' : 'Pick Date & Time'}</Text>
-              </Pressable>
-              {customSnoozeOpen && (
-                <View style={{ gap: 8, marginTop: 8 }}>
-                  <TextInput
-                    value={customSnoozeDateText}
-                    onChangeText={setCustomSnoozeDateText}
-                    placeholder="YYYY-MM-DD"
-                    placeholderTextColor={isDark ? '#94a3b8' : '#80838D'}
-                    keyboardType="numbers-and-punctuation"
-                    style={{ color: textPrimary, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, textAlign: 'center' }}
-                  />
-                  <TextInput
-                    value={customSnoozeTimeText}
-                    onChangeText={setCustomSnoozeTimeText}
-                    placeholder="HH:MM"
-                    placeholderTextColor={isDark ? '#94a3b8' : '#80838D'}
-                    keyboardType="numbers-and-punctuation"
-                    style={{ color: textPrimary, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, textAlign: 'center' }}
-                  />
-                  <Pressable onPress={handleCustomSnoozeSubmit} style={{ paddingVertical: 11, borderRadius: 8, backgroundColor: '#725AFF' }}>
-                    <Text style={{ color: '#ffffff', fontSize: 14, fontWeight: '700', textAlign: 'center' }}>{isArabic ? 'تأكيد التأجيل' : 'Confirm Snooze'}</Text>
-                  </Pressable>
-                </View>
-              )}
-            </View>
-          </View>
-        </BottomSheet>
-      )}
+              }),
+            ).unwrap();
+            showToast({
+              message: isArabic ? 'تم تأجيل المحادثة حتى الموعد المحدد' : 'Conversation snoozed until selected time',
+            });
+          } catch (e) {
+            showToast({ message: isArabic ? 'تعذر تأجيل المحادثة' : 'Failed to snooze conversation' });
+          }
+        }}
+      />
 
       {sheet === 'collaborators' && (
         <BottomSheet onClose={() => setSheet(null)}>
@@ -2438,78 +2013,16 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
         </BottomSheet>
       )}
 
-      {sheet === 'labels' && (
-        <BottomSheet onClose={() => setSheet(null)}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
-            <Pressable onPress={() => setSheet(null)}><XIcon color={textPrimary} /></Pressable>
-            <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>Conversation Labels</Text>
-            <View style={{ width: 24 }} />
-          </View>
-          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
-            <SearchIcon color={isDark ? '#94a3b8' : '#626F7F'} />
-            <TextInput
-              value={labelSearch}
-              onChangeText={setLabelSearch}
-              placeholder="Search labels..."
-              placeholderTextColor={isDark ? '#94a3b8' : '#80838D'}
-              style={{ flex: 1, color: textPrimary, fontSize: 14, paddingVertical: 6 }}
-            />
-            {labelSearch ? (
-              <Pressable onPress={() => setLabelSearch('')}>
-                <XIcon color={isDark ? '#94a3b8' : '#626F7F'} />
-              </Pressable>
-            ) : null}
-          </View>
-          <ScrollView style={{ maxHeight: 280 }}>
-            {(() => {
-              const currentConvLabels = Array.isArray(conversation?.labels) ? conversation.labels : [];
-              const filtered = (apiLabels || []).filter(lbl => {
-                if (!labelSearch.trim()) return true;
-                return (lbl.title || '').toLowerCase().includes(labelSearch.toLowerCase());
-              });
-
-              if (filtered.length > 0) {
-                return filtered.map(lbl => {
-                  const isSelected = currentConvLabels.some((l: any) => typeof l === 'string' && l.toLowerCase() === lbl.title.toLowerCase());
-                  return (
-                    <Pressable
-                      key={lbl.id}
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        paddingHorizontal: 20,
-                        paddingVertical: 14,
-                        borderBottomWidth: 1,
-                        borderBottomColor: borderColor,
-                      }}
-                      onPress={() => handleToggleLabel(lbl.title)}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                        <View style={{ width: 12, height: 12, borderRadius: 999, backgroundColor: lbl.color || '#725AFF' }} />
-                        <Text style={{ fontSize: 15, fontWeight: '500', color: textPrimary }}>{lbl.title}</Text>
-                      </View>
-                      {isSelected && (
-                        <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                          <Path d="M5 13l4 4L19 7" stroke="#725AFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-                        </Svg>
-                      )}
-                    </Pressable>
-                  );
-                });
-              }
-
-              return (
-                <View style={{ alignItems: 'center', paddingVertical: 32, gap: 12 }}>
-                  <Text style={{ color: '#80838D', fontWeight: '500' }}>
-                    {labelSearch ? 'No matching labels' : 'No account labels found'}
-                  </Text>
-                </View>
-              );
-            })()}
-          </ScrollView>
-          <View style={{ height: 8 }} />
-        </BottomSheet>
-      )}
+      <LabelSelectionSheet
+        isOpen={sheet === 'labels'}
+        title={isArabic ? 'تصنيفات المحادثة' : 'Conversation Labels'}
+        placeholder={isArabic ? 'بحث في التصنيفات...' : 'Search labels...'}
+        selectedLabels={Array.isArray(conversation?.labels) ? (conversation.labels as string[]) : []}
+        availableLabels={apiLabels || []}
+        isDark={isDark}
+        onClose={() => setSheet(null)}
+        onToggleLabel={handleToggleLabel}
+      />
     </SafeAreaView>
   );
 };
@@ -2937,199 +2450,64 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
 
         </ScrollView>
       </KeyboardAvoidingView>
-
       {/* ── Assignee BottomSheet ── */}
-      {sheet === 'assign' && (
-        <BottomSheet onClose={() => setSheet(null)}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
-            <Pressable onPress={() => setSheet(null)}><XIcon color={textPrimary} /></Pressable>
-            <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>Assign Agent</Text>
-            <View style={{ width: 24 }} />
-          </View>
-
-          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
-            <SearchIcon color={isDark ? '#94a3b8' : '#626F7F'} />
-            <TextInput
-              value={assignSearch}
-              onChangeText={setAssignSearch}
-              placeholder="Search agent..."
-              placeholderTextColor={isDark ? '#94a3b8' : '#80838D'}
-              style={{ flex: 1, color: textPrimary, fontSize: 14, paddingVertical: 6 }}
-            />
-            {assignSearch ? (
-              <Pressable onPress={() => setAssignSearch('')}>
-                <XIcon color={isDark ? '#94a3b8' : '#626F7F'} />
-              </Pressable>
-            ) : null}
-          </View>
-
-          {/* Unassign option */}
-          <Pressable
-            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: borderColor }}
-            onPress={handleUnassign}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={{ width: 32, height: 32, borderRadius: 999, backgroundColor: isDark ? '#24262B' : '#EAEAEA', alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: textSecondary, fontWeight: '600', fontSize: 13 }}>✕</Text>
-              </View>
-              <Text style={{ color: textPrimary, fontWeight: '500', fontSize: 14 }}>Unassigned</Text>
-            </View>
-            {!selectedAssignee?.name && (
-              <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                <Path d="M5 13l4 4L19 7" stroke="#725AFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-              </Svg>
-            )}
-          </Pressable>
-
-          <ScrollView style={{ maxHeight: 260 }}>
-            {assignableAgents
-              .filter(ag => {
-                if (!assignSearch.trim()) return true;
-                const q = assignSearch.toLowerCase();
-                const aname = (ag.name || ag.available_name || '').toLowerCase();
-                return aname.includes(q);
-              })
-              .map(ag => {
-                const isSelected = selectedAssignee?.id === ag.id;
-                return (
-                  <Pressable
-                    key={ag.id}
-                    style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: borderColor }}
-                    onPress={() => handleSelectAssignee(ag)}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                      {ag.thumbnail ? (
-                        <Image source={{ uri: ag.thumbnail }} style={{ width: 32, height: 32, borderRadius: 999 }} />
-                      ) : (
-                        <View style={{ width: 32, height: 32, borderRadius: 999, backgroundColor: '#725AFF', alignItems: 'center', justifyContent: 'center' }}>
-                          <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>{(ag.name || 'A').charAt(0).toUpperCase()}</Text>
-                        </View>
-                      )}
-                      <Text style={{ color: textPrimary, fontWeight: '500', fontSize: 14 }}>{ag.name || ag.available_name}</Text>
-                    </View>
-                    {isSelected && (
-                      <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                        <Path d="M5 13l4 4L19 7" stroke="#725AFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-                      </Svg>
-                    )}
-                  </Pressable>
-                );
-              })}
-          </ScrollView>
-          <View style={{ height: 10 }} />
-        </BottomSheet>
-      )}
+      <AssigneeSelectionSheet
+        isOpen={sheet === 'assign'}
+        currentAssigneeId={selectedAssignee?.id}
+        assignableAgents={assignableAgents}
+        isDark={isDark}
+        onClose={() => setSheet(null)}
+        onAssignToMe={() => {}}
+        onUnassign={handleUnassign}
+        onAssignAgent={agentId => {
+          const agent = assignableAgents.find(a => a.id === agentId);
+          if (agent) handleSelectAssignee(agent);
+        }}
+      />
 
       {/* ── Lifecycle Stage BottomSheet ── */}
-      {sheet === 'stage' && (
-        <BottomSheet onClose={() => setSheet(null)}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
-            <Pressable onPress={() => setSheet(null)}><XIcon color={textPrimary} /></Pressable>
-            <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>Select Stage</Text>
-            <Pressable onPress={() => setSheet(null)}><Text style={{ color: '#725AFF', fontWeight: '600', fontSize: 14 }}>Done</Text></Pressable>
-          </View>
-
-          <ScrollView style={{ maxHeight: stageSheetMaxHeight }} contentContainerStyle={{ paddingBottom: 4 }}>
-            {(apiLifecycleStages.length > 0 ? apiLifecycleStages : defaultStages.map((stage, index) => ({
-              id: index,
-              name: stage.label,
-              icon: stage.emoji,
-            }))).map(s => {
-              const isSelected = lifecycleStageId === s.id || stageName === s.name;
-              return (
-                <Pressable
-                  key={s.id}
-                  style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: borderColor }}
-                  onPress={() => handleSelectStage(s)}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                    <Text style={{ fontSize: 20 }}>{s.icon || '🌱'}</Text>
-                    <Text style={{ color: textPrimary, fontWeight: '500', fontSize: 15 }}>{s.name}</Text>
-                  </View>
-                  {isSelected && (
-                    <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                      <Path d="M5 13l4 4L19 7" stroke="#16a34a" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-                    </Svg>
-                  )}
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-          <View style={{ height: 10 }} />
-        </BottomSheet>
-      )}
+      <LifecycleStageSheet
+        isOpen={sheet === 'stage'}
+        currentStageId={lifecycleStageId}
+        currentStageName={stageName}
+        stages={
+          apiLifecycleStages.length > 0
+            ? apiLifecycleStages
+            : defaultStages.map((st, idx) => ({
+                id: idx,
+                name: st.label,
+                label: st.label,
+                icon: st.emoji,
+                emoji: st.emoji,
+              }))
+        }
+        isDark={isDark}
+        maxHeight={stageSheetMaxHeight}
+        showClearSelection={false}
+        onClose={() => setSheet(null)}
+        onSelectStage={s => {
+          if (s && s.id !== undefined) {
+            handleSelectStage({
+              id: Number(s.id),
+              name: s.name || s.label || '',
+              icon: s.icon || s.emoji,
+            });
+          }
+          setSheet(null);
+        }}
+      />
 
       {/* ── Tags / Labels BottomSheet ── */}
-      {sheet === 'labels' && (
-        <BottomSheet onClose={() => setSheet(null)}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
-            <Pressable onPress={() => setSheet(null)}><XIcon color={textPrimary} /></Pressable>
-            <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>Conversation Tags</Text>
-            <Pressable onPress={() => setSheet(null)}><Text style={{ color: '#725AFF', fontWeight: '600', fontSize: 14 }}>Done</Text></Pressable>
-          </View>
-
-          <View style={{ marginHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#24262B' : '#F0F0F3', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
-            <SearchIcon color={isDark ? '#94a3b8' : '#626F7F'} />
-            <TextInput
-              value={labelSearch}
-              onChangeText={setLabelSearch}
-              placeholder="Search tags..."
-              placeholderTextColor={isDark ? '#94a3b8' : '#80838D'}
-              style={{ flex: 1, color: textPrimary, fontSize: 14, paddingVertical: 6 }}
-            />
-            {labelSearch ? (
-              <Pressable onPress={() => setLabelSearch('')}>
-                <XIcon color={isDark ? '#94a3b8' : '#626F7F'} />
-              </Pressable>
-            ) : null}
-          </View>
-
-          <ScrollView style={{ maxHeight: 280 }}>
-            {(() => {
-              const filtered = (apiLabels || []).filter(lbl => {
-                if (!labelSearch.trim()) return true;
-                return (lbl.title || '').toLowerCase().includes(labelSearch.toLowerCase());
-              });
-
-              if (filtered.length > 0) {
-                return filtered.map(lbl => {
-                  const isSelected = currentLabels.some(l => l.toLowerCase() === lbl.title.toLowerCase());
-                  return (
-                    <Pressable
-                      key={lbl.id}
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        paddingHorizontal: 20,
-                        paddingVertical: 14,
-                        borderBottomWidth: 1,
-                        borderBottomColor: borderColor,
-                      }}
-                      onPress={() => handleToggleLabel(lbl.title)}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                        <View style={{ width: 12, height: 12, borderRadius: 999, backgroundColor: lbl.color || '#725AFF' }} />
-                        <Text style={{ fontSize: 15, fontWeight: '500', color: textPrimary }}>{lbl.title}</Text>
-                      </View>
-                      {isSelected && (
-                        <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                          <Path d="M5 13l4 4L19 7" stroke="#725AFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-                        </Svg>
-                      )}
-                    </Pressable>
-                  );
-                });
-              }
-
-              return (
-                <View style={{ alignItems: 'center', paddingVertical: 32, gap: 12 }}>
-                  <Text style={{ color: '#80838D', fontWeight: '500' }}>
-                    {labelSearch ? 'No matching tags found' : 'No account tags found'}
-                  </Text>
-                </View>
-              );
-            })()}
-          </ScrollView>
-          <View style={{ height: 10 }} />
-        </BottomSheet>
-      )}
+      <LabelSelectionSheet
+        isOpen={sheet === 'labels'}
+        title="Conversation Tags"
+        placeholder="Search tags..."
+        selectedLabels={currentLabels}
+        availableLabels={apiLabels || []}
+        isDark={isDark}
+        onClose={() => setSheet(null)}
+        onToggleLabel={handleToggleLabel}
+      />
     </SafeAreaView>
   );
 };
@@ -3166,7 +2544,8 @@ const InboxScreenDesign = () => {
   const [customDateText, setCustomDateText] = useState('');
   const [customTimeText, setCustomTimeText] = useState('');
 
-  const pageRef = React.useRef(1);
+  const pageNumberRef = React.useRef(1);
+  const pageRef = pageNumberRef;
   const isLoadingPageRef = React.useRef(false);
   const fetchIdRef = React.useRef(0);
   const [isFlashListReady, setFlashListReady] = useState(false);
@@ -3323,19 +2702,18 @@ const InboxScreenDesign = () => {
 
   const handleLoadMore = React.useCallback(async () => {
     if (isLoadingPageRef.current || isAllConversationsFetched) return;
+    const nextPage = pageNumberRef.current + 1;
     isLoadingPageRef.current = true;
-    const nextPage = pageRef.current + 1;
+    pageNumberRef.current = nextPage;
     const fetchId = fetchIdRef.current;
     try {
       const data = await fetchConversationsFromApi(nextPage, fetchId);
       if (fetchIdRef.current !== fetchId) return;
-      if (data && data.conversations && Array.isArray(data.conversations)) {
-        if (data.conversations.length > 0) {
-          pageRef.current = nextPage;
-        }
+      if (!data || !data.conversations || data.conversations.length === 0) {
+        pageNumberRef.current = nextPage - 1;
       }
     } catch {
-      // Pagination failure is non-critical
+      pageNumberRef.current = nextPage - 1;
     } finally {
       if (fetchIdRef.current === fetchId) {
         isLoadingPageRef.current = false;

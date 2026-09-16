@@ -6,7 +6,11 @@ export type DateSeparator = { date: string; type: 'date'; id: string };
 export type ChatListItem = Message | DateSeparator;
 
 const htmlToPlainText = (value: string): string => {
-  if (!/[<>&]/.test(value)) return value;
+  if (!value || typeof value !== 'string') return '';
+  // Only process if it actually contains html tags like <p>, <br>, <div>
+  if (!/<(p|br|div|li|tr|h[1-6]|table|ul|ol)[\s/>]/i.test(value)) {
+    return value;
+  }
 
   return value
     .replace(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gi, (_, href, text) => {
@@ -24,25 +28,34 @@ const htmlToPlainText = (value: string): string => {
     .replace(/&gt;/gi, '>')
     .replace(/&quot;/gi, '"')
     .replace(/&#39;|&apos;/gi, "'")
-    .replace(/\n[ \t]*\n[ \t]*\n+/g, '\n\n')
     .trim();
 };
 
 export const getMessageText = (m: Message): string => {
+  if (!m) return '';
   const raw = m as Message & Record<string, unknown>;
+
+  // 1. Direct content
+  if (typeof m.content === 'string' && m.content) {
+    return htmlToPlainText(m.content);
+  }
+
+  // 2. Email content
   const email = m.contentAttributes?.email;
   const rawEmail = (raw.content_attributes as { email?: { text_content?: unknown } } | undefined)?.email;
   const rawEmailText = rawEmail?.text_content;
-  const content = (
+  const emailText =
     email?.textContent?.full ||
     (typeof rawEmailText === 'string' ? rawEmailText : (rawEmailText as { full?: string } | undefined)?.full) ||
-    email?.htmlContent?.full ||
-    m.content ||
-    (raw.message as string) ||
-    (raw.text as string) ||
-    ''
-  );
-  return htmlToPlainText(content);
+    email?.htmlContent?.full;
+
+  if (typeof emailText === 'string' && emailText) {
+    return htmlToPlainText(emailText);
+  }
+
+  // 3. Fallback fields
+  const fallback = (raw.message as string) || (raw.text as string) || '';
+  return typeof fallback === 'string' ? htmlToPlainText(fallback) : '';
 };
 
 export const isActivityMessage = (m: Message): boolean => {
@@ -65,9 +78,13 @@ export const isOutgoingMessage = (m: Message): boolean => {
   const senderType = m.sender?.type ?? (m as Message & { sender_type?: string }).senderType;
   return (
     rawType === MESSAGE_TYPES.OUTGOING ||
+    rawType === MESSAGE_TYPES.TEMPLATE ||
     rawType === 1 ||
     rawType === '1' ||
     rawType === 'outgoing' ||
+    rawType === 3 ||
+    rawType === '3' ||
+    rawType === 'template' ||
     senderType === 'user'
   );
 };

@@ -43,6 +43,8 @@ import { customAttributeActions } from '@/viewmodels/store/custom-attribute/cust
 import { clearSelection } from '@/viewmodels/store/conversation/conversationSelectedSlice';
 import { apiService } from '@/models/services/APIService';
 import { config } from '@/config';
+import { getAuthHeaders } from '@/utils/secureStore';
+import { updateAuthHeaders } from '@/viewmodels/store/auth/authSlice';
 
 const Tab = createBottomTabNavigator();
 
@@ -98,14 +100,21 @@ const Tabs = () => {
   const authHeaders = useAppSelector(selectAuthHeaders);
 
   useEffect(() => {
-    // Initialize apiService from persisted Redux state (after rehydration)
+    // Initialize apiService from persisted state or SecureStore
     if (authHeaders) {
       apiService.setAuthHeaders(authHeaders);
+    } else {
+      getAuthHeaders().then(stored => {
+        if (stored) {
+          apiService.setAuthHeaders(stored);
+          dispatch(updateAuthHeaders(stored));
+        }
+      });
     }
     if (accountId) {
       apiService.setAccountId(accountId);
     }
-  }, [authHeaders, accountId]);
+  }, [authHeaders, accountId, dispatch]);
 
   useEffect(() => {
     if (accountId) {

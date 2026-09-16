@@ -25,6 +25,7 @@ import { profileService, LifecycleStage } from '@/models/services/profileService
 import { contactService } from '@/models/services/contactService';
 import { useTheme } from '@/theme';
 import AddContactScreen from '@/views/screens/contacts/AddContactScreen';
+import { formatChatTime, parseDate, getContactName, matchesStage } from '@/utils';
 
 // ---------- Reference-exact icons ----------
 const HamburgerIcon = ({ color = 'currentColor' }: { color?: string }) => (
@@ -126,58 +127,6 @@ const CustoIcon = ({ color = 'currentColor' }: { color?: string }) => (
   </Svg>
 );
 
-// Utility helpers for full name and timestamp formatting
-const parseDate = (val: any): Date | null => {
-  if (!val) return null;
-  if (typeof val === 'number') {
-    return new Date(val > 1e11 ? val : val * 1000);
-  }
-  if (typeof val === 'string') {
-    const num = Number(val);
-    if (!isNaN(num) && num > 0) {
-      return new Date(num > 1e11 ? num : num * 1000);
-    }
-    const d = new Date(val);
-    if (!isNaN(d.getTime())) return d;
-  }
-  return null;
-};
-
-const formatChatTime = (timestamp: any): string => {
-  const d = parseDate(timestamp);
-  if (!d) return '';
-  const now = new Date();
-  const diffMs = now.getTime() - d.getTime();
-  const diffHours = diffMs / (1000 * 60 * 60);
-
-  if (diffHours < 24 && now.getDate() === d.getDate()) {
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-  if (diffHours < 48) {
-    return 'Yesterday';
-  }
-  return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
-};
-
-const getContactName = (sender: any): string => {
-  if (!sender) return 'Unknown Contact';
-  if (sender.name && sender.name.trim()) return sender.name.trim();
-  if (sender.availableName && sender.availableName.trim()) return sender.availableName.trim();
-  if (sender.available_name && sender.available_name.trim()) return sender.available_name.trim();
-  if (sender.additionalAttributes?.name && sender.additionalAttributes.name.trim()) {
-    return sender.additionalAttributes.name.trim();
-  }
-  if (sender.customAttributes?.name && sender.customAttributes.name.trim()) {
-    return sender.customAttributes.name.trim();
-  }
-  if (sender.phoneNumber || sender.phone_number) {
-    return String(sender.phoneNumber || sender.phone_number);
-  }
-  if (sender.email) return sender.email;
-  if (sender.identifier) return String(sender.identifier);
-  return 'Unknown Contact';
-};
-
 // Filter Chip
 const FilterChip = ({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) => {
   const { isDark } = useTheme();
@@ -255,53 +204,6 @@ const InboxDrawer = ({
     { key: 'mine', label: 'Mine', icon: <MineIcon />, count: apiMineCount },
     { key: 'unassigned', label: 'Unassigned', icon: <UnassignedIcon />, count: apiUnassignedCount },
   ];
-
-  const matchesStage = (c: any, stageName: string, stageId?: number): boolean => {
-    if (!c) return false;
-    const sLower = stageName.toLowerCase().trim();
-    const sKey = sLower.replace(/\s+/g, '_');
-    const sFirst = sLower.split(/\s+/)[0];
-
-    if (Array.isArray(c.labels) && c.labels.length > 0) {
-      const hasMatch = c.labels.some((l: any) => {
-        if (typeof l !== 'string') return false;
-        const ll = l.toLowerCase().trim();
-        return (
-          ll === sLower ||
-          ll === sKey ||
-          ll === sFirst ||
-          ll.includes(sLower) ||
-          sLower.includes(ll) ||
-          (stageId && ll === String(stageId))
-        );
-      });
-      if (hasMatch) return true;
-    }
-
-    const caStage =
-      c.customAttributes?.lifecycle_stage ||
-      c.customAttributes?.stage ||
-      c.customAttributes?.lifecycleStage ||
-      c.custom_attributes?.lifecycle_stage ||
-      c.custom_attributes?.stage ||
-      c.additionalAttributes?.lifecycle_stage;
-
-    if (caStage) {
-      const caStr = String(caStage).toLowerCase().trim();
-      if (
-        caStr === sLower ||
-        caStr === sKey ||
-        caStr === sFirst ||
-        caStr.includes(sLower) ||
-        sLower.includes(caStr) ||
-        (stageId && caStr === String(stageId))
-      ) {
-        return true;
-      }
-    }
-
-    return false;
-  };
 
   const lifecycle = (
     apiLifecycleStages.length > 0

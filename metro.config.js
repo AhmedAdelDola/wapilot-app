@@ -42,7 +42,6 @@ const extraNodeModules = {
 
   // Permissions & Network
   'react-native-permissions': path.join(stubsDir, 'permissions.ts'),
-  '@react-native-community/netinfo': path.join(stubsDir, 'netInfo.ts'),
 
   // Chatwoot specific
   '@chatwoot/react-native-widget': path.join(stubsDir, 'chatwootWidget.ts'),

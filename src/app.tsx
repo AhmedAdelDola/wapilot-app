@@ -6,6 +6,9 @@ import { store, persistor } from '@/viewmodels/store';
 import { AppNavigator } from '@/views/navigation';
 import { AppErrorBoundary } from '@/views/components/error-boundary';
 import { AnimatedSplash } from '@/views/screens/splash/AnimatedSplash';
+import { getAuthTokens } from '@/utils/secureStore';
+import { apiService } from '@/models/services/APIService';
+import { restoreSecureCredentials } from '@/viewmodels/store/auth/authSlice';
 
 import i18n from '@/i18n';
 
@@ -65,11 +68,31 @@ const Chatwoot = () => {
     return true;
   };
 
-  const handleBeforeLift = () => {
+  const handleBeforeLift = async () => {
     const state = store.getState();
     const { settings } = state;
     if (settings?.localeValue) {
       i18n.locale = settings.localeValue;
+    }
+    // Rehydrate sensitive credentials from SecureStore into apiService and Redux
+    try {
+      const tokens = await getAuthTokens();
+      if (tokens['access-token'] && tokens.client && tokens.uid) {
+        const headers = {
+          'access-token': tokens['access-token'],
+          client: tokens.client,
+          uid: tokens.uid,
+        };
+        apiService.setAuthHeaders(headers);
+        store.dispatch(
+          restoreSecureCredentials({
+            headers,
+            pubsub_token: tokens.pubsub_token,
+          }),
+        );
+      }
+    } catch {
+      // Non-blocking
     }
   };
 

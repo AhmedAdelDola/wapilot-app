@@ -1,10 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
-import { Clipboard, Image, Linking, Pressable, Text, View } from 'react-native';
+import { Image, Linking, Pressable, Text, View } from 'react-native';
 import type { Message, ImageMetadata } from '@/models/types';
 import { ChatDeliveryStatus } from './ChatDeliveryStatus';
 import { formatMessageDate } from '../utils/chatDateUtils';
-import { AudioStatus, pausePlayer, resumePlayer, startPlayer } from '@/views/screens/chat-screen/components/audio-recorder';
-import type { PlayBackType } from 'react-native-audio-recorder-player';
+import { AudioMessagePlayer } from '@/views/components/chat';
 import { AttachmentIcon, LockIcon } from '@/svg-icons';
 import { showToast } from '@/utils/toastUtils';
 
@@ -190,7 +189,7 @@ export const PrivateNote = React.memo(
     onOpenFileViewer?: (uri: string, name: string) => void;
   }) => (
     <View
-      style={{ width: '100%', flexDirection: 'row', justifyContent: 'flex-end', marginTop: 6, marginBottom: 2, paddingHorizontal: 8 }}
+      style={{ width: '100%', flexDirection: 'row', justifyContent: 'flex-end', marginTop: 6, marginBottom: 2, paddingHorizontal: 12 }}
       accessibilityRole="text"
       accessibilityLabel={`Private note from ${senderName}`}>
       <View
@@ -221,11 +220,16 @@ export const PrivateNote = React.memo(
           ))}
 
         {messageText ? (
-          <View style={{ paddingVertical: 2, paddingHorizontal: 2 }}>
-            <Text selectable style={{ color: isDark ? C.private.textDark : C.private.textLight, fontSize: 15, lineHeight: 22, textAlign: isRTL ? 'right' : 'left' }}>
-              {messageText}
-            </Text>
-          </View>
+          <Text
+            style={{
+              color: isDark ? C.private.textDark : C.private.textLight,
+              fontSize: 15,
+              textAlign: isRTL ? 'right' : 'left',
+              paddingVertical: 2,
+              paddingHorizontal: 2,
+            }}>
+            {messageText}
+          </Text>
         ) : null}
       </View>
     </View>
@@ -314,6 +318,7 @@ export const TimeAndStatus = React.memo(
 );
 
 // ── Linkified Text ───────────────────────────────────────────────────
+// Simple: render full text, linkify URLs, NO truncation, NO numberOfLines.
 
 export const LinkifiedText = React.memo(
   ({
@@ -331,6 +336,11 @@ export const LinkifiedText = React.memo(
     lineHeight?: number;
     textAlign?: 'left' | 'right' | 'center';
   }) => {
+    const isRTL = isArabicString(text);
+    const resolvedAlign = textAlign || (isRTL ? 'right' : 'left');
+    const resolvedSize = fontSize || 15;
+    const resolvedHeight = lineHeight || 22;
+
     const parts = useMemo(() => {
       const segments: { text: string; isLink: boolean; url?: string }[] = [];
       let lastIndex = 0;
@@ -350,34 +360,31 @@ export const LinkifiedText = React.memo(
       return segments;
     }, [text]);
 
-    const isRTL = isArabicString(text);
-    const displayText = isRTL ? `\u200F${text}\u200F` : text;
-
+    // No links — render plain text
     if (parts.length <= 1) {
       return (
         <Text
           style={{
             color,
-            fontSize: fontSize || 15,
-            lineHeight: lineHeight || 22,
-            textAlign: textAlign || (isRTL ? 'right' : 'left'),
+            fontSize: resolvedSize,
+            ...(lineHeight ? { lineHeight } : {}),
+            textAlign: resolvedAlign,
             writingDirection: isRTL ? 'rtl' : 'ltr',
-            paddingHorizontal: 2,
           }}>
-          {displayText}
+          {text}
         </Text>
       );
     }
 
+    // Has links — render mixed
     return (
       <Text
         style={{
           color,
-          fontSize: fontSize || 15,
-          lineHeight: lineHeight || 22,
-          textAlign: textAlign || (isRTL ? 'right' : 'left'),
+          fontSize: resolvedSize,
+          ...(lineHeight ? { lineHeight } : {}),
+          textAlign: resolvedAlign,
           writingDirection: isRTL ? 'rtl' : 'ltr',
-          paddingHorizontal: 2,
         }}>
         {parts.map((part, i) =>
           part.isLink ? (
@@ -414,43 +421,6 @@ export const MessageAttachmentView = ({
   onOpenFile: (uri: string, name: string) => void;
 }) => {
   const uri = attachment.dataUrl || attachment.thumbUrl;
-  const [isPlaying, setIsPlaying] = React.useState(false);
-  const [progress, setProgress] = React.useState(0);
-  const [duration, setDuration] = React.useState(0);
-
-  const togglePlayback = useCallback(async () => {
-    try {
-      if (isPlaying) {
-        await pausePlayer();
-        setIsPlaying(false);
-        return;
-      }
-      if (duration > 0 && progress > 0) {
-        await resumePlayer();
-        setIsPlaying(true);
-        return;
-      }
-      const playbackStatus = (event: { status?: AudioStatus; data?: PlayBackType }) => {
-        if (event.status === AudioStatus.STOPPED) {
-          setIsPlaying(false);
-          setProgress(0);
-          return;
-        }
-        const playback = event.data;
-        if (!playback) return;
-        setDuration(playback.duration);
-        setProgress(playback.duration ? playback.currentPosition / playback.duration : 0);
-        if (playback.duration > 0 && playback.currentPosition >= playback.duration) {
-          setIsPlaying(false);
-          setProgress(0);
-        }
-      };
-      await startPlayer(uri, playbackStatus);
-      setIsPlaying(true);
-    } catch {
-      showToast({ message: 'Unable to play this voice message' });
-    }
-  }, [isPlaying, duration, progress, uri]);
 
   if (!uri) return null;
 
@@ -467,17 +437,26 @@ export const MessageAttachmentView = ({
     );
   }
 
-  const formatTime = (ms: number) => {
-    const mins = Math.floor(ms / 60000);
-    const secs = String(Math.floor((ms / 1000) % 60)).padStart(2, '0');
-    return `${mins}:${secs}`;
-  };
+  if (isAudio) {
+    return (
+      <View
+        style={{
+          borderRadius: 12,
+          backgroundColor: isOutgoing ? 'rgba(255,255,255,0.18)' : isDark ? '#24262B' : '#F0F0F3',
+          marginBottom: 6,
+          paddingVertical: 2,
+          paddingHorizontal: 4,
+        }}>
+        <AudioMessagePlayer audioSrc={uri} isOutgoing={isOutgoing} isDark={isDark} />
+      </View>
+    );
+  }
 
   return (
     <Pressable
-      onPress={() => (isAudio ? togglePlayback() : onOpenFile(uri, fileName))}
+      onPress={() => onOpenFile(uri, fileName)}
       accessibilityRole="button"
-      accessibilityLabel={isAudio ? (isPlaying ? 'Pause voice message' : 'Play voice message') : fileName}
+      accessibilityLabel={fileName}
       style={{
         flexDirection: 'row',
         alignItems: 'center',
@@ -496,38 +475,13 @@ export const MessageAttachmentView = ({
           borderRadius: 999,
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: isAudio ? '#725AFF' : 'transparent',
         }}>
-        {isAudio ? (
-          <Text style={{ color: '#ffffff', fontSize: 15, marginLeft: isPlaying ? 0 : 2 }}>{isPlaying ? 'Ⅱ' : '▶'}</Text>
-        ) : (
-          <AttachmentIcon stroke={isOutgoing ? '#ffffff' : '#725AFF'} />
-        )}
+        <AttachmentIcon stroke={isOutgoing ? '#ffffff' : '#725AFF'} />
       </View>
       <View style={{ flex: 1 }}>
-        {isAudio ? (
-          <>
-            <View style={{ height: 20, justifyContent: 'center' }}>
-              <View style={{ height: 4, borderRadius: 999, overflow: 'hidden', backgroundColor: isOutgoing ? 'rgba(255,255,255,0.35)' : '#B0B4BA' }}>
-                <View
-                  style={{
-                    height: '100%',
-                    width: `${Math.min(100, Math.max(0, progress * 100))}%`,
-                    borderRadius: 999,
-                    backgroundColor: isOutgoing ? '#ffffff' : '#725AFF',
-                  }}
-                />
-              </View>
-            </View>
-            <Text style={{ color: isOutgoing ? 'rgba(255,255,255,0.85)' : isDark ? '#B0B4BA' : '#80838D', fontSize: 10 }}>
-              {duration > 0 ? `${formatTime(progress * duration)} / ${formatTime(duration)}` : 'Voice message'}
-            </Text>
-          </>
-        ) : (
-          <Text style={{ color: isOutgoing ? '#ffffff' : isDark ? '#EDEEF0' : '#1B1C20', fontSize: 13, fontWeight: '600' }} numberOfLines={2}>
-            {fileName}
-          </Text>
-        )}
+        <Text style={{ color: isOutgoing ? '#ffffff' : isDark ? '#EDEEF0' : '#1B1C20', fontSize: 13, fontWeight: '600' }} numberOfLines={2}>
+          {fileName}
+        </Text>
       </View>
     </Pressable>
   );

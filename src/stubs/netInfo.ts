@@ -1,9 +1,4 @@
-export const fetch = async () => ({ isConnected: true, type: 'wifi' });
-export const addEventListener = (cb: any) => () => {};
-export const useNetInfo = () => ({ isConnected: true, type: 'wifi' });
+import NetInfo from '@react-native-community/netinfo';
 
-export default {
-  fetch,
-  addEventListener,
-  useNetInfo,
-};
+export * from '@react-native-community/netinfo';
+export default NetInfo;

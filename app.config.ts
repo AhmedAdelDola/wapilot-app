@@ -48,6 +48,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       'expo-splash-screen',
       'expo-image-picker',
       'expo-document-picker',
+      'expo-secure-store',
       [
         'expo-build-properties',
         {

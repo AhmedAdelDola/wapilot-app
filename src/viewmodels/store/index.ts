@@ -3,6 +3,7 @@ import { configureStore, ThunkAction, Action, Middleware, AnyAction } from '@red
 import {
   persistStore,
   persistReducer,
+  createTransform,
   FLUSH,
   REHYDRATE,
   PAUSE,
@@ -16,10 +17,35 @@ import { contactListenerMiddleware } from './contact/contactListener';
 
 const CURRENT_VERSION = 2;
 
+// Transform to strip sensitive auth tokens before writing state to AsyncStorage
+// Sensitive credentials (access-token, client, uid, pubsub_token) are persisted in expo-secure-store instead
+const authTransform = createTransform(
+  (inboundState: any) => {
+    if (!inboundState) return inboundState;
+    return {
+      ...inboundState,
+      headers: null,
+      accessToken: null,
+      user: inboundState.user
+        ? {
+            ...inboundState.user,
+            pubsub_token: '',
+          }
+        : null,
+    };
+  },
+  (outboundState: any) => {
+    return outboundState;
+  },
+  { whitelist: ['auth'] },
+);
+
 const persistConfig = {
   key: 'Root',
   version: CURRENT_VERSION,
   storage: AsyncStorage,
+  whitelist: ['auth', 'settings'],
+  transforms: [authTransform],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   migrate: async (state: any) => {
     // If the stored version is older or doesn't exist, return initial state

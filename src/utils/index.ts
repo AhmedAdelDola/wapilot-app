@@ -17,3 +17,7 @@ export * from './customAnimations';
 export * from './priorityIcon';
 export * from './highlightText';
 export * from './messageUtils';
+export * from './chatFormatUtils';
+export * from './contactUtils';
+export * from './lifecycleUtils';
+export * from './secureStore';

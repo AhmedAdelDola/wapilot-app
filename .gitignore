@@ -39,3 +39,11 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# credentials and build artifacts
+_fetch_keystore.cjs
+*.keystore
+*.properties
+release-keystore.properties
+GoogleService-Info.plist
+_build_log*.txt

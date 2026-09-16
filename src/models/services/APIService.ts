@@ -7,6 +7,7 @@ import axios, {
 import { Platform } from 'react-native';
 import { API_CONFIG } from '@/config/apiConfig';
 import { getStore } from '@/viewmodels/store/storeAccessor';
+import { saveAuthHeaders, clearAuthTokens, getAuthHeaders } from '@/utils/secureStore';
 
 const CLIENT_NAME = 'Message Pro Mobile';
 const CLIENT_VERSION = '1.0.0';
@@ -37,12 +38,16 @@ function deviceHeaders(): Record<string, string> {
   };
 }
 
-// Get the base URL - use proxy on web to avoid CORS
+// Get the base URL - dynamically read from Redux settings if available, fallback to API_CONFIG.baseUrl
 function getBaseUrl(): string {
-  if (Platform.OS === 'web') {
-    // On web, use the server URL directly (CORS must be handled server-side)
-    // Or use a proxy if available
-    return API_CONFIG.baseUrl;
+  try {
+    const store = getStore();
+    const installationUrl = store?.getState()?.settings?.installationUrl;
+    if (installationUrl && typeof installationUrl === 'string' && installationUrl.trim()) {
+      return installationUrl.trim().replace(/\/+$/, '');
+    }
+  } catch {
+    // Store not initialized yet
   }
   return API_CONFIG.baseUrl;
 }
@@ -73,11 +78,26 @@ class APIService {
   public setAuthHeaders(headers: { 'access-token': string; uid: string; client: string }) {
     this.authHeaders = headers;
     this.isLoggingOut = false;
+    void saveAuthHeaders(headers);
   }
 
   public clearAuthHeaders() {
     this.authHeaders = null;
     this.accountId = 0;
+    void clearAuthTokens();
+  }
+
+  public async initFromSecureStore(): Promise<boolean> {
+    try {
+      const headers = await getAuthHeaders();
+      if (headers) {
+        this.authHeaders = headers;
+        return true;
+      }
+    } catch {
+      // Non-blocking
+    }
+    return false;
   }
 
   public setAccountId(id: number) {
@@ -157,6 +177,7 @@ class APIService {
             uid: newUid,
           };
           this.authHeaders = newHeaders;
+          void saveAuthHeaders(newHeaders);
           try {
             const store = getStore();
             store.dispatch({ type: 'auth/updateAuthHeaders', payload: newHeaders });
@@ -164,7 +185,6 @@ class APIService {
             // Store not initialized yet
           }
         }
-        // console.log('API Response:', response.status, response.config.url);
         return response;
       },
       async (error: AxiosError) => {
@@ -174,8 +194,17 @@ class APIService {
           return Promise.reject(error);
         }
 
-        console.error('API Error:', error.response?.status, error.config?.url);
-        console.error('API Error Details:', error.response?.data);
+        if (__DEV__) {
+          console.error('API Error:', error.response?.status, error.config?.url);
+          console.error('API Error Details:', error.response?.data);
+        } else {
+          // In production mode, log sanitized status and summary to prevent leaking PII in system logs
+          const status = error.response?.status ?? 'NETWORK_ERROR';
+          const method = error.config?.method?.toUpperCase() || 'REQUEST';
+          const url = error.config?.url || '';
+          const message = (error.response?.data as any)?.error || error.message || 'Request failed';
+          console.error(`API Error [${status}] ${method} ${url}: ${message}`);
+        }
         
         if (axios.isCancel(error)) {
           return Promise.reject(error);

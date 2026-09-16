@@ -3,6 +3,7 @@ import { authActions } from './authActions';
 import { User } from '@/models/types/User';
 import { AuthHeaders } from './authTypes';
 import { apiService } from '@/models/services/APIService';
+import { saveAuthTokens, clearAuthTokens, savePubSubToken } from '@/utils/secureStore';
 export interface AuthState {
   user: User | null;
   accessToken: string | null;
@@ -36,9 +37,11 @@ export const authSlice = createSlice({
   initialState,
   reducers: {
     logout: state => {
+      void clearAuthTokens();
       // in rootReducer, there is an action to CLEAR the complete Redux Store's state
     },
     resetAuth: state => {
+      void clearAuthTokens();
       state.user = null;
       state.accessToken = null;
       state.headers = null;
@@ -105,6 +108,27 @@ export const authSlice = createSlice({
     updateAuthHeaders: (state, action) => {
       if (action.payload) {
         state.headers = action.payload;
+        void saveAuthTokens({
+          'access-token': action.payload['access-token'],
+          client: action.payload.client,
+          uid: action.payload.uid,
+        });
+      }
+    },
+    restoreSecureCredentials: (
+      state,
+      action: {
+        payload: {
+          headers: AuthHeaders | null;
+          pubsub_token?: string | null;
+        };
+      },
+    ) => {
+      if (action.payload.headers) {
+        state.headers = action.payload.headers;
+      }
+      if (action.payload.pubsub_token && state.user) {
+        state.user.pubsub_token = action.payload.pubsub_token;
       }
     },
   },
@@ -129,6 +153,12 @@ export const authSlice = createSlice({
           state.error = null;
           state.mfaToken = null;
           apiService.setAccountId(action.payload.user.account_id);
+          void saveAuthTokens({
+            'access-token': action.payload.headers['access-token'],
+            client: action.payload.headers.client,
+            uid: action.payload.headers.uid,
+            pubsub_token: action.payload.user?.pubsub_token,
+          });
         }
       })
       .addCase(authActions.getProfile.fulfilled, (state, action) => {
@@ -140,6 +170,9 @@ export const authSlice = createSlice({
         } as User;
         if (profile?.account_id) {
           apiService.setAccountId(profile.account_id);
+        }
+        if (profile?.pubsub_token) {
+          void savePubSubToken(profile.pubsub_token);
         }
       })
       .addCase(authActions.login.rejected, (state, action) => {
@@ -176,6 +209,12 @@ export const authSlice = createSlice({
         state.error = null;
         state.mfaToken = null;
         apiService.setAccountId(action.payload.user.account_id);
+        void saveAuthTokens({
+          'access-token': action.payload.headers['access-token'],
+          client: action.payload.headers.client,
+          uid: action.payload.headers.uid,
+          pubsub_token: action.payload.user?.pubsub_token,
+        });
       })
       .addCase(authActions.verifyMfa.rejected, (state, action) => {
         state.uiFlags.isVerifyingMfa = false;
@@ -192,6 +231,12 @@ export const authSlice = createSlice({
         state.error = null;
         state.mfaToken = null;
         apiService.setAccountId(action.payload.user.account_id);
+        void saveAuthTokens({
+          'access-token': action.payload.headers['access-token'],
+          client: action.payload.headers.client,
+          uid: action.payload.headers.uid,
+          pubsub_token: action.payload.user?.pubsub_token,
+        });
       })
       .addCase(authActions.loginWithSso.rejected, (state, action) => {
         state.uiFlags.isLoggingIn = false;
@@ -208,6 +253,12 @@ export const authSlice = createSlice({
         state.error = null;
         state.mfaToken = null;
         apiService.setAccountId(action.payload.user.account_id);
+        void saveAuthTokens({
+          'access-token': action.payload.headers['access-token'],
+          client: action.payload.headers.client,
+          uid: action.payload.headers.uid,
+          pubsub_token: action.payload.user?.pubsub_token,
+        });
       })
       .addCase(authActions.loginWithGoogle.rejected, (state, action) => {
         state.uiFlags.isLoggingIn = false;
@@ -235,5 +286,6 @@ export const {
   clearAuthError,
   clearMfaToken,
   updateAuthHeaders,
+  restoreSecureCredentials,
 } = authSlice.actions;
 export default authSlice.reducer;

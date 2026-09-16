@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
-import { Clipboard, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { ChatReplyPreview } from './ChatReplyPreview';
 import { formatMessageTime } from '../utils/chatDateUtils';
 import { getMessageText } from '../utils/chatMessageUtils';
@@ -72,7 +73,15 @@ export const IncomingMessageBubble = React.memo(
     return (
       <View
         onLayout={onLayout ? handleLayout : undefined}
-        style={{ width: '100%', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-end', gap: 6, marginTop: 5, paddingHorizontal: 8 }}>
+        style={{
+          width: '100%',
+          flexDirection: 'row',
+          justifyContent: 'flex-start',
+          alignItems: 'flex-end',
+          gap: 6,
+          marginTop: 5,
+          paddingHorizontal: 12,
+        }}>
         <Avatar sender={m.sender} isOutgoing={false} isDark={isDark} contactName={contactName} onPress={handleAvatarPress} />
 
         <Pressable
@@ -81,9 +90,8 @@ export const IncomingMessageBubble = React.memo(
           accessibilityRole="text"
           accessibilityLabel={`Message from ${senderName || contactName}: ${messageText}`}
           style={{
-            ...(messageText.length > 10 ? { flex: 1 } : {}),
-            maxWidth: '65%',
-            alignSelf: 'flex-start',
+            maxWidth: '78%',
+            minWidth: 75,
             backgroundColor: bubbleBg,
             borderWidth: 1,
             borderColor: isDark ? C.incoming.borderDark : C.incoming.border,
@@ -103,7 +111,7 @@ export const IncomingMessageBubble = React.memo(
           )}
 
           {senderName ? (
-            <Text style={{ fontSize: 11, fontWeight: '600', color: isDark ? '#725AFF' : '#725AFF', marginBottom: 2 }}>
+            <Text style={{ fontSize: 11, fontWeight: '600', color: '#725AFF', marginBottom: 2 }}>
               {senderName}
             </Text>
           ) : null}
@@ -114,9 +122,7 @@ export const IncomingMessageBubble = React.memo(
             ))}
 
           {messageText ? (
-            <View style={{ flex: 1 }}>
-              <LinkifiedText text={messageText} color={textColor} textAlign={isRTL ? 'right' : 'left'} />
-            </View>
+            <LinkifiedText text={messageText} color={textColor} textAlign={isRTL ? 'right' : 'left'} />
           ) : null}
 
           {time ? <TimeAndStatus time={time} isOutgoing={false} isDark={isDark} message={m} /> : null}

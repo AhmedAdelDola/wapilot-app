@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
-import { Clipboard, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { ChatReplyPreview } from './ChatReplyPreview';
 import { formatMessageTime } from '../utils/chatDateUtils';
 import { getMessageText } from '../utils/chatMessageUtils';
@@ -74,7 +75,7 @@ export const OutgoingMessageBubble = React.memo(
           alignItems: 'flex-end',
           gap: 6,
           marginTop: 5,
-          paddingHorizontal: 8,
+          paddingHorizontal: 12,
         }}>
         <Pressable
           onLongPress={handleLongPress}
@@ -82,10 +83,8 @@ export const OutgoingMessageBubble = React.memo(
           accessibilityRole="text"
           accessibilityLabel={`Message from ${senderName || contactName}: ${messageText}`}
           style={{
-            ...(messageText.length > 10 ? { flex: 1 } : {}),
-            maxWidth: '75%',
-            minWidth: 70,
-            alignSelf: 'flex-end',
+            maxWidth: '78%',
+            minWidth: 75,
             backgroundColor: bubbleBg,
             borderWidth: 0,
             borderRadius: 16,
