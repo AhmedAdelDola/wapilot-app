@@ -80,11 +80,11 @@ export const OutgoingMessageBubble = React.memo(
         <Pressable
           onLongPress={handleLongPress}
           delayLongPress={300}
-          accessibilityRole="text"
+          accessibilityRole="button"
           accessibilityLabel={`Message from ${senderName || contactName}: ${messageText}`}
           style={{
             maxWidth: '78%',
-            minWidth: 75,
+            alignSelf: 'flex-end',
             backgroundColor: bubbleBg,
             borderWidth: 0,
             borderRadius: 16,

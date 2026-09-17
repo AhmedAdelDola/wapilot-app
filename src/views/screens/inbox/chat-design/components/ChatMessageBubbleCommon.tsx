@@ -224,11 +224,13 @@ export const PrivateNote = React.memo(
             style={{
               color: isDark ? C.private.textDark : C.private.textLight,
               fontSize: 15,
+              lineHeight: 22,
               textAlign: isRTL ? 'right' : 'left',
+              writingDirection: isRTL ? 'rtl' : 'ltr',
               paddingVertical: 2,
               paddingHorizontal: 2,
             }}>
-            {messageText}
+            {isRTL ? `\u200F${messageText}\u200F` : messageText}
           </Text>
         ) : null}
       </View>
@@ -339,7 +341,7 @@ export const LinkifiedText = React.memo(
     const isRTL = isArabicString(text);
     const resolvedAlign = textAlign || (isRTL ? 'right' : 'left');
     const resolvedSize = fontSize || 15;
-    const resolvedHeight = lineHeight || 22;
+    const resolvedHeight = lineHeight || (isRTL ? 24 : 22);
 
     const parts = useMemo(() => {
       const segments: { text: string; isLink: boolean; url?: string }[] = [];
@@ -360,18 +362,21 @@ export const LinkifiedText = React.memo(
       return segments;
     }, [text]);
 
+    const displayText = text ? (isRTL ? `${text}      ` : `${text}\u00A0\u00A0`) : '';
+
     // No links — render plain text
     if (parts.length <= 1) {
       return (
         <Text
+          textBreakStrategy="simple"
           style={{
             color,
             fontSize: resolvedSize,
-            ...(lineHeight ? { lineHeight } : {}),
+            lineHeight: resolvedHeight,
             textAlign: resolvedAlign,
             writingDirection: isRTL ? 'rtl' : 'ltr',
           }}>
-          {text}
+          {displayText}
         </Text>
       );
     }
@@ -379,10 +384,11 @@ export const LinkifiedText = React.memo(
     // Has links — render mixed
     return (
       <Text
+        textBreakStrategy="simple"
         style={{
           color,
           fontSize: resolvedSize,
-          ...(lineHeight ? { lineHeight } : {}),
+          lineHeight: resolvedHeight,
           textAlign: resolvedAlign,
           writingDirection: isRTL ? 'rtl' : 'ltr',
         }}>
@@ -399,9 +405,10 @@ export const LinkifiedText = React.memo(
               {part.text}
             </Text>
           ) : (
-            <Text key={i} style={{ color }}>{isRTL ? `\u200F${part.text}\u200F` : part.text}</Text>
+            <Text key={i} style={{ color }}>{part.text}</Text>
           ),
         )}
+        {isRTL ? '      ' : '\u00A0\u00A0'}
       </Text>
     );
   },

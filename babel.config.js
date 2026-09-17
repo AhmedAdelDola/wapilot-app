@@ -20,14 +20,5 @@ module.exports = function (api) {
       ],
       'react-native-reanimated/plugin',
     ],
-    overrides: [
-      {
-        plugins: [
-          '@babel/plugin-transform-class-properties',
-          '@babel/plugin-transform-private-methods',
-          '@babel/plugin-transform-private-property-in-object',
-        ],
-      },
-    ],
   };
 };

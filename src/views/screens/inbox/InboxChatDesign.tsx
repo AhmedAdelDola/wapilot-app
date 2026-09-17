@@ -1379,6 +1379,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
               idx === reversedMessages.length - 1 ||
               !isSameDay(reversedMessages[idx + 1]?.createdAt, m.createdAt);
 
+
             return (
               <ChatMessageBubble
                 message={m}

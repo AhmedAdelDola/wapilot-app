@@ -87,11 +87,11 @@ export const IncomingMessageBubble = React.memo(
         <Pressable
           onLongPress={handleLongPress}
           delayLongPress={300}
-          accessibilityRole="text"
+          accessibilityRole="button"
           accessibilityLabel={`Message from ${senderName || contactName}: ${messageText}`}
           style={{
             maxWidth: '78%',
-            minWidth: 75,
+            alignSelf: 'flex-start',
             backgroundColor: bubbleBg,
             borderWidth: 1,
             borderColor: isDark ? C.incoming.borderDark : C.incoming.border,
@@ -110,7 +110,7 @@ export const IncomingMessageBubble = React.memo(
             />
           )}
 
-          {senderName ? (
+          {conversation?.isGroup && senderName ? (
             <Text style={{ fontSize: 11, fontWeight: '600', color: '#725AFF', marginBottom: 2 }}>
               {senderName}
             </Text>
