@@ -345,10 +345,11 @@ const FilterChip = ({ label, active, onClick }: { label: string; active: boolean
 // ---------- Sheet wrapper (bottom) ----------
 const BottomSheet = ({ children, onClose, bottomOffset = 0 }: { children: React.ReactNode; onClose: () => void; bottomOffset?: number }) => {
   const { isDark } = useTheme();
+  const insets = useSafeAreaInsets();
   return (
-    <View style={{ position: 'absolute', inset: 0, zIndex: 50 }} onStartShouldSetResponder={() => true} onResponderRelease={onClose}>
+    <View style={{ position: 'absolute', inset: 0, zIndex: 50, justifyContent: 'flex-end', alignItems: 'center' }} onStartShouldSetResponder={() => true} onResponderRelease={onClose}>
       <View style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)' }} />
-      <View style={{ position: 'absolute', bottom: bottomOffset, left: 0, right: 0, backgroundColor: isDark ? '#1B1C20' : 'white', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingBottom: 32 }} onStartShouldSetResponder={() => true}>
+      <View style={{ width: '100%', maxWidth: 540, marginBottom: bottomOffset, backgroundColor: isDark ? '#1B1C20' : 'white', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingBottom: Math.max(insets.bottom, 24) }} onStartShouldSetResponder={() => true}>
         <View style={{ width: 40, height: 4, backgroundColor: isDark ? '#31343A' : '#EAEAEA', borderRadius: 999, alignSelf: 'center', marginTop: 12, marginBottom: 8 }} />
         {children}
       </View>
@@ -2518,6 +2519,7 @@ const ContactDetailsScreen = ({ conversation, onBack }: { conversation: Conversa
 const InboxScreenDesign = () => {
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const userId = useAppSelector(selectUserId);
   const [showAddContact, setShowAddContact] = useState(false);
   const allConversations = useAppSelector(selectAllConversations);
@@ -3143,25 +3145,30 @@ const InboxScreenDesign = () => {
         </View>
 
         {/* Tabs */}
-        <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingBottom: 12 }}>
-          {(['all', 'open', 'closed', 'snoozed'] as const).map(t => (
-            <FilterChip
-              key={t}
-              label={
-                isArabic
-                  ? t === 'all'
-                    ? 'الكل'
-                    : t === 'open'
-                    ? 'مفتوحة'
-                    : t === 'closed'
-                    ? 'مغلقة'
-                    : 'مؤجلة'
-                  : t.charAt(0).toUpperCase() + t.slice(1)
-              }
-              active={tab === t}
-              onClick={() => setTab(t)}
-            />
-          ))}
+        <View style={{ maxHeight: 44, marginBottom: 8 }}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ flexDirection: 'row', gap: 8, paddingHorizontal: 16 }}>
+            {(['all', 'open', 'closed', 'snoozed'] as const).map(t => (
+              <FilterChip
+                key={t}
+                label={
+                  isArabic
+                    ? t === 'all'
+                      ? 'الكل'
+                      : t === 'open'
+                      ? 'مفتوحة'
+                      : t === 'closed'
+                      ? 'مغلقة'
+                      : 'مؤجلة'
+                    : t.charAt(0).toUpperCase() + t.slice(1)
+                }
+                active={tab === t}
+                onClick={() => setTab(t)}
+              />
+            ))}
+          </ScrollView>
         </View>
 
         {/* Conversation list */}
@@ -3215,7 +3222,7 @@ const InboxScreenDesign = () => {
         {/* Drawer overlay */}
         {drawerOpen && (
           <View style={{ position: 'absolute', inset: 0, zIndex: 40, flexDirection: 'row' }} onStartShouldSetResponder={() => true} onResponderRelease={() => setDrawerOpen(false)}>
-            <View style={{ height: '100%', backgroundColor: bgColor, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 16, width: '83%' }} onStartShouldSetResponder={() => true}>
+            <View style={{ height: '100%', backgroundColor: bgColor, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 16, width: '83%', maxWidth: 340 }} onStartShouldSetResponder={() => true}>
               <InboxDrawer
                 activeItem={activeItem}
                 onSelect={(key, label) => { setActiveItem(key); setActiveLabel(label); }}
@@ -3337,9 +3344,9 @@ const InboxScreenDesign = () => {
 
         {/* Sort Bottom Sheet */}
         {showSort && (
-          <View style={{ position: 'absolute', inset: 0, zIndex: 50 }} onStartShouldSetResponder={() => true} onResponderRelease={() => setShowSort(false)}>
+          <View style={{ position: 'absolute', inset: 0, zIndex: 50, justifyContent: 'flex-end', alignItems: 'center' }} onStartShouldSetResponder={() => true} onResponderRelease={() => setShowSort(false)}>
             <View style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)' }} />
-            <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: isDark ? '#1B1C20' : 'white', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingBottom: 32 }} onStartShouldSetResponder={() => true}>
+            <View style={{ width: '100%', maxWidth: 540, backgroundColor: isDark ? '#1B1C20' : 'white', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingBottom: Math.max(insets.bottom, 24) }} onStartShouldSetResponder={() => true}>
               <View style={{ width: 40, height: 4, backgroundColor: isDark ? '#31343A' : '#EAEAEA', borderRadius: 999, alignSelf: 'center', marginTop: 12, marginBottom: 4 }} />
               {[
                 { label: 'Newest Message', value: 'newest' as const },

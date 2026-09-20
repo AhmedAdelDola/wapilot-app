@@ -151,7 +151,7 @@ const LoginScreen = () => {
           keyboardShouldPersistTaps="handled"
           bottomOffset={24}
           contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingTop: 34, paddingBottom: 16 }}>
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, width: '100%', maxWidth: 460, alignSelf: 'center' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
               <Image
                 // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports

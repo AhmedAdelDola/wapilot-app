@@ -21,3 +21,4 @@ export * from './chatFormatUtils';
 export * from './contactUtils';
 export * from './lifecycleUtils';
 export * from './secureStore';
+export * from './responsive';

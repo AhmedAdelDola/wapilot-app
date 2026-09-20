@@ -55,7 +55,7 @@ const ConfigURLScreen = () => {
       <View style={tailwind.style('flex-1 bg-white')}>
         <Animated.ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={tailwind.style('px-6 pt-16')}>
+          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 64, width: '100%', maxWidth: 460, alignSelf: 'center' }}>
           <Icon icon={<LinkIcon />} size={40} />
           <View style={tailwind.style('pt-6 gap-4')}>
             <Animated.Text style={tailwind.style('text-2xl text-gray-950 font-inter-semibold-20')}>

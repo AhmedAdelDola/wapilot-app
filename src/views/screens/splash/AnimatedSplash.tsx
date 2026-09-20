@@ -1,16 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import {
   Animated,
-  Dimensions,
   Easing,
   Image,
   StatusBar,
   StyleSheet,
   useColorScheme,
+  useWindowDimensions,
   View,
 } from 'react-native';
-
-const { height, width } = Dimensions.get('window');
 
 const MESSAGE_LETTERS: { src: ReturnType<typeof require>; ratio: number }[] = [
   { src: require('@/assets/images/brand/letters/condensed version graded-1.png'),  ratio: 1081 / 697 },
@@ -28,27 +26,27 @@ const PRO_LETTERS: { src: ReturnType<typeof require>; ratio: number }[] = [
   { src: require('@/assets/images/brand/letters/condensed version graded-10.png'), ratio: 703 / 693  },
 ];
 
-const calcLetterHeight = () => {
-  const allLetters = [...MESSAGE_LETTERS, ...PRO_LETTERS];
-  const maxWordWidth = width * 0.85;
+const calcLetterHeight = (w: number, h: number) => {
+  const maxWordWidth = w * 0.85;
   const maxLineWidth = Math.max(
     MESSAGE_LETTERS.reduce((sum, l) => sum + l.ratio, 0),
     PRO_LETTERS.reduce((sum, l) => sum + l.ratio, 0),
   );
   const byWidth = maxWordWidth / maxLineWidth;
-  const byHeight = height * 0.07;
+  const byHeight = h * 0.07;
   return Math.min(byWidth, byHeight, 70);
 };
 
 type AnimatedSplashProps = { onFinish: () => void };
 
 export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
+  const { width, height } = useWindowDimensions();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const bg = isDark ? '#101113' : '#ffffff';
 
   const finishedRef = useRef(false);
-  const LETTER_HEIGHT = useRef(calcLetterHeight()).current;
+  const LETTER_HEIGHT = useRef(calcLetterHeight(width, height)).current;
 
   const mScale = useRef(new Animated.Value(0.3)).current;
   const mOpacity = useRef(new Animated.Value(0)).current;

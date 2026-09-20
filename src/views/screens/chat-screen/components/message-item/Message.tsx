@@ -38,7 +38,7 @@ import { setQuoteMessage } from '@/viewmodels/store/conversation/sendMessageSlic
 import { inboxSupportsReplyTo } from '@/utils';
 import { MenuOption, MessageMenu } from '../message-menu';
 import { tailwind } from '@/theme';
-import { Dimensions, View } from 'react-native';
+import { useWindowDimensions, View } from 'react-native';
 import { Avatar } from '@/views/components';
 import { useTargetMessageAnimation } from './useTargetMessageAnimation';
 
@@ -140,7 +140,7 @@ const MessageWrapper = ({
     return map[orientation];
   };
 
-  const windowWidth = Dimensions.get('window').width;
+  const { width: windowWidth } = useWindowDimensions();
   // 52 is the sum of the left and right padding (12 + 12) and avatar width (24) and gap between avatar and message (4)
   const EMAIL_WIDTH = windowWidth - 52;
   const CHAT_MAX_WIDTH = Math.min(windowWidth * 0.78, 340);

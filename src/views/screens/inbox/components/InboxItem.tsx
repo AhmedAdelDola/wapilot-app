@@ -10,7 +10,6 @@ import { PriorityIndicator, ChannelIndicator } from '@/views/components/list-com
 import { Inbox } from '@/models/types/Inbox';
 import { ConversationAdditionalAttributes } from '@/models/types/Conversation';
 import { NotificationTypeIndicator } from './NotificationTypeIndicator';
-import { Dimensions } from 'react-native';
 import { useTheme } from '@/theme';
 
 type InboxItemProps = {
@@ -31,8 +30,6 @@ type InboxItemProps = {
   pushMessageTitle: string;
   notificationType: NotificationType;
 };
-
-const { width } = Dimensions.get('screen');
 
 export const InboxItemComponent = (props: InboxItemProps) => {
   const {
@@ -74,7 +71,7 @@ export const InboxItemComponent = (props: InboxItemProps) => {
         <AnimatedNativeView
           style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 24 }}>
           <AnimatedNativeView
-            style={{ flexDirection: 'row', alignItems: 'center', height: 24, gap: 6 }}>
+            style={{ flexDirection: 'row', alignItems: 'center', height: 24, gap: 6, flex: 1, marginRight: 8 }}>
             {!isRead && (
               <Animated.View
                 style={{
@@ -95,11 +92,11 @@ export const InboxItemComponent = (props: InboxItemProps) => {
                 letterSpacing: 0.2,
                 color: titleColor,
                 textTransform: 'capitalize',
-                maxWidth: width - 250,
+                flexShrink: 1,
               }}>
               {sender.name || ''}
             </Animated.Text>
-            <NativeView style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+            <NativeView style={{ flexDirection: 'row', alignItems: 'center', gap: 2, flexShrink: 0 }}>
               <Animated.Text style={{ fontSize: 13, fontFamily: 'Gontserrat-Regular', color: metaColor }}>
                 #
               </Animated.Text>
@@ -108,7 +105,7 @@ export const InboxItemComponent = (props: InboxItemProps) => {
               </Animated.Text>
             </NativeView>
           </AnimatedNativeView>
-          <AnimatedNativeView style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <AnimatedNativeView style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 0 }}>
             {priority ? <PriorityIndicator {...{ priority }} /> : null}
             {inbox && (
               <ChannelIndicator inbox={inbox} additionalAttributes={additionalAttributes} />

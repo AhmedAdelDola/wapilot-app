@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Dimensions, PermissionsAndroid, Platform, Pressable } from 'react-native';
+import { Alert, PermissionsAndroid, Platform, Pressable } from 'react-native';
 import AudioRecorderPlayer, {
   RecordBackType,
   AVEncodingOption,
@@ -22,8 +22,6 @@ import {
 } from '@/viewmodels/store/conversation/localRecordedAudioCacheSlice';
 // eslint-disable-next-line import/no-unresolved
 import { convertAacToWav } from '@/utils/audioConverter';
-
-const RecorderSegmentWidth = Dimensions.get('screen').width - 8 - 80 - 12;
 
 const ARPlayer = new AudioRecorderPlayer();
 
@@ -232,8 +230,7 @@ export const AudioRecorder = ({
       </Pressable>
       <Animated.View
         style={tailwind.style(
-          'bg-blue-800 px-3 py-[7px] rounded-2xl min-h-9 flex flex-row items-center justify-between mx-1.5',
-          `w-[${RecorderSegmentWidth}px]`,
+          'bg-blue-800 px-3 py-[7px] rounded-2xl min-h-9 flex flex-row items-center justify-between mx-1.5 flex-1',
         )}>
         <Pressable onPress={toggleRecorder} hitSlop={12}>
           {isAudioRecording ? (

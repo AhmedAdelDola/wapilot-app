@@ -65,7 +65,7 @@ const ForgotPassword = () => {
       <View style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
         <Animated.ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 64 }}>
+          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 64, width: '100%', maxWidth: 460, alignSelf: 'center' }}>
           <Icon icon={<KeyRoundIcon stroke={isDark ? '#94a3b8' : '#858585'} />} size={40} />
           <View style={{ paddingTop: 24, gap: 16 }}>
             <Animated.Text style={{ color: isDark ? '#EDEEF0' : '#282E34', fontSize: 24, fontWeight: '600' }}>

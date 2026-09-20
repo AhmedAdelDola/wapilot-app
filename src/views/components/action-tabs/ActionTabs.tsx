@@ -21,8 +21,6 @@ import { setActionState } from '@/viewmodels/store/conversation/conversationActi
 
 const ACTION_TAB_HEIGHT = 58;
 
-const SCREEN_WIDTH = Dimensions.get('screen').width;
-
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
 const tabExitSpringConfig = { damping: 20, stiffness: 360, mass: 1 };
@@ -176,18 +174,16 @@ export const ActionTabs = () => {
         ios: [
           tailwind.style(
             'flex flex-row rounded-[30px] items-center absolute justify-between w-[220px] px-6 py-[15px] bg-[#00000009]',
-            `h-[${ACTION_TAB_HEIGHT}px] bottom-[${bottom + 8}px] left-[${
-              (SCREEN_WIDTH - 220) / 2
-            }px]`,
+            `h-[${ACTION_TAB_HEIGHT}px] bottom-[${bottom + 8}px]`,
           ),
+          { alignSelf: 'center' as const },
         ],
         android: [
           tailwind.style(
             'flex flex-row rounded-[30px] items-center absolute justify-between w-[220px] px-6 py-[15px] bg-white',
-            `h-[${ACTION_TAB_HEIGHT}px] bottom-[${bottom + 8}px] left-[${
-              (SCREEN_WIDTH - 220) / 2
-            }px]`,
+            `h-[${ACTION_TAB_HEIGHT}px] bottom-[${bottom + 8}px]`,
           ),
+          { alignSelf: 'center' as const },
         ],
       })}>
       {bulkSelectActions.map(actionItem => {

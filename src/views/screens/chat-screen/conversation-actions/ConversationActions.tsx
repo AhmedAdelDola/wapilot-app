@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Alert, Dimensions, Platform, Share } from 'react-native';
+import { Alert, Platform, Share } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
 import { BottomSheetModal, useBottomSheetSpringConfigs } from '@gorhom/bottom-sheet';
@@ -29,8 +29,6 @@ import { selectAllTeams } from '@/viewmodels/store/team/teamSelectors';
 import { selectInstallationUrl } from '@/viewmodels/store/settings/settingsSelectors';
 import { ConversationMetaInformation } from './components/ConversationMetaInformation';
 import { selectConversationParticipantsByConversationId } from '@/viewmodels/store/conversation-participant/conversationParticipantSelectors';
-
-const SCREEN_WIDTH = Dimensions.get('screen').width;
 
 export type ConversationActionType = 'mute' | 'status' | 'unmute';
 
@@ -122,7 +120,7 @@ export const ConversationActions = () => {
   };
 
   return (
-    <Animated.View style={tailwind.style('', `w-[${SCREEN_WIDTH}px]`)}>
+    <Animated.View style={tailwind.style('w-full flex-1')}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={tailwind.style(`pb-[${TAB_BAR_HEIGHT}]`)}>

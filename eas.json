@@ -27,7 +27,7 @@
     },
     "production": {
       "android": {
-        "buildType": "apk"
+        "buildType": "app-bundle"
       },
       "env": {
         "EXPO_PUBLIC_CHATWOOT_BASE_URL": "https://omni.message-pro.com",

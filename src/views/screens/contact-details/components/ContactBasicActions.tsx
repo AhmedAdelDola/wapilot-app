@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, Pressable } from 'react-native';
+import { Pressable } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { Icon, IconButton } from '@/views/components';
@@ -20,9 +20,6 @@ type ContactOptionProps = {
   handleOptionPress?: () => void;
 };
 
-const SCREEN_WIDTH = Dimensions.get('screen').width;
-const OPTION_WIDTH = (SCREEN_WIDTH - 32 - 12 * 3) / 2;
-
 const ContactOptionComponent = (props: ContactOptionProps) => {
   const { option, handleOptionPress } = props;
 
@@ -39,8 +36,7 @@ const ContactOptionComponent = (props: ContactOptionProps) => {
       <Pressable
         style={({ pressed }) => [
           tailwind.style(
-            'flex items-center justify-center flex-1 rounded-xl bg-gray-50 py-3',
-            `w-[${OPTION_WIDTH}px]`,
+            'flex items-center justify-center flex-1 rounded-xl bg-gray-50 py-3 w-full',
             pressed ? 'bg-gray-100' : '',
           ),
         ]}

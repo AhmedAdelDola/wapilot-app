@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   return {
     name: 'Message Pro',
     slug: process.env.EXPO_PUBLIC_APP_SLUG || 'message-pro-mobile',
-    version: '1.0.0',
+    version: '1.0.1',
     orientation: 'portrait',
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
@@ -19,6 +19,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.message.pro.com',
+      buildNumber: '2',
       googleServicesFile: './GoogleService-Info.plist',
       infoPlist: {
         NSCameraUsageDescription:
@@ -33,6 +34,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     android: {
       adaptiveIcon: { foregroundImage: './assets/adaptive-icon.png', backgroundColor: '#101113' },
       package: 'com.message.pro.com',
+      versionCode: 2,
       googleServicesFile: './google-services.json',
       permissions: ['android.permission.CAMERA', 'android.permission.RECORD_AUDIO'],
       edgeToEdgeEnabled: true,

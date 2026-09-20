@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import React, { forwardRef, useCallback } from 'react';
-import { Dimensions, Platform, Pressable, StyleSheet } from 'react-native';
+import { Platform, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Extrapolation,
@@ -22,8 +22,6 @@ import Animated, {
 import { tailwind, useTheme } from '@/theme';
 import { useHaptic } from '@/utils';
 import { AnimatedNativeView } from '@/views/components/native-components';
-
-const WIDTH = Dimensions.get('screen').width;
 
 const SNAP_POINT = 96;
 const FRICTION = 10;
@@ -135,7 +133,8 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
   const animStatePos = useSharedValue(0);
   const isGestureActive = useSharedValue(false);
 
-  const maxTranslation = WIDTH * 0.6;
+  const { width: windowWidth } = useWindowDimensions();
+  const maxTranslation = windowWidth * 0.6;
   const tappedBgStyle = isDark ? '#1B1C20' : ((tailwind.color('bg-gray-200') as string) || '#EAEAEA');
   const maxSnapPointLeft = -maxTranslation;
   const maxSnapPointRight = maxTranslation;
@@ -482,7 +481,7 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
               : FadeIn
           }
           layout={LinearTransition.springify().damping(28).stiffness(200)}
-          style={[tailwind.style('flex-1 z-10', `w-[${WIDTH}px]`), overlayStyle, tappedCellStyle]}>
+          style={[tailwind.style('flex-1 z-10', `w-[${windowWidth}px]`), overlayStyle, tappedCellStyle]}>
           {children}
         </AnimatedNativeView>
       </GestureDetector>

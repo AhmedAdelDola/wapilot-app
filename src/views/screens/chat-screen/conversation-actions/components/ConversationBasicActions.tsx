@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Dimensions, Pressable } from 'react-native';
+import { Pressable } from 'react-native';
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -23,9 +23,6 @@ type ConversationActionOptionsType = {
   actionIcon: React.JSX.Element;
   actionStatus: ConversationStatus | 'open';
 };
-
-const SCREEN_WIDTH = Dimensions.get('screen').width;
-const ACTION_WIDTH = (SCREEN_WIDTH - 32 - 12 * 3) / 4;
 
 const conversationActionOptions: ConversationActionOptionsType[] = [
   {
@@ -110,8 +107,7 @@ const ConversationActionOption = (props: ConversationActionOptionProps) => {
         key={index}
         style={({ pressed }) => [
           tailwind.style(
-            'flex items-center justify-between rounded-xl pt-7 pb-3',
-            `w-[${ACTION_WIDTH}px]`,
+            'flex items-center justify-between rounded-xl pt-7 pb-3 w-full',
             conversationAction.backgroundActionColor,
             pressed ? conversationAction.backgroundActionPressedColor : '',
           ),

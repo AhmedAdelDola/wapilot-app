@@ -1,7 +1,9 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
+import { useResponsive } from '@/utils';
 
 import { BellIcon } from '@/svg-icons/tabs/BellIcon';
 import { InboxIcon } from '@/svg-icons/tabs/InboxIcon';
@@ -37,15 +39,25 @@ const TabBarIcon = ({ focused, routeName, color }: NavIconProps) => {
 
 export const BottomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const { isDark, colors } = useTheme();
+  const insets = useSafeAreaInsets();
+  const { isTablet } = useResponsive();
 
   return (
     <View
       style={{
-        flexDirection: 'row',
         borderTopWidth: 1,
         borderTopColor: isDark ? '#1B1C20' : '#F0F0F3',
         backgroundColor: isDark ? '#101113' : '#ffffff',
+        alignItems: 'center',
       }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          width: '100%',
+          maxWidth: isTablet ? 600 : '100%',
+          paddingTop: 8,
+          paddingBottom: Math.max(insets.bottom, 10),
+        }}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const isFocused = state.index === index;
@@ -76,7 +88,7 @@ export const BottomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
               flex: 1,
               flexDirection: 'column',
               alignItems: 'center',
-              paddingVertical: 10,
+              paddingVertical: 4,
             }}>
             <TabBarIcon focused={isFocused} routeName={route.name as keyof TabParamList} color={itemColor} />
             <Text
@@ -92,6 +104,7 @@ export const BottomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
           </Pressable>
         );
       })}
+      </View>
     </View>
   );
 };

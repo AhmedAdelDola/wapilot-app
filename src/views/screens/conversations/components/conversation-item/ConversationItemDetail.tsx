@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 import React, { memo, useState } from 'react';
-import { Dimensions, ImageURISource, Text } from 'react-native';
+import { ImageURISource, Text } from 'react-native';
 import { LinearTransition } from 'react-native-reanimated';
 import { isEqual } from 'lodash';
 
@@ -19,8 +19,6 @@ import { LastActivityTime } from './LastActivityTime';
 import { SLA } from '@/models/types/common/SLA';
 import { Inbox } from '@/models/types/Inbox';
 import { TypingMessage } from './TypingMessage';
-
-const { width } = Dimensions.get('screen');
 
 type ConversationDetailSubCellProps = Pick<
   Conversation,
@@ -97,20 +95,17 @@ export const ConversationItemDetail = memo((props: ConversationDetailSubCellProp
       style={tailwind.style('flex-1 gap-1 py-3 border-b-[1px] border-b-blackA-A3')}>
       <AnimatedNativeView
         style={tailwind.style('flex flex-row justify-between items-center h-[24px]')}>
-        <AnimatedNativeView style={tailwind.style('flex flex-row items-center h-[24px] gap-[5px]')}>
+        <AnimatedNativeView style={tailwind.style('flex flex-row items-center h-[24px] gap-[5px] flex-1 mr-2')}>
           <Text
             numberOfLines={1}
             style={tailwind.style(
-              'text-base font-inter-medium-24 tracking-[0.24px] text-gray-950 capitalize',
-              // Calculated based on the widths of other content,
-              // We might have to do a 10-20px offset based on the max width of the timestamp
-              `max-w-[${width - 250}px]`,
+              'text-base font-inter-medium-24 tracking-[0.24px] text-gray-950 capitalize flex-shrink',
             )}>
             {senderName}
           </Text>
           <ConversationId id={conversationId} />
         </AnimatedNativeView>
-        <AnimatedNativeView style={tailwind.style('flex flex-row items-center gap-2')}>
+        <AnimatedNativeView style={tailwind.style('flex flex-row items-center gap-2 flex-shrink-0')}>
           {hasPriority ? <PriorityIndicator {...{ priority }} /> : null}
           {(inbox || channelType) && (
             <ChannelIndicator
