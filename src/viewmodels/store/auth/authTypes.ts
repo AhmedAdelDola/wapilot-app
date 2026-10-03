@@ -73,6 +73,10 @@ export interface GoogleLoginPayload {
   id_token: string;
 }
 
+export interface AppleLoginPayload {
+  id_token: string;
+}
+
 export interface ChangePasswordPayload {
   profile: {
     current_password: string;

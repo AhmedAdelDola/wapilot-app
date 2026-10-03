@@ -89,6 +89,24 @@ const i18nInstance = new I18n(
   { enableFallback: true, defaultLocale: 'en' },
 );
 
+import { I18nManager } from 'react-native';
+
+const RTL_LOCALES = ['ar', 'he', 'fa', 'ur'];
+
+export const isRTLLocale = (locale?: string): boolean => {
+  if (!locale) return false;
+  const lang = locale.toLowerCase().split('-')[0].split('_')[0];
+  return RTL_LOCALES.includes(lang);
+};
+
+export const configureRTL = (locale: string) => {
+  try {
+    const shouldBeRTL = isRTLLocale(locale);
+    I18nManager.allowRTL(shouldBeRTL);
+    I18nManager.forceRTL(shouldBeRTL);
+  } catch {}
+};
+
 i18nInstance.locale = 'en';
 
 const i18n = {
@@ -97,6 +115,10 @@ const i18n = {
   },
   set locale(value: string) {
     i18nInstance.locale = value;
+    configureRTL(value);
+  },
+  get isRTL() {
+    return isRTLLocale(i18nInstance.locale);
   },
   t: (key: string, params?: Record<string, unknown>): string => {
     try {

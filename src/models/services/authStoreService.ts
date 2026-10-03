@@ -14,6 +14,7 @@ import type {
   SsoAuthPayload,
   SsoAuthResponse,
   GoogleLoginPayload,
+  AppleLoginPayload,
   ChangePasswordPayload,
   ChangePasswordResponse,
 } from '@/viewmodels/store/auth/authTypes';
@@ -92,6 +93,20 @@ export class AuthService {
 
   static async loginWithGoogle(payload: GoogleLoginPayload): Promise<LoginResponse> {
     const response = await apiService.post<{ data: User }>('auth/google', payload);
+    const headers = {
+      'access-token': response.headers['access-token'],
+      uid: response.headers.uid,
+      client: response.headers.client,
+    };
+    apiService.setAuthHeaders(headers);
+    return {
+      user: response.data.data,
+      headers,
+    };
+  }
+
+  static async loginWithApple(payload: AppleLoginPayload): Promise<LoginResponse> {
+    const response = await apiService.post<{ data: User }>('auth/apple', payload);
     const headers = {
       'access-token': response.headers['access-token'],
       uid: response.headers.uid,

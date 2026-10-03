@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { ActivityIndicator, Animated, Image, Pressable, StatusBar, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Animated, Image, Platform, Pressable, StatusBar, Text, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   BottomSheetModal,
@@ -136,7 +136,7 @@ const LoginScreen = () => {
     dispatch(setLocale(locale));
   };
 
-  const showGoogleButton = GOOGLE_WEB_CLIENT_ID.length > 0;
+  const showGoogleButton = GOOGLE_WEB_CLIENT_ID.length > 0 && Platform.OS !== 'ios';
 
   return (
     <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: colors.background }}>

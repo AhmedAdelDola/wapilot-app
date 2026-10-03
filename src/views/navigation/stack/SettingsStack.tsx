@@ -9,6 +9,7 @@ import {
   UpdateNotificationsScreen,
   ChangeWorkspaceScreen,
   ReportBugScreen,
+  ChangeLanguageScreen,
 } from '@/views/screens/settings/SettingsSubScreens';
 
 export type SettingsStackParamList = {
@@ -19,6 +20,7 @@ export type SettingsStackParamList = {
   UpdateNotificationsScreen: undefined;
   ChangeWorkspaceScreen: undefined;
   ReportBugScreen: undefined;
+  ChangeLanguageScreen: undefined;
 };
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
@@ -60,6 +62,11 @@ export const SettingsStack = () => {
         options={{ headerShown: false, animation: 'slide_from_right' }}
         name="ReportBugScreen"
         component={ReportBugScreen}
+      />
+      <Stack.Screen
+        options={{ headerShown: false, animation: 'slide_from_right' }}
+        name="ChangeLanguageScreen"
+        component={ChangeLanguageScreen}
       />
     </Stack.Navigator>
   );

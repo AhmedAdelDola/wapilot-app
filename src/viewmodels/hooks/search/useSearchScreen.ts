@@ -13,7 +13,7 @@ import {
 } from '@/viewmodels/store/search/searchSelectors';
 import { selectCurrentUserAccountId } from '@/viewmodels/store/auth/authSelectors';
 import { clearSearchResults, prepareNewSearch, setQuery } from '@/viewmodels/store/search/searchSlice';
-import { RecentSearches } from '../utils/recentSearches';
+import { RecentSearches } from '@/views/screens/search/utils/recentSearches';
 import { SEARCH_SECTION_IDS, type SearchItem, type SearchSectionType } from '@/viewmodels/store/search/searchTypes';
 import { SEARCH_SECTIONS } from '@/views/screens/search/config';
 

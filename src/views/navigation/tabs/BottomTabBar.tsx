@@ -10,6 +10,7 @@ import { InboxIcon } from '@/svg-icons/tabs/InboxIcon';
 import { CallsIconOutline } from '@/svg-icons/tabs/CallsIcon';
 import { GearIcon } from '@/svg-icons/tabs/NavIcons';
 import { TabParamList } from './AppTabs';
+import i18n from '@/i18n';
 
 type NavIconProps = { focused: boolean; routeName: keyof TabParamList; color: string };
 
@@ -99,7 +100,20 @@ export const BottomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
                 color: itemColor,
                 fontWeight: isFocused ? '600' : '400',
               }}>
-              {route.name}
+              {(() => {
+                switch (route.name) {
+                  case 'Notifications':
+                    return i18n.t('FOOTER.NOTIFICATION');
+                  case 'Inbox':
+                    return i18n.t('FOOTER.CONVERSATION');
+                  case 'Calls':
+                    return i18n.t('FOOTER.CALLS');
+                  case 'Settings':
+                    return i18n.t('FOOTER.SETTINGS');
+                  default:
+                    return route.name;
+                }
+              })()}
             </Text>
           </Pressable>
         );

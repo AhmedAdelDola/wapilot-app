@@ -26,9 +26,11 @@ import { authActions } from '@/viewmodels/store/auth/authActions';
 import {
   selectNotificationSettings,
   selectTheme,
+  selectLocale,
 } from '@/viewmodels/store/settings/settingsSelectors';
 import { settingsActions } from '@/viewmodels/store/settings/settingsActions';
-import { setTheme } from '@/viewmodels/store/settings/settingsSlice';
+import { setTheme, setLocale } from '@/viewmodels/store/settings/settingsSlice';
+import i18n from '@/i18n';
 import { inboxActions } from '@/viewmodels/store/inbox/inboxActions';
 import { showToast } from '@/utils/toastUtils';
 import { Account } from '@/models/types/Account';
@@ -39,7 +41,7 @@ const useIsDark = () => useTheme().isDark;
 
 // ---------- Shared icons ----------
 const ArrowLeft = ({ color = '#282E34' }: { color?: string }) => (
-  <Svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+  <Svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ transform: [{ scaleX: i18n.isRTL ? -1 : 1 }] }}>
     <Path d="M19 12H5" stroke={color} strokeWidth="2" strokeLinecap="round" />
     <Path d="M12 19l-7-7 7-7" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
@@ -481,6 +483,11 @@ export const ProfileScreen = () => {
   const avatarUrl = user?.avatar_url;
   const initialLetter = (user?.name || email || 'A')[0].toUpperCase();
 
+  const currentLocale = useAppSelector(selectLocale) || 'en';
+  const isArabic = currentLocale === 'ar';
+  const currentLanguageLabel = isArabic ? 'العربية' : 'English';
+  const currentLanguageFlag = isArabic ? '🇸🇦' : '🇬🇧';
+
   const handleSave = () => {
     setIsSaving(true);
     setTimeout(() => {
@@ -545,8 +552,9 @@ export const ProfileScreen = () => {
             <TextInput value={email} editable={false} style={[inputCls, { backgroundColor: isDark ? '#282E34' : '#EDEEF0', color: '#80838D' }]} />
           </View>
           <View>
-            <Text style={labelCls}>Language</Text>
-            <View
+            <Text style={labelCls}>{i18n.t('SETTINGS.LANGUAGE')}</Text>
+            <Pressable
+              onPress={() => navigation.navigate('ChangeLanguageScreen')}
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -559,12 +567,16 @@ export const ProfileScreen = () => {
                 paddingVertical: 14,
               }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Text style={{ fontSize: 16 }}>🇬🇧</Text>
-                <Text style={{ color: isDark ? '#EDEEF0' : '#626F7F', fontSize: 14, fontWeight: '500' }}>English</Text>
+                <Text style={{ fontSize: 16 }}>{currentLanguageFlag}</Text>
+                <Text style={{ color: isDark ? '#EDEEF0' : '#626F7F', fontSize: 14, fontWeight: '500' }}>
+                  {currentLanguageLabel}
+                </Text>
               </View>
               <ChevronDown />
-            </View>
-            <Text style={{ color: '#80838D', fontSize: 12, marginTop: 8 }}>All languages are currently in beta, with the exception of English.</Text>
+            </Pressable>
+            <Text style={{ color: '#80838D', fontSize: 12, marginTop: 8 }}>
+              {isArabic ? 'يمكنك التبديل بين اللغات في أي وقت.' : 'All languages are currently supported.'}
+            </Text>
           </View>
         </View>
       </ScrollView>
@@ -840,6 +852,129 @@ export const ReportBugScreen = () => {
           </Pressable>
         </View>
       </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+// ==========================================
+// 7. Change Language Screen
+// ==========================================
+export const ChangeLanguageScreen = () => {
+  const dispatch = useAppDispatch();
+  const isDark = useIsDark();
+  const currentLocale = useAppSelector(selectLocale) || 'en';
+  const [search, setSearch] = useState('');
+
+  const featured = [
+    { code: 'ar', name: 'العربية', englishName: 'Arabic', flag: '🇸🇦' },
+    { code: 'en', name: 'English', englishName: 'English', flag: '🇬🇧' },
+  ];
+
+  const allLanguages = [
+    ...featured,
+    { code: 'fr', name: 'Français', englishName: 'French', flag: '🇫🇷' },
+    { code: 'es', name: 'Español', englishName: 'Spanish', flag: '🇪🇸' },
+    { code: 'de', name: 'Deutsch', englishName: 'German', flag: '🇩🇪' },
+    { code: 'tr', name: 'Türkçe', englishName: 'Turkish', flag: '🇹🇷' },
+    { code: 'it', name: 'Italiano', englishName: 'Italian', flag: '🇮🇹' },
+    { code: 'pt', name: 'Português', englishName: 'Portuguese', flag: '🇵🇹' },
+    { code: 'pt_BR', name: 'Português (Brasil)', englishName: 'Portuguese (Brazil)', flag: '🇧🇷' },
+    { code: 'ru', name: 'Русский', englishName: 'Russian', flag: '🇷🇺' },
+    { code: 'fa', name: 'فارسی', englishName: 'Farsi', flag: '🇮🇷' },
+    { code: 'zh_CN', name: '简体中文', englishName: 'Chinese (Simplified)', flag: '🇨🇳' },
+    { code: 'zh_TW', name: '繁體中文', englishName: 'Chinese (Traditional)', flag: '🇹🇼' },
+    { code: 'ja', name: '日本語', englishName: 'Japanese', flag: '🇯🇵' },
+    { code: 'ko', name: '한국어', englishName: 'Korean', flag: '🇰🇷' },
+    { code: 'id', name: 'Bahasa Indonesia', englishName: 'Indonesian', flag: '🇮🇩' },
+    { code: 'nl', name: 'Nederlands', englishName: 'Dutch', flag: '🇳🇱' },
+    { code: 'pl', name: 'Polski', englishName: 'Polish', flag: '🇵🇱' },
+    { code: 'sv', name: 'Svenska', englishName: 'Swedish', flag: '🇸🇪' },
+    { code: 'uk', name: 'Українська', englishName: 'Ukrainian', flag: '🇺🇦' },
+    { code: 'vi', name: 'Tiếng Việt', englishName: 'Vietnamese', flag: '🇻🇳' },
+  ];
+
+  const filtered = allLanguages.filter(
+    l =>
+      l.name.toLowerCase().includes(search.toLowerCase()) ||
+      l.englishName.toLowerCase().includes(search.toLowerCase()) ||
+      l.code.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  const handleSelect = (code: string) => {
+    i18n.locale = code;
+    dispatch(setLocale(code));
+    showToast({ message: i18n.t('SETTINGS.SET_LANGUAGE_SUCCESS') });
+  };
+
+  return (
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#101113' : '#ffffff'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+      <SubHeader title={i18n.t('SETTINGS.CHANGE_LANGUAGE')} />
+      <View style={{ paddingHorizontal: 16, paddingTop: 16, flex: 1 }}>
+        {/* Search */}
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: isDark ? '#1B1C20' : '#F4F5F7',
+            borderRadius: 12,
+            paddingHorizontal: 12,
+            paddingVertical: 10,
+            marginBottom: 16,
+            gap: 8,
+          }}>
+          <SearchSmall />
+          <TextInput
+            value={search}
+            onChangeText={setSearch}
+            placeholder={i18n.t('SETTINGS.SET_LANGUAGE')}
+            placeholderTextColor="#80838D"
+            style={{
+              flex: 1,
+              color: isDark ? '#EDEEF0' : '#282E34',
+              fontSize: 14,
+              padding: 0,
+            }}
+          />
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+          {filtered.map(opt => {
+            const isSelected = currentLocale === opt.code || (opt.code === 'en' && currentLocale.startsWith('en'));
+            return (
+              <Pressable
+                key={opt.code}
+                onPress={() => handleSelect(opt.code)}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingVertical: 14,
+                  borderBottomWidth: 1,
+                  borderBottomColor: isDark ? '#24262B' : '#EAEAEA',
+                }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <Text style={{ fontSize: 20 }}>{opt.flag}</Text>
+                  <View>
+                    <Text
+                      style={{
+                        color: isDark ? '#EDEEF0' : '#282E34',
+                        fontSize: 15,
+                        fontWeight: isSelected ? '700' : '500',
+                      }}>
+                      {opt.name}
+                    </Text>
+                    {opt.name !== opt.englishName && (
+                      <Text style={{ color: '#80838D', fontSize: 12, marginTop: 2 }}>{opt.englishName}</Text>
+                    )}
+                  </View>
+                </View>
+                {isSelected && <CheckIcon />}
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };

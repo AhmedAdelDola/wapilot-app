@@ -1,4 +1,4 @@
-import { PathProps } from 'react-native-svg';
+import { PathProps, SvgProps } from 'react-native-svg';
 
 import { AllStatusTypes, AssigneeTypes, SortTypes } from './common';
 
@@ -14,7 +14,7 @@ export * from './Account';
 export * from './Macro';
 export * from './MessageTemplate';
 
-export type IconProps = PathProps;
+export type IconProps = PathProps & SvgProps & { width?: number | string; height?: number | string };
 
 export interface GenericListType {
   key?: string;

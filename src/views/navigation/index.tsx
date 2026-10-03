@@ -174,7 +174,9 @@ export const AppNavigationContainer = () => {
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
-      await SplashScreen.hideAsync();
+      try {
+        await SplashScreen.hideAsync();
+      } catch {}
     }
   }, [fontsLoaded]);
 
@@ -203,12 +205,18 @@ export const AppNavigationContainer = () => {
 };
 
 export const AppNavigator = () => {
+  const locale = useAppSelector(selectLocale) || 'en';
+
+  React.useEffect(() => {
+    i18n.locale = locale;
+  }, [locale]);
+
   return (
     <GestureHandlerRootView style={styles.navigationLayout}>
       <KeyboardProvider>
         <RefsProvider>
           <SafeAreaProvider>
-            <AppNavigationContainer />
+            <AppNavigationContainer key={locale} />
           </SafeAreaProvider>
         </RefsProvider>
       </KeyboardProvider>

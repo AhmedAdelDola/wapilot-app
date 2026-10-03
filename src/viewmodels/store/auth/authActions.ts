@@ -14,6 +14,7 @@ import type {
   SsoAuthPayload,
   SsoAuthResponse,
   GoogleLoginPayload,
+  AppleLoginPayload,
   ChangePasswordPayload,
   ChangePasswordResponse,
 } from './authTypes';
@@ -77,6 +78,12 @@ export const authActions = {
   loginWithGoogle: createAuthThunk<LoginResponse, GoogleLoginPayload>(
     'auth/loginWithGoogle',
     AuthService.loginWithGoogle,
+    I18n.t('ERRORS.AUTH'),
+  ),
+
+  loginWithApple: createAuthThunk<LoginResponse, AppleLoginPayload>(
+    'auth/loginWithApple',
+    AuthService.loginWithApple,
     I18n.t('ERRORS.AUTH'),
   ),
 

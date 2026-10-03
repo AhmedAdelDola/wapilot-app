@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
 
 const MESSAGE_LETTERS: { src: ReturnType<typeof require>; ratio: number }[] = [
   { src: require('@/assets/images/brand/letters/condensed version graded-1.png'),  ratio: 1081 / 697 },
@@ -68,6 +69,9 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
   ).current;
 
   useEffect(() => {
+    // Hide the native splash screen so the animated splash becomes visible
+    SplashScreen.hideAsync().catch(() => {});
+
     const finish = () => {
       if (finishedRef.current) return;
       finishedRef.current = true;

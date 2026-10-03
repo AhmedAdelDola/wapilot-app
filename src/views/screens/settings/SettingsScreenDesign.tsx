@@ -28,8 +28,10 @@ import { authActions } from '@/viewmodels/store/auth/authActions';
 import {
   selectPushToken,
   selectTheme,
+  selectLocale,
 } from '@/viewmodels/store/settings/settingsSelectors';
 import { settingsActions } from '@/viewmodels/store/settings/settingsActions';
+import i18n from '@/i18n';
 import { RecentSearches } from '@/views/screens/search/utils/recentSearches';
 import { Account, AvailabilityStatus } from '@/models/types';
 import { useHaptic } from '@/utils';
@@ -38,8 +40,15 @@ import { profileService } from '@/models/services/profileService';
 import { showToast } from '@/utils/toastUtils';
 
 // ---------- Icons ----------
+const GlobeIcon = ({ color = '#94a3b8' }: { color?: string }) => (
+  <Svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth="1.8" />
+    <Path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </Svg>
+);
+
 const ChevronRight = ({ color = '#80838D' }: { color?: string }) => (
-  <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+  <Svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ transform: [{ scaleX: i18n.isRTL ? -1 : 1 }] }}>
     <Path d="M9 6l6 6-6 6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
 );
@@ -272,6 +281,27 @@ const SettingsScreenDesign = () => {
     }
   };
 
+  const currentLocale = useAppSelector(selectLocale) || 'en';
+
+  const getLanguageLabel = () => {
+    switch (currentLocale) {
+      case 'ar':
+        return 'العربية (Arabic)';
+      case 'en':
+        return 'English';
+      case 'fr':
+        return 'Français';
+      case 'es':
+        return 'Español';
+      case 'de':
+        return 'Deutsch';
+      case 'tr':
+        return 'Türkçe';
+      default:
+        return currentLocale;
+    }
+  };
+
   const getThemeLabel = () => {
     switch (themeSetting) {
       case 'system':
@@ -286,10 +316,10 @@ const SettingsScreenDesign = () => {
   };
 
   const onClickLogout = () => {
-    Alert.alert('Log out', 'Are you sure you want to log out?', [
+    Alert.alert(i18n.t('SETTINGS.LOGOUT'), 'Are you sure you want to log out?', [
       { text: 'Cancel', style: 'cancel' },
       {
-        text: 'Log out',
+        text: i18n.t('SETTINGS.LOGOUT'),
         style: 'destructive',
         onPress: async () => {
           await AsyncStorage.removeItem('cwCookie');
@@ -310,7 +340,7 @@ const SettingsScreenDesign = () => {
       <StatusBar translucent backgroundColor={bgColor} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <View style={{ flex: 1, backgroundColor: bgColor }}>
         <View style={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 16 }}>
-          <Text style={{ fontSize: 24, fontWeight: '700', color: textPrimary }}>Settings</Text>
+          <Text style={{ fontSize: 24, fontWeight: '700', color: textPrimary }}>{i18n.t('SETTINGS.HEADER_TITLE')}</Text>
         </View>
 
         <ScrollView
@@ -382,7 +412,7 @@ const SettingsScreenDesign = () => {
                 paddingTop: 20,
                 paddingBottom: 8,
               }}>
-              General
+              {i18n.t('SETTINGS.GENERAL')}
             </Text>
             <Pressable
               style={[dynamicRowCls, { paddingHorizontal: 0 }]}
@@ -393,7 +423,7 @@ const SettingsScreenDesign = () => {
                   <UserIcon />
                 </View>
                 <Text style={{ color: textPrimary, fontSize: 15, fontWeight: '500' }}>
-                  {`Set yourself as `}
+                  {`${i18n.t('SETTINGS.SET_AVAILABILITY')} `}
                   <Text style={{ fontWeight: '700', color: isOnline ? '#FA8900' : '#059669' }}>
                     {targetStatusText}
                   </Text>
@@ -417,24 +447,24 @@ const SettingsScreenDesign = () => {
                 paddingTop: 20,
                 paddingBottom: 8,
               }}>
-              Account
+              {i18n.t('SETTINGS.ACCOUNT')}
             </Text>
             {[
               {
                 icon: <WorkspaceIcon />,
-                label: 'Change workspace',
+                label: i18n.t('SETTINGS.CHANGE_WORKSPACE'),
                 sub: activeAccountName,
                 action: () => navigation.navigate('ChangeWorkspaceScreen'),
               },
               {
                 icon: <BellIcon />,
-                label: 'Update notifications',
+                label: i18n.t('SETTINGS.UPDATE_NOTIFICATIONS'),
                 sub: null,
                 action: () => navigation.navigate('UpdateNotificationsScreen'),
               },
               {
                 icon: <LockIcon />,
-                label: 'Change password',
+                label: i18n.t('SETTINGS.CHANGE_PASSWORD'),
                 sub: null,
                 action: () => navigation.navigate('ChangePasswordScreen'),
               },
@@ -464,15 +494,27 @@ const SettingsScreenDesign = () => {
                 paddingTop: 20,
                 paddingBottom: 8,
               }}>
-              App
+              {i18n.t('SETTINGS.APP')}
             </Text>
+            <Pressable style={[dynamicRowCls, { paddingHorizontal: 0 }]} onPress={() => navigation.navigate('ChangeLanguageScreen')}>
+              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <View style={dynamicIconBox}>
+                  <GlobeIcon />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: textPrimary }}>{i18n.t('SETTINGS.LANGUAGE')}</Text>
+                  <Text style={{ fontSize: 14, color: textSecondary }}>{getLanguageLabel()}</Text>
+                </View>
+              </View>
+              <ChevronRight />
+            </Pressable>
             <Pressable style={[dynamicRowCls, { paddingHorizontal: 0 }]} onPress={() => navigation.navigate('DarkModeScreen')}>
               <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                 <View style={dynamicIconBox}>
                   <MoonIcon />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: textPrimary }}>Dark mode</Text>
+                  <Text style={{ color: textPrimary }}>{i18n.t('SETTINGS.DARK_MODE')}</Text>
                   <Text style={{ fontSize: 14, color: textSecondary }}>{getThemeLabel()}</Text>
                 </View>
               </View>
@@ -483,7 +525,7 @@ const SettingsScreenDesign = () => {
                 <View style={dynamicIconBox}>
                   <PhoneIconSm />
                 </View>
-                <Text style={{ color: textPrimary }}>Haptic feedback</Text>
+                <Text style={{ color: textPrimary }}>{i18n.t('SETTINGS.HAPTIC_FEEDBACK')}</Text>
               </View>
               <Toggle
                 on={haptic}
@@ -504,10 +546,10 @@ const SettingsScreenDesign = () => {
                 paddingTop: 20,
                 paddingBottom: 8,
               }}>
-              Help & feedback
+              {i18n.t('SETTINGS.HELP_FEEDBACK')}
             </Text>
             {[
-              { icon: <ChatIcon />, label: 'Get support', action: () => setShowSupportSheet(true) },
+              { icon: <ChatIcon />, label: i18n.t('SETTINGS.SUPPORT'), action: () => setShowSupportSheet(true) },
             ].map((item, i) => (
               <Pressable key={i} style={[dynamicRowCls, { paddingHorizontal: 0 }]} onPress={item.action}>
                 <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -526,7 +568,7 @@ const SettingsScreenDesign = () => {
                 <View style={dynamicIconBox}>
                   <LogoutIcon />
                 </View>
-                <Text style={{ color: '#FF382E', fontWeight: '500', flex: 1 }}>Log out</Text>
+                <Text style={{ color: '#FF382E', fontWeight: '500', flex: 1 }}>{i18n.t('SETTINGS.LOGOUT')}</Text>
               </View>
               <ChevronRight />
             </Pressable>

@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   return {
     name: 'Message Pro',
     slug: process.env.EXPO_PUBLIC_APP_SLUG || 'message-pro-mobile',
-    version: '1.0.1',
+    version: '1.0.2',
     orientation: 'portrait',
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
@@ -19,14 +19,15 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.message.pro.com',
-      buildNumber: '2',
+      buildNumber: '3',
       googleServicesFile: './GoogleService-Info.plist',
       infoPlist: {
         NSCameraUsageDescription:
-          'This app requires access to the camera to upload images and videos.',
+          'Message Pro requires access to your camera so you can take photos and record videos to send in chat messages and customer conversations.',
         NSPhotoLibraryUsageDescription:
-          'This app requires access to the photo library to upload images.',
-        NSMicrophoneUsageDescription: 'This app requires access to the microphone to record audio.',
+          'Message Pro requires access to your photo library so you can select and attach photos and videos to send in chat messages and customer conversations.',
+        NSMicrophoneUsageDescription:
+          'Message Pro requires access to your microphone so you can record and send voice notes and audio messages in chat messages and customer conversations.',
         UIBackgroundModes: ['fetch', 'remote-notification'],
         ITSAppUsesNonExemptEncryption: false,
       },
@@ -34,7 +35,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     android: {
       adaptiveIcon: { foregroundImage: './assets/adaptive-icon.png', backgroundColor: '#101113' },
       package: 'com.message.pro.com',
-      versionCode: 2,
+      versionCode: 3,
       googleServicesFile: './google-services.json',
       permissions: ['android.permission.CAMERA', 'android.permission.RECORD_AUDIO'],
       edgeToEdgeEnabled: true,
@@ -48,7 +49,15 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     plugins: [
       'expo-font',
       'expo-splash-screen',
-      'expo-image-picker',
+      [
+        'expo-image-picker',
+        {
+          photosPermission:
+            'Message Pro requires access to your photo library so you can select and attach photos and videos to send in chat messages and customer conversations.',
+          cameraPermission:
+            'Message Pro requires access to your camera so you can take photos and record videos to send in chat messages and customer conversations.',
+        },
+      ],
       'expo-document-picker',
       'expo-secure-store',
       [
