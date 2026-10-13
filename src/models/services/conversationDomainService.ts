@@ -154,7 +154,7 @@ export class ConversationService {
     const currentStatus = data.current_status || payload.status || 'open';
     const snoozedUntil = data.snoozed_until !== undefined ? data.snoozed_until : (payload.snoozed_until ?? null);
     return {
-      conversationId,
+      conversationId: Number(conversationId),
       currentStatus,
       snoozedUntil,
     };

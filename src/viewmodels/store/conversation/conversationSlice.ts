@@ -318,7 +318,7 @@ const conversationSlice = createSlice({
       })
       .addCase(conversationActions.toggleConversationStatus.fulfilled, (state, { payload }) => {
         const { conversationId, currentStatus, snoozedUntil } = payload;
-        const conversation = state.entities[conversationId];
+        const conversation = state.entities[Number(conversationId)];
         if (!conversation) {
           return;
         }

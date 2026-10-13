@@ -10,7 +10,6 @@ import {
   Animated,
   RefreshControl,
   ActivityIndicator,
-  KeyboardAvoidingView,
   Keyboard,
   Platform,
   Image,
@@ -18,6 +17,7 @@ import {
   useWindowDimensions,
   FlatList,
 } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path, Circle, Rect, Line, Polyline, Polygon } from 'react-native-svg';
@@ -1216,8 +1216,8 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
       <StatusBar translucent backgroundColor={bgColor} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}>
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}>
         {/* Header row 1 */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingTop: 16, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: borderColor }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -1267,13 +1267,19 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                 try {
                   await dispatch(
                     conversationActions.toggleConversationStatus({
-                      conversationId,
-                      payload: { status: nextStatus },
+                      conversationId: Number(conversationId),
+                      payload: { status: nextStatus, snoozed_until: null },
                     }),
                   ).unwrap();
-                  showToast({ message: nextStatus === 'resolved' ? 'Conversation resolved' : 'Conversation reopened' });
+                  showToast({
+                    message: nextStatus === 'resolved'
+                      ? (isArabic ? 'تم إغلاق المحادثة' : 'Conversation closed')
+                      : (isArabic ? 'تم إعادة فتح المحادثة' : 'Conversation reopened'),
+                  });
                 } catch {
-                  showToast({ message: 'Failed to update status' });
+                  showToast({
+                    message: isArabic ? 'تعذر تغيير حالة المحادثة' : 'Failed to update status',
+                  });
                 }
               }}>
               <ResolveIcon color={conversation?.status === 'resolved' ? '#2CA54A' : (isDark ? '#94a3b8' : '#626F7F')} />
@@ -1375,6 +1381,8 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
           ref={scrollViewRef}
           inverted
           data={reversedMessages}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
           renderItem={({ item: m, index: idx }) => {
             const showDateHeader =
               idx === reversedMessages.length - 1 ||
@@ -1536,7 +1544,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
           backgroundColor: isPrivate
             ? (isDark ? '#1c1400' : '#fffdf0')
             : inputContainerBg,
-          paddingBottom: Math.max(insets.bottom, 8),
+          paddingBottom: chatKeyboardHeight > 0 ? 8 : Math.max(insets.bottom, 8),
         }}>
           {!isPrivate && conversation?.canReply === false ? (
             <View style={{ marginHorizontal: 16, marginTop: 8, borderRadius: 8, backgroundColor: isDark ? '#1B1C20' : 'rgba(250,137,0,0.10)', paddingHorizontal: 10, paddingVertical: 8 }}>
@@ -1599,6 +1607,7 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
                 }}
                 onBlur={stopTyping}
                 multiline
+                scrollEnabled
                 placeholder={isPrivate ? 'Add a private note...' : 'Type a message...'}
                 placeholderTextColor={isDark ? '#80838D' : '#80838D'}
                 style={{ flex: 1, color: textPrimary, fontSize: 14, maxHeight: 100 }}
@@ -1731,14 +1740,28 @@ export const ChatScreenDesign = ({ conversationId, onBack }: { conversationId: n
         <BottomSheet onClose={() => { setCustomSnoozeOpen(false); setSheet(null); }} bottomOffset={customSnoozeOpen ? chatKeyboardHeight : 0}>
           {[
             {
-              icon: <ResolveIcon color={textPrimary} />,
-              label: isArabic ? 'إغلاق المحادثة' : 'Close Conversation',
+              icon: <ResolveIcon color={conversation?.status === 'resolved' ? '#2CA54A' : textPrimary} />,
+              label: isArabic
+                ? (conversation?.status === 'resolved' ? 'إعادة فتح المحادثة' : 'إغلاق المحادثة')
+                : (conversation?.status === 'resolved' ? 'Reopen Conversation' : 'Close Conversation'),
               onPress: async () => {
                 setSheet(null);
-                await dispatch(conversationActions.toggleConversationStatus({
-                  conversationId,
-                  payload: { status: 'resolved' },
-                }));
+                const nextStatus = conversation?.status === 'resolved' ? 'open' : 'resolved';
+                try {
+                  await dispatch(conversationActions.toggleConversationStatus({
+                    conversationId: Number(conversationId),
+                    payload: { status: nextStatus, snoozed_until: null },
+                  })).unwrap();
+                  showToast({
+                    message: nextStatus === 'resolved'
+                      ? (isArabic ? 'تم إغلاق المحادثة' : 'Conversation closed')
+                      : (isArabic ? 'تم إعادة فتح المحادثة' : 'Conversation reopened'),
+                  });
+                } catch {
+                  showToast({
+                    message: isArabic ? 'تعذر تغيير حالة المحادثة' : 'Failed to update status',
+                  });
+                }
               },
             },
             { icon: <LifecycleIcon color={textPrimary} />, label: isArabic ? 'اختيار مرحلة العميل' : 'Select Lifecycle Stage', onPress: () => setSheet('stage') },
@@ -2898,13 +2921,18 @@ const InboxScreenDesign = () => {
 
     const handleSwipeClose = async () => {
       try {
+        const nextStatus = item.status === 'resolved' ? 'open' : 'resolved';
         await dispatch(conversationActions.toggleConversationStatus({
-          conversationId: item.id,
-          payload: { status: 'resolved' },
+          conversationId: Number(item.id),
+          payload: { status: nextStatus, snoozed_until: null },
         })).unwrap();
-        showToast({ message: isArabic ? 'تم إغلاق المحادثة' : 'Conversation closed' });
+        showToast({
+          message: nextStatus === 'resolved'
+            ? (isArabic ? 'تم إغلاق المحادثة' : 'Conversation closed')
+            : (isArabic ? 'تم إعادة فتح المحادثة' : 'Conversation reopened'),
+        });
       } catch {
-        showToast({ message: isArabic ? 'تعذر إغلاق المحادثة' : 'Failed to close conversation' });
+        showToast({ message: isArabic ? 'تعذر تغيير حالة المحادثة' : 'Failed to update conversation status' });
       }
     };
 
@@ -2933,7 +2961,9 @@ const InboxScreenDesign = () => {
             </Pressable>
             <View style={{ width: 44, alignItems: 'center', justifyContent: 'center' }}>
               <ResolveIcon color="#ffffff" />
-              <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: '600', marginTop: 2 }}>Close</Text>
+              <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: '600', marginTop: 2 }}>
+                {item.status === 'resolved' ? (isArabic ? 'فتح' : 'Reopen') : (isArabic ? 'إغلاق' : 'Close')}
+              </Text>
             </View>
           </View>
         )}
@@ -3238,13 +3268,27 @@ const InboxScreenDesign = () => {
           <BottomSheet onClose={() => setActionConversation(null)}>
             {[
               {
-                icon: <ResolveIcon color={textPrimary} />,
-                label: isArabic ? 'إغلاق المحادثة' : 'Close Conversation',
+                icon: <ResolveIcon color={actionConversation?.status === 'resolved' ? '#2CA54A' : textPrimary} />,
+                label: isArabic
+                  ? (actionConversation?.status === 'resolved' ? 'إعادة فتح المحادثة' : 'إغلاق المحادثة')
+                  : (actionConversation?.status === 'resolved' ? 'Reopen Conversation' : 'Close Conversation'),
                 onPress: async () => {
-                  await dispatch(conversationActions.toggleConversationStatus({
-                    conversationId: actionConversation.id,
-                    payload: { status: 'resolved' },
-                  }));
+                  const nextStatus = actionConversation?.status === 'resolved' ? 'open' : 'resolved';
+                  try {
+                    await dispatch(conversationActions.toggleConversationStatus({
+                      conversationId: Number(actionConversation.id),
+                      payload: { status: nextStatus, snoozed_until: null },
+                    })).unwrap();
+                    showToast({
+                      message: nextStatus === 'resolved'
+                        ? (isArabic ? 'تم إغلاق المحادثة' : 'Conversation closed')
+                        : (isArabic ? 'تم إعادة فتح المحادثة' : 'Conversation reopened'),
+                    });
+                  } catch {
+                    showToast({
+                      message: isArabic ? 'تعذر تغيير حالة المحادثة' : 'Failed to update status',
+                    });
+                  }
                   setActionConversation(null);
                 },
               },
