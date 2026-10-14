@@ -37,6 +37,7 @@ import { Account, AvailabilityStatus } from '@/models/types';
 import { useHaptic } from '@/utils';
 import { useTheme } from '@/theme';
 import { profileService } from '@/models/services/profileService';
+import { authService } from '@/models/services/authService';
 import { showToast } from '@/utils/toastUtils';
 
 // ---------- Icons ----------
@@ -326,6 +327,11 @@ const SettingsScreenDesign = () => {
           await RecentSearches.clearAll();
           if (pushToken) {
             await dispatch(settingsActions.removeDevice({ pushToken }));
+          }
+          try {
+            await authService.signOut();
+          } catch {
+            // Ignore network or sign-out errors
           }
           dispatch(logout());
         },

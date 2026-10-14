@@ -87,6 +87,14 @@ class APIService {
     void clearAuthTokens();
   }
 
+  public getAuthHeaders(): {
+    'access-token': string;
+    uid: string;
+    client: string;
+  } | null {
+    return this.authHeaders;
+  }
+
   public async initFromSecureStore(): Promise<boolean> {
     try {
       const headers = await getAuthHeaders();
@@ -123,7 +131,13 @@ class APIService {
         if (!this.accountId) {
           try {
             const store = getStore();
-            const storeAccountId = store?.getState()?.auth?.user?.account_id;
+            const state = store?.getState();
+            const user = state?.auth?.user as any;
+            const storeAccountId =
+              user?.account_id ||
+              user?.data?.account_id ||
+              user?.accounts?.[0]?.id ||
+              user?.data?.accounts?.[0]?.id;
             if (storeAccountId) {
               this.accountId = Number(storeAccountId);
             }
@@ -135,8 +149,8 @@ class APIService {
         // Build the full URL with proper prefix
         const url = config.url || '';
 
-        // If URL already has api/v1/ or auth/ prefix, keep as-is
-        if (url.startsWith('api/v1/') || url.startsWith('auth/')) {
+        // If URL already has api/v1/, api/v2/, or auth/ prefix, keep as-is
+        if (url.startsWith('api/v1/') || url.startsWith('api/v2/') || url.startsWith('auth/')) {
           // Keep URL as-is
         }
         // Auth routes - no prefix needed (they use /auth/...)
@@ -150,6 +164,10 @@ class APIService {
         // Account routes - use /api/v1/accounts/{account_id}/ prefix
         else if (this.accountId && url) {
           config.url = `api/v1/accounts/${this.accountId}/${url}`;
+        }
+        // Guard: NEVER send raw account routes (e.g. 'conversations/3863') to the root domain!
+        else if (!this.accountId && url) {
+          return Promise.reject(new Error(`Account ID is required for account-scoped route: ${url}`));
         }
 
         // Set auth headers directly on config.headers (works with AxiosHeaders class)
@@ -191,6 +209,11 @@ class APIService {
         if (error.response?.status === 429) {
           // Rate limited (429) - log gentle warning instead of error spam
           console.warn('API Rate Limit (429):', error.config?.url);
+          return Promise.reject(error);
+        }
+
+        // 404 on auth/sign_out is normal when already signed out or token revoked
+        if (error.config?.url?.includes('auth/sign_out') && error.response?.status === 404) {
           return Promise.reject(error);
         }
 

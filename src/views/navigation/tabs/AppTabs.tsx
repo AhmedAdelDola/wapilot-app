@@ -122,9 +122,15 @@ const Tabs = () => {
     }
     // Here is the place we are loading all the data for the app first time or user switches account
     dispatch(authActions.getProfile()).then((result: any) => {
-      const activeAccId = result.payload?.account_id || accountId;
+      const payload = result.payload;
+      const activeAccId =
+        payload?.data?.account_id ||
+        payload?.account_id ||
+        payload?.data?.accounts?.[0]?.id ||
+        payload?.accounts?.[0]?.id ||
+        accountId;
       if (activeAccId) {
-        apiService.setAccountId(activeAccId);
+        apiService.setAccountId(Number(activeAccId));
       }
       dispatch(inboxActions.fetchInboxes());
       dispatch(labelActions.fetchLabels());

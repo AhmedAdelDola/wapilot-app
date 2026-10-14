@@ -3,6 +3,7 @@ import { authActions } from './authActions';
 import { User } from '@/models/types/User';
 import { AuthHeaders } from './authTypes';
 import { apiService } from '@/models/services/APIService';
+import { mobileV2Service } from '@/models/services/mobileV2Service';
 import { saveAuthTokens, clearAuthTokens, savePubSubToken } from '@/utils/secureStore';
 export interface AuthState {
   user: User | null;
@@ -38,10 +39,12 @@ export const authSlice = createSlice({
   reducers: {
     logout: state => {
       void clearAuthTokens();
+      mobileV2Service.resetV2SupportCheck();
       // in rootReducer, there is an action to CLEAR the complete Redux Store's state
     },
     resetAuth: state => {
       void clearAuthTokens();
+      mobileV2Service.resetV2SupportCheck();
       state.user = null;
       state.accessToken = null;
       state.headers = null;
@@ -163,13 +166,18 @@ export const authSlice = createSlice({
       })
       .addCase(authActions.getProfile.fulfilled, (state, action) => {
         const payload = action.payload as any;
-        const profile = payload?.user || payload;
+        const profile = payload?.data || payload?.user || payload;
         state.user = {
           ...state.user,
           ...profile,
         } as User;
-        if (profile?.account_id) {
-          apiService.setAccountId(profile.account_id);
+        const resolvedAccountId =
+          profile?.account_id ||
+          profile?.accounts?.[0]?.id ||
+          state.user?.account_id;
+        if (resolvedAccountId) {
+          state.user.account_id = Number(resolvedAccountId);
+          apiService.setAccountId(Number(resolvedAccountId));
         }
         if (profile?.pubsub_token) {
           void savePubSubToken(profile.pubsub_token);

@@ -18,4 +18,7 @@ export type User = {
   thumbnail: string;
   availability_status: AvailabilityStatus;
   type: string;
+  organization?: string | { id?: number; name?: string };
+  organization_name?: string;
+  organizations?: Array<{ id?: number; name: string; accounts?: any[]; account_ids?: any[] }>;
 };

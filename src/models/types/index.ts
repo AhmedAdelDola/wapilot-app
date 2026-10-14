@@ -73,3 +73,5 @@ export type LabelType = { labelText: string; labelColor: string };
 export type RenderPropType<T = unknown> =
   | React.ReactNode
   | ((args: T) => JSX.Element | React.ReactNode);
+
+export * from './mobileV2';

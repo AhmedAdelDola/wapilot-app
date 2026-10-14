@@ -1,4 +1,5 @@
 import { apiService } from '@/models/services/APIService';
+import { mobileV2Service } from './mobileV2Service';
 
 /**
  * Authentication Service
@@ -97,10 +98,31 @@ class AuthService {
    * Destroys the current session
    */
   async signOut(): Promise<void> {
+    const currentHeaders = apiService.getAuthHeaders();
+    if (currentHeaders?.client && mobileV2Service.hasActiveWebViewSession()) {
+      // Also sign out the WebView Devise client (webview-<native-client>)
+      const webClient = currentHeaders.client.startsWith('webview-')
+        ? currentHeaders.client
+        : `webview-${currentHeaders.client}`;
+      try {
+        await apiService.delete('auth/sign_out', {
+          headers: {
+            'access-token': currentHeaders['access-token'],
+            client: webClient,
+            uid: currentHeaders.uid,
+          },
+        });
+      } catch {
+        // Best-effort sign out of webview session
+      }
+    }
     try {
       await apiService.delete('auth/sign_out');
+    } catch {
+      // Session already invalidated or token expired
     } finally {
       apiService.clearAuthHeaders();
+      mobileV2Service.setHasActiveWebViewSession(false);
     }
   }
 }

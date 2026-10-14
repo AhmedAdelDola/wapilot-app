@@ -34,6 +34,7 @@ import i18n from '@/i18n';
 import { inboxActions } from '@/viewmodels/store/inbox/inboxActions';
 import { showToast } from '@/utils/toastUtils';
 import { Account } from '@/models/types/Account';
+import { User } from '@/models/types/User';
 import { useTheme } from '@/theme';
 
 // ---------- Theme Helper ----------
@@ -63,6 +64,18 @@ const SearchSmall = () => (
   <Svg width="16" height="16" viewBox="0 0 24 24" fill="none">
     <Circle cx="11" cy="11" r="8" stroke="#80838D" strokeWidth="2" />
     <Path d="m21 21-4.35-4.35" stroke="#80838D" strokeWidth="2" strokeLinecap="round" />
+  </Svg>
+);
+
+const OrganizationIcon = ({ color = '#80838D' }: { color?: string }) => (
+  <Svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M3 21h18M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16M9 9h1m4 0h1M9 13h1m4 0h1M9 17h1m4 0h1"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </Svg>
 );
 
@@ -587,19 +600,89 @@ export const ProfileScreen = () => {
 // ==========================================
 // 4. Change Workspace Screen
 // ==========================================
+interface OrgGroup {
+  orgName: string;
+  accounts: Account[];
+}
+
+const getAccountOrgName = (account: Account, user?: User | null): string => {
+  const acc = account as any;
+  const orgFromAccount =
+    acc?.organization?.name ||
+    (typeof acc?.organization === 'string' ? acc.organization : null) ||
+    acc?.organization_name ||
+    acc?.org_name ||
+    acc?.company_name ||
+    acc?.custom_attributes?.organization;
+
+  if (orgFromAccount && typeof orgFromAccount === 'string' && orgFromAccount.trim()) {
+    return orgFromAccount.trim();
+  }
+
+  const u = user as any;
+  if (Array.isArray(u?.organizations) && u.organizations.length > 0) {
+    const matched = u.organizations.find(
+      (org: any) =>
+        org?.id === acc?.organization_id ||
+        (Array.isArray(org?.accounts) && org.accounts.some((a: any) => (a?.id || a) === acc?.id)) ||
+        (Array.isArray(org?.account_ids) && org.account_ids.includes(acc?.id)),
+    );
+    if (matched?.name && typeof matched.name === 'string' && matched.name.trim()) {
+      return matched.name.trim();
+    }
+  }
+
+  const orgFromUser =
+    u?.organization?.name ||
+    (typeof u?.organization === 'string' ? u.organization : null) ||
+    u?.organization_name ||
+    u?.org_name ||
+    u?.company_name;
+
+  if (orgFromUser && typeof orgFromUser === 'string' && orgFromUser.trim()) {
+    return orgFromUser.trim();
+  }
+
+  return 'Organization';
+};
+
 export const ChangeWorkspaceScreen = () => {
   const navigation = useNavigation<any>();
   const dispatch = useAppDispatch();
   const isDark = useIsDark();
+  const user = useAppSelector(selectUser);
   const accounts = useAppSelector(selectAccounts) || [];
   const currentAccountId = useAppSelector(selectCurrentUserAccountId);
 
   const [query, setQuery] = useState('');
   const [switchingId, setSwitchingId] = useState<number | null>(null);
 
-  const filteredAccounts = accounts.filter((account: Account) =>
-    account.name?.toLowerCase().includes(query.toLowerCase().trim()),
-  );
+  const trimmedQuery = query.toLowerCase().trim();
+
+  const groupedAccounts = React.useMemo(() => {
+    const map = new Map<string, Account[]>();
+
+    accounts.forEach((account: Account) => {
+      const orgName = getAccountOrgName(account, user);
+      const matchesQuery =
+        !trimmedQuery ||
+        account.name?.toLowerCase().includes(trimmedQuery) ||
+        orgName.toLowerCase().includes(trimmedQuery);
+
+      if (matchesQuery) {
+        if (!map.has(orgName)) {
+          map.set(orgName, []);
+        }
+        map.get(orgName)!.push(account);
+      }
+    });
+
+    const groups: OrgGroup[] = [];
+    map.forEach((accs, orgName) => {
+      groups.push({ orgName, accounts: accs });
+    });
+    return groups;
+  }, [accounts, user, trimmedQuery]);
 
   const handleSwitchWorkspace = async (account: Account) => {
     if (account.id === currentAccountId || switchingId !== null) return;
@@ -654,56 +737,88 @@ export const ChangeWorkspaceScreen = () => {
         </View>
       </View>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}>
-        {filteredAccounts.map((account: Account) => {
-          const isActive = account.id === currentAccountId;
-          const isSwitching = switchingId === account.id;
-
-          return (
-            <Pressable
-              key={account.id}
-              onPress={() => handleSwitchWorkspace(account)}
-              disabled={isSwitching}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingVertical: 14,
-                paddingHorizontal: 12,
-                borderRadius: 12,
-                backgroundColor: isActive ? (isDark ? '#1B1C20' : '#f0fdfa') : 'transparent',
-                borderBottomWidth: 1,
-                borderBottomColor: isDark ? '#24262B' : '#EAEAEA',
-                marginBottom: 4,
-              }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
-                <View
+        {groupedAccounts.length === 0 ? (
+          <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 48 }}>
+            <Text style={{ color: isDark ? '#80838D' : '#64748b', fontSize: 14 }}>
+              {query ? 'No matching workspaces found' : 'No workspaces available'}
+            </Text>
+          </View>
+        ) : (
+          groupedAccounts.map(group => (
+            <View key={group.orgName} style={{ marginBottom: 16 }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 6,
+                  marginTop: 12,
+                  marginBottom: 8,
+                  paddingHorizontal: 4,
+                }}>
+                <OrganizationIcon color={isDark ? '#9CA3AF' : '#6B7280'} />
+                <Text
                   style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 999,
-                    backgroundColor: isActive ? '#725AFF' : (isDark ? '#626F7F' : '#725AFF'),
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    fontSize: 13,
+                    fontWeight: '700',
+                    textTransform: 'uppercase',
+                    letterSpacing: 0.6,
+                    color: isDark ? '#9CA3AF' : '#6B7280',
                   }}>
-                  {isSwitching ? (
-                    <ActivityIndicator size="small" color="white" />
-                  ) : (
-                    <Text style={{ color: 'white', fontWeight: '700', fontSize: 16 }}>
-                      {getInitials(account.name)}
-                    </Text>
-                  )}
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontWeight: '600', color: isDark ? '#EDEEF0' : '#282E34', fontSize: 15 }}>{account.name}</Text>
-                  {isActive && (
-                    <Text style={{ color: '#2dd4bf', fontSize: 12, fontWeight: '600', marginTop: 2 }}>Active</Text>
-                  )}
-                </View>
+                  {group.orgName}
+                </Text>
               </View>
-              {isActive && <CheckIcon />}
-            </Pressable>
-          );
-        })}
+              {group.accounts.map((account: Account) => {
+                const isActive = account.id === currentAccountId;
+                const isSwitching = switchingId === account.id;
+
+                return (
+                  <Pressable
+                    key={account.id}
+                    onPress={() => handleSwitchWorkspace(account)}
+                    disabled={isSwitching}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      paddingVertical: 14,
+                      paddingHorizontal: 12,
+                      borderRadius: 12,
+                      backgroundColor: isActive ? (isDark ? '#1B1C20' : '#f0fdfa') : 'transparent',
+                      borderBottomWidth: 1,
+                      borderBottomColor: isDark ? '#24262B' : '#EAEAEA',
+                      marginBottom: 4,
+                    }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
+                      <View
+                        style={{
+                          width: 44,
+                          height: 44,
+                          borderRadius: 999,
+                          backgroundColor: isActive ? '#725AFF' : (isDark ? '#626F7F' : '#725AFF'),
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                        {isSwitching ? (
+                          <ActivityIndicator size="small" color="white" />
+                        ) : (
+                          <Text style={{ color: 'white', fontWeight: '700', fontSize: 16 }}>
+                            {getInitials(account.name)}
+                          </Text>
+                        )}
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontWeight: '600', color: isDark ? '#EDEEF0' : '#282E34', fontSize: 15 }}>
+                          {account.name}
+                        </Text>
+                      </View>
+                    </View>
+                    {isActive && <CheckIcon />}
+                  </Pressable>
+                );
+              })}
+            </View>
+          ))
+        )}
       </ScrollView>
     </SafeAreaView>
   );

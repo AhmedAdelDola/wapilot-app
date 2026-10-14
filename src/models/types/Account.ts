@@ -10,4 +10,7 @@ export interface Account {
   permissions: string[];
   role: string;
   status: string;
+  organization?: string | { id?: number; name?: string };
+  organization_name?: string;
+  organization_id?: number;
 }
