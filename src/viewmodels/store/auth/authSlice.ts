@@ -5,6 +5,7 @@ import { AuthHeaders } from './authTypes';
 import { apiService } from '@/models/services/APIService';
 import { mobileV2Service } from '@/models/services/mobileV2Service';
 import { saveAuthTokens, clearAuthTokens, savePubSubToken } from '@/utils/secureStore';
+import actionCableConnector from '@/utils/actionCable';
 export interface AuthState {
   user: User | null;
   accessToken: string | null;
@@ -38,8 +39,10 @@ export const authSlice = createSlice({
   initialState,
   reducers: {
     logout: state => {
+      actionCableConnector.disconnect();
       void clearAuthTokens();
       mobileV2Service.resetV2SupportCheck();
+      apiService.clearAuthHeaders();
       // in rootReducer, there is an action to CLEAR the complete Redux Store's state
     },
     resetAuth: state => {

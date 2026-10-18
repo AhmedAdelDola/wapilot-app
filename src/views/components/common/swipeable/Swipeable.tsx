@@ -126,7 +126,7 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
   } = props;
 
   const { isDark } = useTheme();
-  const defaultBg = isDark ? '#101113' : '#ffffff';
+  const defaultBg = isDark ? '#0D0D0D' : '#FAFAFA';
   const hapticWarning = useHaptic('success');
   const hapticSelection = useHaptic();
 

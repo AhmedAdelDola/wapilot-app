@@ -46,3 +46,4 @@ _fetch_keystore.cjs
 *.properties
 release-keystore.properties
 _build_log*.txt
+assets_backup/

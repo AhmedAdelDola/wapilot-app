@@ -173,9 +173,9 @@ export const AudioMessagePlayer = ({
     return Math.min(1, Math.max(0, currentPosition / duration));
   }, [currentPosition, duration]);
 
-  const buttonBg = isSender ? 'rgba(255,255,255,0.25)' : '#725AFF';
+  const buttonBg = isSender ? 'rgba(255,255,255,0.25)' : '#4162E3';
   const iconColor = '#ffffff';
-  const activeWaveColor = isSender ? '#ffffff' : '#725AFF';
+  const activeWaveColor = isSender ? '#ffffff' : '#4162E3';
   const inactiveWaveColor = isSender
     ? 'rgba(255,255,255,0.35)'
     : isDark

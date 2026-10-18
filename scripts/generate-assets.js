@@ -6,6 +6,9 @@ const RES_DIR = path.join(__dirname, '..', 'android', 'app', 'src', 'main', 'res
 const ASSETS_DIR = path.join(__dirname, '..', 'assets');
 
 const ICON_SRC = path.join(ASSETS_DIR, 'icon.png');
+const ICON_SQUIRCLE_SRC = fs.existsSync(path.join(ASSETS_DIR, 'icon-squircle.png'))
+  ? path.join(ASSETS_DIR, 'icon-squircle.png')
+  : ICON_SRC;
 const FOREGROUND_SRC = path.join(ASSETS_DIR, 'android-icon-foreground.png');
 const SPLASH_SRC = path.join(ASSETS_DIR, 'splash-icon.png');
 
@@ -20,6 +23,7 @@ const DENSITIES = {
 async function generate() {
   console.log('Loading source images...');
   const iconImg = await Jimp.read(ICON_SRC);
+  const squircleImg = await Jimp.read(ICON_SQUIRCLE_SRC);
   const fgImg = await Jimp.read(FOREGROUND_SRC);
   const splashImg = await Jimp.read(SPLASH_SRC);
 
@@ -30,10 +34,12 @@ async function generate() {
     if (!fs.existsSync(mipmapDir)) fs.mkdirSync(mipmapDir, { recursive: true });
     if (!fs.existsSync(drawableDir)) fs.mkdirSync(drawableDir, { recursive: true });
 
-    // 1. ic_launcher & ic_launcher_round (PNG + WebP)
-    const iconResized = iconImg.clone().resize(sizes.icon, sizes.icon, Jimp.RESIZE_BICUBIC);
-    await iconResized.writeAsync(path.join(mipmapDir, 'ic_launcher.png'));
-    await iconResized.writeAsync(path.join(mipmapDir, 'ic_launcher_round.png'));
+    // 1. ic_launcher & ic_launcher_round
+    const squircleResized = squircleImg.clone().resize(sizes.icon, sizes.icon, Jimp.RESIZE_BICUBIC);
+    await squircleResized.writeAsync(path.join(mipmapDir, 'ic_launcher.png'));
+
+    const roundResized = iconImg.clone().resize(sizes.icon, sizes.icon, Jimp.RESIZE_BICUBIC).circle();
+    await roundResized.writeAsync(path.join(mipmapDir, 'ic_launcher_round.png'));
 
     // 2. ic_launcher_foreground (PNG)
     const fgResized = fgImg.clone().resize(sizes.foreground, sizes.foreground, Jimp.RESIZE_BICUBIC);

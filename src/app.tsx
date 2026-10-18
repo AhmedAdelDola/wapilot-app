@@ -98,14 +98,13 @@ const Chatwoot = () => {
 
   return (
     <Provider store={store}>
-      {showSplash ? (
+      <PersistGate loading={null} persistor={persistor} onBeforeLift={handleBeforeLift}>
+        <AppErrorBoundary>
+          <AppNavigator />
+        </AppErrorBoundary>
+      </PersistGate>
+      {showSplash && (
         <AnimatedSplash onFinish={() => setShowSplash(false)} />
-      ) : (
-        <PersistGate loading={null} persistor={persistor} onBeforeLift={handleBeforeLift}>
-          <AppErrorBoundary>
-            <AppNavigator />
-          </AppErrorBoundary>
-        </PersistGate>
       )}
     </Provider>
   );

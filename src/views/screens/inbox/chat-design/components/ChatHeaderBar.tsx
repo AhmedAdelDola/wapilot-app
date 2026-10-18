@@ -91,7 +91,7 @@ export const ChatHeaderBar = ({
   const isSnoozed = conversation?.status === 'snoozed';
 
   return (
-    <View style={{ backgroundColor: isDark ? '#101113' : '#ffffff' }}>
+    <View style={{ backgroundColor: isDark ? '#0D0D0D' : '#FAFAFA' }}>
       {/* Top Header Row */}
       <View
         style={{
@@ -198,7 +198,7 @@ export const ChatHeaderBar = ({
                 width: 22,
                 height: 22,
                 borderRadius: 999,
-                backgroundColor: '#725AFF',
+                backgroundColor: '#4162E3',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
@@ -222,8 +222,8 @@ export const ChatHeaderBar = ({
             alignItems: 'center',
             gap: 6,
             borderWidth: 1,
-            borderColor: isDark ? '#24262B' : '#EAEAEA',
-            backgroundColor: isDark ? '#1B1C20' : '#ffffff',
+            borderColor: isDark ? '#212121' : '#EAEAEA',
+            backgroundColor: isDark ? '#161616' : '#ffffff',
             borderRadius: 8,
             paddingHorizontal: 9,
             paddingVertical: 5,
@@ -250,10 +250,10 @@ export const ChatHeaderBar = ({
             borderRadius: 8,
             backgroundColor: isSnoozed ? (isDark ? '#1e3a8a' : '#dbeafe') : 'transparent',
             borderWidth: isSnoozed ? 1 : 0,
-            borderColor: isSnoozed ? (isDark ? '#725AFF' : '#725AFF') : 'transparent',
+            borderColor: isSnoozed ? (isDark ? '#4162E3' : '#4162E3') : 'transparent',
           }}
           onPress={onOpenSnoozeSheet}>
-          <SnoozeIcon color={isSnoozed ? '#725AFF' : (isDark ? '#94a3b8' : '#626F7F')} />
+          <SnoozeIcon color={isSnoozed ? '#4162E3' : (isDark ? '#94a3b8' : '#626F7F')} />
         </Pressable>
       </View>
     </View>

@@ -65,7 +65,7 @@ export const InboxItemComponent = (props: InboxItemProps) => {
         paddingVertical: 14,
         paddingRight: 16,
         borderBottomWidth: 1,
-        borderBottomColor: isDark ? '#1B1C20' : '#F0F0F3',
+        borderBottomColor: isDark ? '#212121' : '#F0F0F3',
       }}>
       <Animated.View style={{}}>
         <AnimatedNativeView
@@ -78,7 +78,7 @@ export const InboxItemComponent = (props: InboxItemProps) => {
                   width: 8,
                   height: 8,
                   borderRadius: 999,
-                  backgroundColor: '#725AFF',
+                  backgroundColor: '#4162E3',
                   marginRight: 2,
                 }}
               />

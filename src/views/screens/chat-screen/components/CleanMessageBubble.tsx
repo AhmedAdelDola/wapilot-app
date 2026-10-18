@@ -34,7 +34,7 @@ const LockIcon = ({ color = '#F59E0B', size = 12 }: { color?: string; size?: num
   </Svg>
 );
 
-const FileIcon = ({ color = '#725AFF' }: { color?: string }) => (
+const FileIcon = ({ color = '#4162E3' }: { color?: string }) => (
   <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
     <Path
       d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"
@@ -196,7 +196,7 @@ const FormattedMessageText = ({
           <Text
             key={i}
             style={{
-              color: linkColor || '#725AFF',
+              color: linkColor || '#4162E3',
               textDecorationLine: 'underline',
               fontWeight: '600',
             }}
@@ -261,16 +261,16 @@ const AttachmentItem = ({
         backgroundColor: isOutgoing
           ? 'rgba(255,255,255,0.18)'
           : isDark
-          ? '#24262B'
+          ? '#212121'
           : '#F1F5F9',
       }}>
-      <FileIcon color={isOutgoing ? '#ffffff' : '#725AFF'} />
+      <FileIcon color={isOutgoing ? '#ffffff' : '#4162E3'} />
       <Text
         numberOfLines={1}
         style={{
           fontSize: 13,
           fontWeight: '600',
-          color: isOutgoing ? '#ffffff' : isDark ? '#EDEEF0' : '#101113',
+          color: isOutgoing ? '#ffffff' : isDark ? '#EDEEF0' : '#0D0D0D',
           maxWidth: 180,
         }}>
         {fileName}
@@ -319,7 +319,7 @@ export const CleanMessageBubble = React.memo(
     }, [isArabic, m, messageText, onSetQuotedMessage]);
 
     // Colors
-    const outgoingBg = '#725AFF';
+    const outgoingBg = '#4162E3';
     const outgoingText = '#FFFFFF';
     const outgoingTime = 'rgba(255,255,255,0.75)';
 
@@ -436,7 +436,7 @@ export const CleanMessageBubble = React.memo(
                   justifyContent: 'center',
                   overflow: 'hidden',
                 }}>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: '#725AFF' }}>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#4162E3' }}>
                   {(contactName || 'C').charAt(0).toUpperCase()}
                 </Text>
               </View>
@@ -468,7 +468,7 @@ export const CleanMessageBubble = React.memo(
                   onPress={() => onScrollToMessage?.(replyMessage.id)}
                   style={{
                     borderLeftWidth: 3,
-                    borderLeftColor: isOutgoing ? 'rgba(255,255,255,0.6)' : '#725AFF',
+                    borderLeftColor: isOutgoing ? 'rgba(255,255,255,0.6)' : '#4162E3',
                     paddingLeft: 8,
                     marginBottom: 6,
                   }}>
@@ -476,7 +476,7 @@ export const CleanMessageBubble = React.memo(
                     style={{
                       fontSize: 11,
                       fontWeight: '700',
-                      color: isOutgoing ? '#FFFFFF' : '#725AFF',
+                      color: isOutgoing ? '#FFFFFF' : '#4162E3',
                       marginBottom: 1,
                     }}>
                     {replyMessage.sender?.name || (isArabic ? 'رسالة سابقة' : 'Replied message')}
@@ -509,7 +509,7 @@ export const CleanMessageBubble = React.memo(
                 <FormattedMessageText
                   text={messageText}
                   color={isOutgoing ? outgoingText : incomingText}
-                  linkColor={isOutgoing ? '#FFFFFF' : '#725AFF'}
+                  linkColor={isOutgoing ? '#FFFFFF' : '#4162E3'}
                 />
               ) : null}
 

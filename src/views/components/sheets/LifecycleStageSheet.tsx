@@ -84,7 +84,7 @@ export const LifecycleStageSheet = ({
         </Pressable>
         <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>Select Stage</Text>
         <Pressable onPress={onClose} hitSlop={8}>
-          <Text style={{ color: '#725AFF', fontWeight: '600', fontSize: 14 }}>Done</Text>
+          <Text style={{ color: '#4162E3', fontWeight: '600', fontSize: 14 }}>Done</Text>
         </Pressable>
       </View>
 
@@ -106,7 +106,7 @@ export const LifecycleStageSheet = ({
       <Text
         style={{
           paddingHorizontal: 20,
-          color: '#725AFF',
+          color: '#4162E3',
           fontSize: 12,
           fontWeight: '600',
           textTransform: 'uppercase',
@@ -150,7 +150,7 @@ export const LifecycleStageSheet = ({
           <Text
             style={{
               paddingHorizontal: 20,
-              color: '#725AFF',
+              color: '#4162E3',
               fontSize: 12,
               fontWeight: '600',
               textTransform: 'uppercase',

@@ -63,10 +63,10 @@ export const ReplyPreviewBar = ({
         style={{
           flex: 1,
           borderLeftWidth: 3,
-          borderLeftColor: '#725AFF',
+          borderLeftColor: '#4162E3',
           paddingLeft: 10,
         }}>
-        <Text style={{ fontSize: 11, fontWeight: '700', color: '#725AFF' }}>
+        <Text style={{ fontSize: 11, fontWeight: '700', color: '#4162E3' }}>
           {isArabic ? 'رد على' : 'Replying to'} {senderName}
         </Text>
         <Text

@@ -13,7 +13,7 @@ type ToggleProps = {
   onValueChange: (value: boolean) => void;
 };
 
-const ACTIVE_COLOR = '#725AFF';
+const ACTIVE_COLOR = '#4162E3';
 const INACTIVE_COLOR = '#EAEAEA';
 
 export const Toggle = ({ value, onValueChange }: ToggleProps) => {

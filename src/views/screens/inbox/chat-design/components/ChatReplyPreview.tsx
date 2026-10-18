@@ -25,7 +25,7 @@ export const ChatReplyPreview = ({
       onPress={onPress}
       style={{
         borderLeftWidth: 3,
-        borderLeftColor: isOutgoing ? 'rgba(255,255,255,0.55)' : '#725AFF',
+        borderLeftColor: isOutgoing ? 'rgba(255,255,255,0.55)' : '#4162E3',
         paddingLeft: 8,
         marginBottom: 6,
         opacity: 0.95,
@@ -34,7 +34,7 @@ export const ChatReplyPreview = ({
         style={{
           fontSize: 11,
           fontWeight: '700',
-          color: isOutgoing ? 'rgba(255,255,255,0.9)' : isDark ? '#725AFF' : '#725AFF',
+          color: isOutgoing ? 'rgba(255,255,255,0.9)' : '#4162E3',
           marginBottom: 2,
         }}>
         {senderName}

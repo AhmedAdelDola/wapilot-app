@@ -28,7 +28,7 @@ export const getSenderThumbnail = (sender?: any): string | null => {
 
 export const C = {
   outgoing: {
-    bg: '#725AFF',
+    bg: '#4162E3',
     text: '#ffffff',
     time: 'rgba(255,255,255,0.75)',
     avatarBg: 'rgba(44,165,74,0.15)',
@@ -36,14 +36,14 @@ export const C = {
   },
   incoming: {
     bgLight: '#ffffff',
-    bgDark: '#1B1C20',
-    textLight: '#101113',
-    textDark: '#EDEEF0',
+    bgDark: '#161616',
+    textLight: '#0D0D0D',
+    textDark: '#FAFAFA',
     border: '#EAEAEA',
-    borderDark: '#24262B',
+    borderDark: '#212121',
     time: '#80838D',
     avatarBg: '#dbeafe',
-    avatarText: '#725AFF',
+    avatarText: '#4162E3',
     avatarBgDark: '#1e3a5f',
   },
   private: {
@@ -60,10 +60,10 @@ export const C = {
     timeDark: '#FA8900',
   },
   date: {
-    bgLight: '#F0F0F3',
-    bgDark: '#1B1C20',
+    bgLight: '#F0F2F5',
+    bgDark: '#161616',
     borderLight: '#EAEAEA',
-    borderDark: '#24262B',
+    borderDark: '#212121',
     textLight: '#80838D',
     textDark: '#94a3b8',
   },
@@ -73,7 +73,7 @@ export const C = {
     timeLight: '#80838D',
     timeDark: '#80838D',
   },
-  highlight: '#725AFF',
+  highlight: '#4162E3',
 };
 
 export const BUBBLE_COLORS = C;
@@ -397,7 +397,7 @@ export const LinkifiedText = React.memo(
             <Text
               key={i}
               style={{
-                color: linkColor || '#725AFF',
+                color: linkColor || '#4162E3',
                 textDecorationLine: 'underline',
                 fontWeight: '600',
               }}
@@ -449,7 +449,7 @@ export const MessageAttachmentView = ({
       <View
         style={{
           borderRadius: 12,
-          backgroundColor: isOutgoing ? 'rgba(255,255,255,0.18)' : isDark ? '#24262B' : '#F0F0F3',
+          backgroundColor: isOutgoing ? 'rgba(255,255,255,0.18)' : isDark ? '#212121' : '#F0F2F5',
           marginBottom: 6,
           paddingVertical: 2,
           paddingHorizontal: 4,
@@ -473,7 +473,7 @@ export const MessageAttachmentView = ({
         padding: 10,
         marginBottom: 6,
         borderRadius: 12,
-        backgroundColor: isOutgoing ? 'rgba(255,255,255,0.18)' : isDark ? '#24262B' : '#F0F0F3',
+        backgroundColor: isOutgoing ? 'rgba(255,255,255,0.18)' : isDark ? '#212121' : '#F0F2F5',
       }}>
       <View
         style={{
@@ -483,7 +483,7 @@ export const MessageAttachmentView = ({
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-        <AttachmentIcon stroke={isOutgoing ? '#ffffff' : '#725AFF'} />
+        <AttachmentIcon stroke={isOutgoing ? '#ffffff' : '#4162E3'} />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={{ color: isOutgoing ? '#ffffff' : isDark ? '#EDEEF0' : '#1B1C20', fontSize: 13, fontWeight: '600' }} numberOfLines={2}>

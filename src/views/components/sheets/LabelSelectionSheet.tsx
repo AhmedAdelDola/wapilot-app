@@ -16,7 +16,7 @@ const SearchIcon = ({ color = '#80838D' }: { color?: string }) => (
   </Svg>
 );
 
-const CheckIcon = ({ color = '#725AFF', size = 20 }: { color?: string; size?: number }) => (
+const CheckIcon = ({ color = '#4162E3', size = 20 }: { color?: string; size?: number }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M5 13l4 4L19 7" stroke={color} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
@@ -80,7 +80,7 @@ export const LabelSelectionSheet = ({
         </Pressable>
         <Text style={{ fontSize: 17, fontWeight: '600', color: textPrimary }}>{title}</Text>
         <Pressable onPress={onClose} hitSlop={8}>
-          <Text style={{ color: '#725AFF', fontWeight: '600', fontSize: 14 }}>Done</Text>
+          <Text style={{ color: '#4162E3', fontWeight: '600', fontSize: 14 }}>Done</Text>
         </Pressable>
       </View>
 
@@ -91,7 +91,7 @@ export const LabelSelectionSheet = ({
           flexDirection: 'row',
           alignItems: 'center',
           gap: 8,
-          backgroundColor: isDark ? '#24262B' : '#F0F0F3',
+          backgroundColor: isDark ? '#212121' : '#F0F2F5',
           borderRadius: 12,
           paddingHorizontal: 12,
           paddingVertical: 6,
@@ -137,12 +137,12 @@ export const LabelSelectionSheet = ({
                       width: 12,
                       height: 12,
                       borderRadius: 999,
-                      backgroundColor: lbl.color || '#725AFF',
+                      backgroundColor: lbl.color || '#4162E3',
                     }}
                   />
                   <Text style={{ fontSize: 15, fontWeight: '500', color: textPrimary }}>{lbl.title}</Text>
                 </View>
-                {isSelected && <CheckIcon color="#725AFF" size={20} />}
+                {isSelected && <CheckIcon color="#4162E3" size={20} />}
               </Pressable>
             );
           })

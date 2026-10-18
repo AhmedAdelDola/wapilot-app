@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   return {
     name: 'Message Pro',
     slug: process.env.EXPO_PUBLIC_APP_SLUG || 'message-pro-mobile',
-    version: '1.0.4',
+    version: '1.0.5',
     orientation: 'portrait',
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
@@ -13,13 +13,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     splash: {
       image: './assets/splash.png',
       resizeMode: 'contain',
-      backgroundColor: '#101113',
+      backgroundColor: '#0D0D0D',
       enableFullScreenImage_legacy: true,
     },
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.message.pro.com',
-      buildNumber: '4',
+      buildNumber: '5',
       googleServicesFile: './GoogleService-Info.plist',
       infoPlist: {
         NSCameraUsageDescription:
@@ -33,9 +33,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       },
     },
     android: {
-      adaptiveIcon: { foregroundImage: './assets/adaptive-icon.png', backgroundColor: '#101113' },
+      adaptiveIcon: { foregroundImage: './assets/adaptive-icon.png', backgroundColor: '#1B21A8' },
       package: 'com.message.pro.com',
-      versionCode: 5,
+      versionCode: 6,
       googleServicesFile: './google-services.json',
       permissions: ['android.permission.CAMERA', 'android.permission.RECORD_AUDIO'],
       edgeToEdgeEnabled: true,
@@ -79,6 +79,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       ],
       '@react-native-firebase/messaging',
     ],
-    androidNavigationBar: { backgroundColor: '#101113' },
+    androidNavigationBar: { backgroundColor: '#0D0D0D' },
   };
 };

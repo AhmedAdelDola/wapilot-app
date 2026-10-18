@@ -64,20 +64,20 @@ const AddContactScreen = ({ onBack }: AddContactScreenProps) => {
     fontSize: 14,
   };
 
-  const labelStyle = { fontWeight: '600' as const, color: isDark ? '#EDEEF0' : '#282E34', marginBottom: 6, fontSize: 14 };
+  const labelStyle = { fontWeight: '600' as const, color: isDark ? '#FAFAFA' : '#0D0D0D', marginBottom: 6, fontSize: 14 };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 24, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: isDark ? '#24262B' : '#F0F0F3' }}>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#0D0D0D' : '#FAFAFA' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 24, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: isDark ? '#212121' : '#EAEAEA' }}>
         <Pressable onPress={onBack} hitSlop={8}>
-          <ArrowLeftIcon color={isDark ? '#EDEEF0' : '#282E34'} />
+          <ArrowLeftIcon color={isDark ? '#FAFAFA' : '#0D0D0D'} />
         </Pressable>
-        <Text style={{ fontSize: 18, fontWeight: '600', color: isDark ? '#EDEEF0' : '#282E34' }}>Add Contact</Text>
+        <Text style={{ fontSize: 18, fontWeight: '600', color: isDark ? '#FAFAFA' : '#0D0D0D' }}>Add Contact</Text>
         <Pressable onPress={handleSave} disabled={saving} hitSlop={8}>
           {saving ? (
-            <ActivityIndicator size="small" color="#725AFF" />
+            <ActivityIndicator size="small" color="#4162E3" />
           ) : (
-            <Text style={{ color: '#725AFF', fontWeight: '600', fontSize: 14 }}>Save</Text>
+            <Text style={{ color: '#4162E3', fontWeight: '600', fontSize: 14 }}>Save</Text>
           )}
         </Pressable>
       </View>

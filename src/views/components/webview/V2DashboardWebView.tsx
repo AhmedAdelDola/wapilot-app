@@ -96,10 +96,10 @@ export const V2DashboardWebView: React.FC<V2DashboardWebViewProps> = ({
   const [canGoBack, setCanGoBack] = useState(false);
   const [hasBootstrapLoaded, setHasBootstrapLoaded] = useState(false);
 
-  const bgColor = isDark ? '#101113' : '#ffffff';
-  const textPrimary = isDark ? '#EDEEF0' : '#282E34';
+  const bgColor = isDark ? '#0D0D0D' : '#FAFAFA';
+  const textPrimary = isDark ? '#FAFAFA' : '#0D0D0D';
   const textSecondary = isDark ? '#94a3b8' : '#626F7F';
-  const borderColor = isDark ? '#1B1C20' : '#F0F0F3';
+  const borderColor = isDark ? '#212121' : '#EAEAEA';
 
   // Helper to extract hostname
   const getHost = useCallback((urlStr?: string): string => {
@@ -259,7 +259,7 @@ export const V2DashboardWebView: React.FC<V2DashboardWebViewProps> = ({
           </View>
         )}
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#725AFF" />
+          <ActivityIndicator size="large" color="#4162E3" />
           <Text style={[styles.loadingText, { color: textSecondary }]}>Loading...</Text>
         </View>
       </SafeAreaView>
@@ -350,7 +350,7 @@ export const V2DashboardWebView: React.FC<V2DashboardWebViewProps> = ({
           } as any)}
           renderLoading={() => (
             <View style={[styles.centerContainer, styles.loadingOverlay, { backgroundColor: bgColor }]}>
-              <ActivityIndicator size="large" color="#725AFF" />
+              <ActivityIndicator size="large" color="#4162E3" />
             </View>
           )}
           onNavigationStateChange={handleNavigationStateChange}
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
   retryButton: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    backgroundColor: '#725AFF',
+    backgroundColor: '#4162E3',
     borderRadius: 8,
   },
   retryButtonText: {

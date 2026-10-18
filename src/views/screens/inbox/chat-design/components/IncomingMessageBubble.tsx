@@ -111,7 +111,7 @@ export const IncomingMessageBubble = React.memo(
           )}
 
           {conversation?.isGroup && senderName ? (
-            <Text style={{ fontSize: 11, fontWeight: '600', color: '#725AFF', marginBottom: 2 }}>
+            <Text style={{ fontSize: 11, fontWeight: '600', color: '#4162E3', marginBottom: 2 }}>
               {senderName}
             </Text>
           ) : null}

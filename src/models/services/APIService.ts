@@ -75,6 +75,14 @@ class APIService {
     return APIService.instance;
   }
 
+  public setIsLoggingOut(loggingOut: boolean) {
+    this.isLoggingOut = loggingOut;
+  }
+
+  public getIsLoggingOut(): boolean {
+    return this.isLoggingOut;
+  }
+
   public setAuthHeaders(headers: { 'access-token': string; uid: string; client: string }) {
     this.authHeaders = headers;
     this.isLoggingOut = false;
@@ -82,6 +90,7 @@ class APIService {
   }
 
   public clearAuthHeaders() {
+    this.isLoggingOut = true;
     this.authHeaders = null;
     this.accountId = 0;
     void clearAuthTokens();
@@ -100,6 +109,7 @@ class APIService {
       const headers = await getAuthHeaders();
       if (headers) {
         this.authHeaders = headers;
+        this.isLoggingOut = false;
         return true;
       }
     } catch {
@@ -149,12 +159,18 @@ class APIService {
         // Build the full URL with proper prefix
         const url = config.url || '';
 
+        // If user is logging out, silently cancel outgoing requests (except auth routes)
+        const isAuthRoute = authRoutes.some(route => url.startsWith(route)) || url.startsWith('auth/');
+        if (this.isLoggingOut && !isAuthRoute) {
+          return Promise.reject(new axios.CanceledError(`Request canceled: user logged out for route ${url}`));
+        }
+
         // If URL already has api/v1/, api/v2/, or auth/ prefix, keep as-is
         if (url.startsWith('api/v1/') || url.startsWith('api/v2/') || url.startsWith('auth/')) {
           // Keep URL as-is
         }
         // Auth routes - no prefix needed (they use /auth/...)
-        else if (authRoutes.some(route => url.startsWith(route))) {
+        else if (isAuthRoute) {
           // Keep URL as-is
         }
         // Non-account routes - use /api/v1/ prefix
@@ -167,7 +183,7 @@ class APIService {
         }
         // Guard: NEVER send raw account routes (e.g. 'conversations/3863') to the root domain!
         else if (!this.accountId && url) {
-          return Promise.reject(new Error(`Account ID is required for account-scoped route: ${url}`));
+          return Promise.reject(new axios.CanceledError(`Account ID is required for account-scoped route: ${url}`));
         }
 
         // Set auth headers directly on config.headers (works with AxiosHeaders class)
@@ -205,15 +221,30 @@ class APIService {
         }
         return response;
       },
-      async (error: AxiosError) => {
+      async (error: any) => {
+        // 1. Canceled requests should never be logged as errors
+        if (axios.isCancel(error) || error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') {
+          return Promise.reject(error);
+        }
+
+        // 2. Suppress errors during logout lifecycle
+        if (this.isLoggingOut) {
+          return Promise.reject(error);
+        }
+
+        // 3. Any error on auth/sign_out is normal when already signed out or token revoked
+        if (error.config?.url?.includes('auth/sign_out')) {
+          return Promise.reject(error);
+        }
+
+        // 4. Rate limited (429) - log gentle warning instead of error spam
         if (error.response?.status === 429) {
-          // Rate limited (429) - log gentle warning instead of error spam
           console.warn('API Rate Limit (429):', error.config?.url);
           return Promise.reject(error);
         }
 
-        // 404 on auth/sign_out is normal when already signed out or token revoked
-        if (error.config?.url?.includes('auth/sign_out') && error.response?.status === 404) {
+        // 5. Pre-request guards or canceled promises with no config/response
+        if (!error.config && !error.response) {
           return Promise.reject(error);
         }
 
@@ -228,15 +259,11 @@ class APIService {
           const message = (error.response?.data as any)?.error || error.message || 'Request failed';
           console.error(`API Error [${status}] ${method} ${url}: ${message}`);
         }
-        
-        if (axios.isCancel(error)) {
-          return Promise.reject(error);
-        }
 
         // Auto-logout on 401 (but not for auth routes like sign_in)
         if (error.response?.status === 401 && !this.isLoggingOut) {
           const url = error.config?.url || '';
-          const isAuthRoute = authRoutes.some(route => url.startsWith(route));
+          const isAuthRoute = authRoutes.some(route => url.startsWith(route)) || url.startsWith('auth/');
           if (!isAuthRoute) {
             this.isLoggingOut = true;
             this.clearAuthHeaders();

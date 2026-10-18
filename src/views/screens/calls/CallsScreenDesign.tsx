@@ -91,11 +91,11 @@ const AllInboxIcon = ({ active }: { active: boolean }) => (
   <Svg width="20" height="20" viewBox="0 0 24 24" fill="none">
     <Path
       d="M4 4h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"
-      stroke={active ? '#725AFF' : 'currentColor'}
+      stroke={active ? '#4162E3' : 'currentColor'}
       strokeWidth="1.8"
       fill={active ? '#dbeafe' : 'none'}
     />
-    <Path d="M3 12h4l2 3h6l2-3h4" stroke={active ? '#725AFF' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round" />
+    <Path d="M3 12h4l2 3h6l2-3h4" stroke={active ? '#4162E3' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round" />
   </Svg>
 );
 
@@ -138,12 +138,12 @@ const FilterChip = ({ label, active, onPress }: { label: string; active: boolean
         paddingVertical: 6,
         borderRadius: 999,
         backgroundColor: active
-          ? (isDark ? '#725AFF' : '#282E34')
-          : (isDark ? '#1B1C20' : '#F0F0F3'),
+          ? (isDark ? '#4162E3' : '#0D0D0D')
+          : (isDark ? '#161616' : '#F0F2F5'),
         borderWidth: 1,
         borderColor: active
-          ? (isDark ? '#725AFF' : '#282E34')
-          : (isDark ? '#24262B' : '#EAEAEA'),
+          ? (isDark ? '#4162E3' : '#0D0D0D')
+          : (isDark ? '#212121' : '#EAEAEA'),
       }}>
       <Text
         style={{
@@ -227,12 +227,12 @@ const InboxDrawer = ({
   });
 
   const { isDark } = useTheme();
-  const bgColor = isDark ? '#101113' : '#ffffff';
-  const textPrimary = isDark ? '#EDEEF0' : '#282E34';
+  const bgColor = isDark ? '#0D0D0D' : '#FAFAFA';
+  const textPrimary = isDark ? '#FAFAFA' : '#0D0D0D';
   const textSecondary = isDark ? '#94a3b8' : '#626F7F';
-  const dividerColor = isDark ? '#1B1C20' : '#F0F0F3';
-  const activeItemBg = isDark ? '#1B1C20' : 'rgba(114,90,255,0.10)';
-  const activeItemText = isDark ? '#725AFF' : '#725AFF';
+  const dividerColor = isDark ? '#212121' : '#EAEAEA';
+  const activeItemBg = isDark ? '#161616' : 'rgba(65,98,227,0.10)';
+  const activeItemText = isDark ? '#4162E3' : '#4162E3';
 
   return (
     <View style={{ flex: 1, backgroundColor: bgColor }}>
@@ -396,11 +396,11 @@ const CallsScreenDesign = () => {
   }, [conversations, searchQuery]);
 
   const { isDark } = useTheme();
-  const bgColor = isDark ? '#101113' : '#ffffff';
-  const textPrimary = isDark ? '#EDEEF0' : '#282E34';
+  const bgColor = isDark ? '#0D0D0D' : '#FAFAFA';
+  const textPrimary = isDark ? '#FAFAFA' : '#0D0D0D';
   const textSecondary = isDark ? '#94a3b8' : '#626F7F';
-  const borderColor = isDark ? '#1B1C20' : '#F0F0F3';
-  const inputBg = isDark ? '#1B1C20' : '#F0F0F3';
+  const borderColor = isDark ? '#212121' : '#EAEAEA';
+  const inputBg = isDark ? '#161616' : '#F0F2F5';
 
   if (showAddContact) {
     return <AddContactScreen onBack={() => setShowAddContact(false)} />;
@@ -428,7 +428,7 @@ const CallsScreenDesign = () => {
             ) : null}
           </View>
           <Pressable onPress={() => { setShowSearch(false); setSearchQuery(''); }} hitSlop={8}>
-            <Text style={{ color: '#725AFF', fontSize: 14, fontWeight: '500' }}>Cancel</Text>
+            <Text style={{ color: '#4162E3', fontSize: 14, fontWeight: '500' }}>Cancel</Text>
           </Pressable>
         </View>
 
@@ -501,7 +501,7 @@ const CallsScreenDesign = () => {
         {/* Calls List */}
         {conversationsLoading && filteredConversations.length === 0 ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <ActivityIndicator size="small" color="#725AFF" />
+            <ActivityIndicator size="small" color="#4162E3" />
           </View>
         ) : filteredConversations.length === 0 ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, paddingBottom: 64 }}>
@@ -513,7 +513,7 @@ const CallsScreenDesign = () => {
           </View>
         ) : (
           <ScrollView
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#725AFF" />}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4162E3" />}
             contentContainerStyle={{ paddingBottom: 80 }}>
             {filteredConversations.map(item => {
               const name = getContactName(item.meta?.sender);
@@ -559,8 +559,8 @@ const CallsScreenDesign = () => {
         {showSort && (
           <View style={{ position: 'absolute', inset: 0, zIndex: 50, justifyContent: 'flex-end', alignItems: 'center' }} onStartShouldSetResponder={() => true} onResponderRelease={() => setShowSort(false)}>
             <View style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)' }} />
-            <View style={{ width: '100%', maxWidth: 540, backgroundColor: isDark ? '#1B1C20' : 'white', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingBottom: Math.max(insets.bottom, 24) }} onStartShouldSetResponder={() => true}>
-              <View style={{ width: 40, height: 4, backgroundColor: isDark ? '#31343A' : '#EAEAEA', borderRadius: 999, alignSelf: 'center', marginTop: 12, marginBottom: 8 }} />
+            <View style={{ width: '100%', maxWidth: 540, backgroundColor: isDark ? '#161616' : '#FFFFFF', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingBottom: Math.max(insets.bottom, 24) }} onStartShouldSetResponder={() => true}>
+              <View style={{ width: 40, height: 4, backgroundColor: isDark ? '#2C2C2C' : '#EAEAEA', borderRadius: 999, alignSelf: 'center', marginTop: 12, marginBottom: 8 }} />
               {[
                 { label: 'Newest', order: 'latest' as const },
                 { label: 'Oldest', order: 'oldest' as const },
@@ -570,7 +570,7 @@ const CallsScreenDesign = () => {
                   onPress={() => { setSortOrder(opt.order); setShowSort(false); }}
                   style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingVertical: 16, borderBottomWidth: i === 1 ? 0 : 1, borderBottomColor: borderColor }}>
                   <Text style={{ color: textPrimary, fontSize: 16, fontWeight: sortOrder === opt.order ? '600' : '400' }}>{opt.label}</Text>
-                  {sortOrder === opt.order && <Text style={{ color: '#725AFF', fontWeight: '700' }}>✓</Text>}
+                  {sortOrder === opt.order && <Text style={{ color: '#4162E3', fontWeight: '700' }}>✓</Text>}
                 </Pressable>
               ))}
             </View>

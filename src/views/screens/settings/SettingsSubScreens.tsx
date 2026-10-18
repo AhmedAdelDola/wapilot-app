@@ -87,7 +87,7 @@ const Toggle = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => (
       width: 48,
       height: 24,
       borderRadius: 999,
-      backgroundColor: on ? '#725AFF' : '#EAEAEA',
+      backgroundColor: on ? '#4162E3' : '#EAEAEA',
       justifyContent: 'center',
       paddingHorizontal: 2,
     }}>
@@ -127,20 +127,20 @@ const SubHeader = ({
         paddingTop: 16,
         paddingBottom: 16,
         borderBottomWidth: 1,
-        borderBottomColor: isDark ? '#24262B' : '#EAEAEA',
-        backgroundColor: isDark ? '#101113' : '#ffffff',
+        borderBottomColor: isDark ? '#212121' : '#EAEAEA',
+        backgroundColor: isDark ? '#0D0D0D' : '#FAFAFA',
       }}>
       <Pressable onPress={() => navigation.goBack()} hitSlop={12}>
-        <ArrowLeft color={isDark ? '#EDEEF0' : '#282E34'} />
+        <ArrowLeft color={isDark ? '#FAFAFA' : '#0D0D0D'} />
       </Pressable>
-      <Text style={{ fontSize: 18, fontWeight: '700', color: isDark ? '#EDEEF0' : '#282E34' }}>{title}</Text>
+      <Text style={{ fontSize: 18, fontWeight: '700', color: isDark ? '#FAFAFA' : '#0D0D0D' }}>{title}</Text>
       <View style={{ minWidth: 48, alignItems: 'flex-end' }}>
         {right && (
           <Pressable onPress={onRightPress} disabled={rightLoading} hitSlop={12}>
             {rightLoading ? (
-              <ActivityIndicator size="small" color="#725AFF" />
+              <ActivityIndicator size="small" color="#4162E3" />
             ) : (
-              <Text style={{ color: '#725AFF', fontWeight: '600', fontSize: 15 }}>{right}</Text>
+              <Text style={{ color: '#4162E3', fontWeight: '600', fontSize: 15 }}>{right}</Text>
             )}
           </Pressable>
         )}
@@ -246,8 +246,8 @@ export const UpdateNotificationsScreen = () => {
       : { title: 'Chat Sounds Scope', options: chatOptions, selected: chatScope, onSelect: setChatScope };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#101113' : '#ffffff'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#0D0D0D' : '#FAFAFA' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#0D0D0D' : '#FAFAFA'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Update notifications" right="Save" onRightPress={handleSave} rightLoading={isSaving} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 32, gap: 24 }}>
         <View>
@@ -268,8 +268,8 @@ export const UpdateNotificationsScreen = () => {
                 height: 20,
                 borderRadius: 6,
                 borderWidth: 1.5,
-                borderColor: offlineOnly ? '#725AFF' : (isDark ? '#626F7F' : '#EAEAEA'),
-                backgroundColor: offlineOnly ? '#725AFF' : (isDark ? '#1B1C20' : '#ffffff'),
+                borderColor: offlineOnly ? '#4162E3' : (isDark ? '#626F7F' : '#EAEAEA'),
+                backgroundColor: offlineOnly ? '#4162E3' : (isDark ? '#161616' : '#FAFAFA'),
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
@@ -359,7 +359,7 @@ export const UpdateNotificationsScreen = () => {
                     <Text
                       style={{
                         fontSize: 15,
-                        color: isSelected ? '#725AFF' : (isDark ? '#EAEAEA' : '#626F7F'),
+                        color: isSelected ? '#4162E3' : (isDark ? '#FAFAFA' : '#626F7F'),
                         fontWeight: isSelected ? '600' : '400',
                         flex: 1,
                         marginRight: 12,
@@ -435,8 +435,8 @@ export const ChangePasswordScreen = () => {
   }, [currentPassword, nextPassword, confirmPassword, dispatch, navigation]);
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#101113' : '#ffffff'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#0D0D0D' : '#FAFAFA' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#0D0D0D' : '#FAFAFA'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Change password" right="Save" onRightPress={handleChangePassword} rightLoading={isChangingPassword} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 32, gap: 20 }}>
         <View>
@@ -526,8 +526,8 @@ export const ProfileScreen = () => {
   const labelCls = { fontWeight: '600', color: isDark ? '#EDEEF0' : '#282E34', marginBottom: 6, fontSize: 14 } as const;
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#101113' : '#ffffff'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#0D0D0D' : '#FAFAFA' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#0D0D0D' : '#FAFAFA'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Profile" right="Save" onRightPress={handleSave} rightLoading={isSaving} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 32 }}>
         <View style={{ alignItems: 'center', marginBottom: 24 }}>
@@ -539,7 +539,7 @@ export const ProfileScreen = () => {
                 width: 80,
                 height: 80,
                 borderRadius: 999,
-                backgroundColor: '#725AFF',
+                backgroundColor: '#4162E3',
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom: 12,
@@ -712,8 +712,8 @@ export const ChangeWorkspaceScreen = () => {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#101113' : '#ffffff'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#0D0D0D' : '#FAFAFA' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#0D0D0D' : '#FAFAFA'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Change workspace" />
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 }}>
         <View
@@ -721,7 +721,7 @@ export const ChangeWorkspaceScreen = () => {
             flexDirection: 'row',
             alignItems: 'center',
             gap: 8,
-            backgroundColor: isDark ? '#24262B' : '#EAEAEA',
+            backgroundColor: isDark ? '#212121' : '#EAEAEA',
             borderRadius: 12,
             paddingHorizontal: 12,
             paddingVertical: 10,
@@ -783,9 +783,9 @@ export const ChangeWorkspaceScreen = () => {
                       paddingVertical: 14,
                       paddingHorizontal: 12,
                       borderRadius: 12,
-                      backgroundColor: isActive ? (isDark ? '#1B1C20' : '#f0fdfa') : 'transparent',
+                      backgroundColor: isActive ? (isDark ? '#161616' : '#f0fdfa') : 'transparent',
                       borderBottomWidth: 1,
-                      borderBottomColor: isDark ? '#24262B' : '#EAEAEA',
+                      borderBottomColor: isDark ? '#212121' : '#EAEAEA',
                       marginBottom: 4,
                     }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
@@ -794,7 +794,7 @@ export const ChangeWorkspaceScreen = () => {
                           width: 44,
                           height: 44,
                           borderRadius: 999,
-                          backgroundColor: isActive ? '#725AFF' : (isDark ? '#626F7F' : '#725AFF'),
+                          backgroundColor: isActive ? '#4162E3' : (isDark ? '#626F7F' : '#4162E3'),
                           alignItems: 'center',
                           justifyContent: 'center',
                         }}>
@@ -850,8 +850,8 @@ export const DarkModeScreen = () => {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#101113' : '#ffffff'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#0D0D0D' : '#FAFAFA' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#0D0D0D' : '#FAFAFA'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Dark mode" />
       <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
         {options.map(opt => (
@@ -902,8 +902,8 @@ export const ReportBugScreen = () => {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#101113' : '#ffffff'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#0D0D0D' : '#FAFAFA' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#0D0D0D' : '#FAFAFA'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title="Report a bug" right="Send" onRightPress={handleSend} rightLoading={isSending} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 32, gap: 20 }}>
         <View>
@@ -1022,8 +1022,8 @@ export const ChangeLanguageScreen = () => {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
-      <StatusBar translucent backgroundColor={isDark ? '#101113' : '#ffffff'} barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#0D0D0D' : '#FAFAFA' }}>
+      <StatusBar translucent backgroundColor={isDark ? '#0D0D0D' : '#FAFAFA'} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SubHeader title={i18n.t('SETTINGS.CHANGE_LANGUAGE')} />
       <View style={{ paddingHorizontal: 16, paddingTop: 16, flex: 1 }}>
         {/* Search */}

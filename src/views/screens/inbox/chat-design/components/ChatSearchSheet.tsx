@@ -19,9 +19,9 @@ export const ChatSearchSheet = ({
   onSelectMessage,
 }: ChatSearchSheetProps) => {
   const [query, setQuery] = useState('');
-  const textPrimary = isDark ? '#EDEEF0' : '#282E34';
+  const textPrimary = isDark ? '#FAFAFA' : '#0D0D0D';
   const textSecondary = isDark ? '#94a3b8' : '#80838D';
-  const borderColor = isDark ? '#24262B' : '#EAEAEA';
+  const borderColor = isDark ? '#212121' : '#EAEAEA';
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -36,7 +36,7 @@ export const ChatSearchSheet = ({
       <Pressable style={{ flex: 1 }} onPress={onClose} />
       <View
         style={{
-          backgroundColor: isDark ? '#1B1C20' : '#ffffff',
+          backgroundColor: isDark ? '#161616' : '#FAFAFA',
           borderTopLeftRadius: 16,
           borderTopRightRadius: 16,
           maxHeight: '70%',
@@ -56,7 +56,7 @@ export const ChatSearchSheet = ({
             {isArabic ? 'بحث في المحادثة' : 'Search in chat'}
           </Text>
           <Pressable onPress={onClose} hitSlop={8}>
-            <Text style={{ color: '#725AFF', fontWeight: '600' }}>{isArabic ? 'إغلاق' : 'Close'}</Text>
+            <Text style={{ color: '#4162E3', fontWeight: '600' }}>{isArabic ? 'إغلاق' : 'Close'}</Text>
           </Pressable>
         </View>
         <View
@@ -64,7 +64,7 @@ export const ChatSearchSheet = ({
             margin: 16,
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: isDark ? '#24262B' : '#F0F0F3',
+            backgroundColor: isDark ? '#212121' : '#F0F2F5',
             borderRadius: 12,
             paddingHorizontal: 12,
             paddingVertical: 8,

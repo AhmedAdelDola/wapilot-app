@@ -47,8 +47,8 @@ export const BottomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
     <View
       style={{
         borderTopWidth: 1,
-        borderTopColor: isDark ? '#1B1C20' : '#F0F0F3',
-        backgroundColor: isDark ? '#101113' : '#ffffff',
+        borderTopColor: colors.tabBorder || (isDark ? '#212121' : '#EAEAEA'),
+        backgroundColor: colors.tabBg || (isDark ? '#0D0D0D' : '#FAFAFA'),
         alignItems: 'center',
       }}>
       <View
@@ -74,8 +74,8 @@ export const BottomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
           }
         };
 
-        const activeColor = isDark ? '#ffffff' : '#282E34';
-        const inactiveColor = isDark ? '#80838D' : '#80838D';
+        const activeColor = colors.tabActive || '#4162E3';
+        const inactiveColor = colors.tabInactive || '#80838D';
         const itemColor = isFocused ? activeColor : inactiveColor;
 
         return (

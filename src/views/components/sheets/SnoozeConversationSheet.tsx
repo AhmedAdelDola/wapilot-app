@@ -3,7 +3,7 @@ import { Pressable, Text, TextInput, View } from 'react-native';
 import Svg, { Circle, Path, Polyline } from 'react-native-svg';
 import { BaseSheet } from './BaseSheet';
 
-const SnoozeIcon = ({ color = '#725AFF' }: { color?: string }) => (
+const SnoozeIcon = ({ color = '#4162E3' }: { color?: string }) => (
   <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
     <Circle cx={12} cy={12} r={9} stroke={color} strokeWidth={2} />
     <Polyline points="12 7 12 12 15 15" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
@@ -126,7 +126,7 @@ export const SnoozeConversationSheet = ({
       <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <SnoozeIcon color="#725AFF" />
+            <SnoozeIcon color="#4162E3" />
             <Text style={{ fontSize: 18, fontWeight: '700', color: textPrimary }}>
               {isArabic ? 'تأجيل المحادثة' : 'Snooze Conversation'}
             </Text>
@@ -211,11 +211,11 @@ export const SnoozeConversationSheet = ({
               paddingHorizontal: 14,
               paddingVertical: 12,
               borderRadius: 12,
-              backgroundColor: isDark ? '#1B1C20' : 'rgba(44,165,74,0.15)',
+              backgroundColor: isDark ? '#161616' : 'rgba(65,98,227,0.10)',
               borderWidth: 1,
-              borderColor: '#725AFF',
+              borderColor: '#4162E3',
             }}>
-            <Text style={{ color: '#725AFF', fontSize: 14, fontWeight: '700', textAlign: 'center' }}>
+            <Text style={{ color: '#4162E3', fontSize: 14, fontWeight: '700', textAlign: 'center' }}>
               {isArabic ? 'اختيار تاريخ ووقت' : 'Pick Date & Time'}
             </Text>
           </Pressable>
@@ -230,7 +230,7 @@ export const SnoozeConversationSheet = ({
                 keyboardType="numbers-and-punctuation"
                 style={{
                   color: textPrimary,
-                  backgroundColor: isDark ? '#24262B' : '#F0F0F3',
+                  backgroundColor: isDark ? '#212121' : '#F0F2F5',
                   borderRadius: 8,
                   paddingHorizontal: 12,
                   paddingVertical: 10,
@@ -245,7 +245,7 @@ export const SnoozeConversationSheet = ({
                 keyboardType="numbers-and-punctuation"
                 style={{
                   color: textPrimary,
-                  backgroundColor: isDark ? '#24262B' : '#F0F0F3',
+                  backgroundColor: isDark ? '#212121' : '#F0F2F5',
                   borderRadius: 8,
                   paddingHorizontal: 12,
                   paddingVertical: 10,
@@ -254,7 +254,7 @@ export const SnoozeConversationSheet = ({
               />
               <Pressable
                 onPress={handleCustomSubmit}
-                style={{ paddingVertical: 11, borderRadius: 8, backgroundColor: '#725AFF' }}>
+                style={{ paddingVertical: 11, borderRadius: 8, backgroundColor: '#4162E3' }}>
                 <Text style={{ color: '#ffffff', fontSize: 14, fontWeight: '700', textAlign: 'center' }}>
                   {isArabic ? 'تأكيد التأجيل' : 'Confirm Snooze'}
                 </Text>

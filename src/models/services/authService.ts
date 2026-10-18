@@ -1,5 +1,6 @@
 import { apiService } from '@/models/services/APIService';
 import { mobileV2Service } from './mobileV2Service';
+import actionCableConnector from '@/utils/actionCable';
 
 /**
  * Authentication Service
@@ -59,6 +60,7 @@ class AuthService {
    * Stores the auth headers, active account ID, user ID, and ActionCable pubsub token
    */
   async login(payload: LoginPayload): Promise<LoginResponse> {
+    apiService.setIsLoggingOut(false);
     const response = await apiService.post('auth/sign_in', {
       email: payload.email,
       password: payload.password,
@@ -98,6 +100,8 @@ class AuthService {
    * Destroys the current session
    */
   async signOut(): Promise<void> {
+    apiService.setIsLoggingOut(true);
+    actionCableConnector.disconnect();
     const currentHeaders = apiService.getAuthHeaders();
     if (currentHeaders?.client && mobileV2Service.hasActiveWebViewSession()) {
       // Also sign out the WebView Devise client (webview-<native-client>)

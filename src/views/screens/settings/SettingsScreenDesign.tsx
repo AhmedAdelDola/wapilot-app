@@ -38,6 +38,8 @@ import { useHaptic } from '@/utils';
 import { useTheme } from '@/theme';
 import { profileService } from '@/models/services/profileService';
 import { authService } from '@/models/services/authService';
+import { apiService } from '@/models/services/APIService';
+import actionCableConnector from '@/utils/actionCable';
 import { showToast } from '@/utils/toastUtils';
 
 // ---------- Icons ----------
@@ -107,28 +109,31 @@ const LogoutIcon = () => (
 );
 
 // ---------- Toggle ----------
-const Toggle = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => (
-  <Pressable
-    onPress={onToggle}
-    style={{
-      width: 48,
-      height: 24,
-      borderRadius: 999,
-      backgroundColor: on ? '#725AFF' : '#EAEAEA',
-      justifyContent: 'center',
-      paddingHorizontal: 2,
-    }}>
-    <View
+const Toggle = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => {
+  const { isDark } = useTheme();
+  return (
+    <Pressable
+      onPress={onToggle}
       style={{
-        width: 20,
-        height: 20,
+        width: 48,
+        height: 24,
         borderRadius: 999,
-        backgroundColor: 'white',
-        alignSelf: on ? 'flex-end' : 'flex-start',
-      }}
-    />
-  </Pressable>
-);
+        backgroundColor: on ? '#4162E3' : (isDark ? '#212121' : '#EAEAEA'),
+        justifyContent: 'center',
+        paddingHorizontal: 2,
+      }}>
+      <View
+        style={{
+          width: 20,
+          height: 20,
+          borderRadius: 999,
+          backgroundColor: 'white',
+          alignSelf: on ? 'flex-end' : 'flex-start',
+        }}
+      />
+    </Pressable>
+  );
+};
 
 const iconBox = { width: 32, height: 32, alignItems: 'center' as const, justifyContent: 'center' as const };
 const rowCls = {
@@ -152,11 +157,11 @@ const SettingsScreenDesign = () => {
   const { isDark, themeSetting } = useTheme();
 
   // Dynamic theme colors
-  const bgColor = isDark ? '#101113' : '#ffffff';
-  const textPrimary = isDark ? '#EDEEF0' : '#282E34';
+  const bgColor = isDark ? '#0D0D0D' : '#FAFAFA';
+  const textPrimary = isDark ? '#FAFAFA' : '#0D0D0D';
   const textSecondary = isDark ? '#94a3b8' : '#626F7F';
-  const borderColor = isDark ? '#1B1C20' : '#F0F0F3';
-  const iconBg = isDark ? '#1B1C20' : '#F0F0F3';
+  const borderColor = isDark ? '#212121' : '#F0F0F3';
+  const iconBg = isDark ? '#161616' : '#F0F0F3';
 
   const dynamicRowCls = {
     flexDirection: 'row' as const,
@@ -323,11 +328,17 @@ const SettingsScreenDesign = () => {
         text: i18n.t('SETTINGS.LOGOUT'),
         style: 'destructive',
         onPress: async () => {
+          actionCableConnector.disconnect();
           await AsyncStorage.removeItem('cwCookie');
           await RecentSearches.clearAll();
           if (pushToken) {
-            await dispatch(settingsActions.removeDevice({ pushToken }));
+            try {
+              await dispatch(settingsActions.removeDevice({ pushToken }));
+            } catch {
+              // Best-effort push token removal
+            }
           }
+          apiService.setIsLoggingOut(true);
           try {
             await authService.signOut();
           } catch {
@@ -352,7 +363,7 @@ const SettingsScreenDesign = () => {
         <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={{ paddingBottom: 32 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#725AFF" />}>
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4162E3" />}>
           {/* Profile */}
           <Pressable style={dynamicRowCls} onPress={() => navigation.navigate('ProfileScreen')}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -376,7 +387,7 @@ const SettingsScreenDesign = () => {
                       width: 44,
                       height: 44,
                       borderRadius: 999,
-                      backgroundColor: '#725AFF',
+                      backgroundColor: '#4162E3',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}>
@@ -394,7 +405,7 @@ const SettingsScreenDesign = () => {
                     borderRadius: 999,
                     backgroundColor: isOnline ? '#2CA54A' : '#FA8900',
                     borderWidth: 2.5,
-                    borderColor: isDark ? '#101113' : 'white',
+                    borderColor: isDark ? '#0D0D0D' : '#FAFAFA',
                   }}
                 />
               </View>

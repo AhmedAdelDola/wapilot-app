@@ -56,13 +56,13 @@ const ForgotPassword = () => {
   };
 
   return (
-    <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
+    <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: isDark ? '#0D0D0D' : '#FAFAFA' }}>
       <StatusBar
         translucent
-        backgroundColor={isDark ? '#101113' : '#ffffff'}
+        backgroundColor={isDark ? '#0D0D0D' : '#FAFAFA'}
         barStyle={isDark ? 'light-content' : 'dark-content'}
       />
-      <View style={{ flex: 1, backgroundColor: isDark ? '#101113' : '#ffffff' }}>
+      <View style={{ flex: 1, backgroundColor: isDark ? '#0D0D0D' : '#FAFAFA' }}>
         <Animated.ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 64, width: '100%', maxWidth: 460, alignSelf: 'center' }}>
@@ -136,7 +136,7 @@ const ForgotPassword = () => {
               )}
 
               {isLoading ? (
-                <View style={{ height: 45, borderRadius: 7, backgroundColor: '#725AFF', alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ height: 45, borderRadius: 7, backgroundColor: '#4162E3', alignItems: 'center', justifyContent: 'center' }}>
                   <ActivityIndicator color="#ffffff" />
                 </View>
               ) : (
