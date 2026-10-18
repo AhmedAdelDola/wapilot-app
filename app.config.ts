@@ -39,7 +39,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     android: {
       adaptiveIcon: { foregroundImage: './assets/adaptive-icon.png', backgroundColor: '#1B21A8' },
       package: 'com.message.pro.com',
-      versionCode: 7,
+      versionCode: 8,
       googleServicesFile: './google-services.json',
       permissions: ['android.permission.CAMERA', 'android.permission.RECORD_AUDIO'],
       edgeToEdgeEnabled: true,
