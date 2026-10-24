@@ -36,6 +36,9 @@ import { showToast } from '@/utils/toastUtils';
 import { Account } from '@/models/types/Account';
 import { User } from '@/models/types/User';
 import { useTheme } from '@/theme';
+import * as ImagePicker from 'expo-image-picker';
+import { profileService } from '@/models/services/profileService';
+import { CameraIcon } from '@/svg-icons';
 
 // ---------- Theme Helper ----------
 const useIsDark = () => useTheme().isDark;
@@ -486,11 +489,21 @@ export const ChangePasswordScreen = () => {
 export const ProfileScreen = () => {
   const navigation = useNavigation<any>();
   const isDark = useIsDark();
+  const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
 
   const [firstName, setFirstName] = useState(user?.name?.split(' ')[0] || '');
   const [lastName, setLastName] = useState(user?.name?.split(' ').slice(1).join(' ') || '');
+  const [selectedAvatar, setSelectedAvatar] = useState<{ uri: string; name?: string; type?: string } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (user?.name) {
+      const parts = user.name.split(' ');
+      setFirstName(parts[0] || '');
+      setLastName(parts.slice(1).join(' ') || '');
+    }
+  }, [user?.name]);
 
   const email = user?.email || '';
   const avatarUrl = user?.avatar_url;
@@ -501,13 +514,68 @@ export const ProfileScreen = () => {
   const currentLanguageLabel = isArabic ? 'العربية' : 'English';
   const currentLanguageFlag = isArabic ? '🇸🇦' : '🇬🇧';
 
-  const handleSave = () => {
+  const handlePickAvatar = async () => {
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          isArabic ? 'إذن الوصول مطلوب' : 'Permission Required',
+          isArabic
+            ? 'يرجى السماح للتطبيق بالوصول لمعرض الصور لتغيير الصورة الشخصية.'
+            : 'Please grant camera roll permissions to change your avatar.'
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        setSelectedAvatar({
+          uri: asset.uri,
+          name: asset.fileName || 'avatar.jpg',
+          type: asset.mimeType || 'image/jpeg',
+        });
+      }
+    } catch (err) {
+      console.log('Error selecting avatar:', err);
+    }
+  };
+
+  const handleSave = async () => {
+    const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+    if (!fullName) {
+      Alert.alert('Error', isArabic ? 'يرجى إدخال الاسم الأول أو الأخير' : 'Please enter your first or last name');
+      return;
+    }
+
     setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      showToast({ message: 'Profile updated successfully' });
+    try {
+      await profileService.updateProfile({
+        name: fullName,
+        display_name: fullName,
+        avatar: selectedAvatar,
+      });
+
+      await dispatch(authActions.getProfile()).unwrap();
+
+      showToast({ message: isArabic ? 'تم تحديث البيانات بنجاح' : 'Profile updated successfully' });
       navigation.goBack();
-    }, 500);
+    } catch (error: any) {
+      console.log('Error saving profile:', error);
+      const errMsg =
+        error?.response?.data?.message ||
+        error?.message ||
+        (isArabic ? 'فشل تحديث البيانات الشخصية' : 'Failed to update profile');
+      Alert.alert('Error', errMsg);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const inputCls = {
@@ -525,44 +593,84 @@ export const ProfileScreen = () => {
 
   const labelCls = { fontWeight: '600', color: isDark ? '#EDEEF0' : '#282E34', marginBottom: 6, fontSize: 14 } as const;
 
+  const currentAvatarUri = selectedAvatar?.uri || avatarUrl;
+
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: isDark ? '#0D0D0D' : '#FAFAFA' }}>
       <StatusBar translucent backgroundColor={isDark ? '#0D0D0D' : '#FAFAFA'} barStyle={isDark ? 'light-content' : 'dark-content'} />
-      <SubHeader title="Profile" right="Save" onRightPress={handleSave} rightLoading={isSaving} />
+      <SubHeader title={isArabic ? 'الملف الشخصي' : 'Profile'} right={isArabic ? 'حفظ' : 'Save'} onRightPress={handleSave} rightLoading={isSaving} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 32 }}>
         <View style={{ alignItems: 'center', marginBottom: 24 }}>
-          {avatarUrl ? (
-            <Image source={{ uri: avatarUrl }} style={{ width: 80, height: 80, borderRadius: 999, marginBottom: 12 }} />
-          ) : (
+          <Pressable onPress={handlePickAvatar} style={{ position: 'relative', marginBottom: 8 }}>
+            {currentAvatarUri ? (
+              <Image source={{ uri: currentAvatarUri }} style={{ width: 88, height: 88, borderRadius: 999 }} />
+            ) : (
+              <View
+                style={{
+                  width: 88,
+                  height: 88,
+                  borderRadius: 999,
+                  backgroundColor: '#4162E3',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <Text style={{ color: 'white', fontSize: 36, fontWeight: '700' }}>{initialLetter}</Text>
+              </View>
+            )}
             <View
               style={{
-                width: 80,
-                height: 80,
-                borderRadius: 999,
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                width: 28,
+                height: 28,
+                borderRadius: 14,
                 backgroundColor: '#4162E3',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginBottom: 12,
+                borderWidth: 2,
+                borderColor: isDark ? '#0D0D0D' : '#FAFAFA',
               }}>
-              <Text style={{ color: 'white', fontSize: 32, fontWeight: '700' }}>{initialLetter}</Text>
+              <CameraIcon stroke="#ffffff" width={16} height={16} />
             </View>
-          )}
+          </Pressable>
+          <Pressable onPress={handlePickAvatar}>
+            <Text style={{ color: '#4162E3', fontSize: 14, fontWeight: '600', marginBottom: 6 }}>
+              {isArabic ? 'تغيير الصورة' : 'Change Photo'}
+            </Text>
+          </Pressable>
           <Text style={{ fontWeight: '700', color: isDark ? '#EDEEF0' : '#282E34', fontSize: 18 }}>{user?.name || 'User'}</Text>
           <Text style={{ color: isDark ? '#80838D' : '#626F7F', fontSize: 14, marginTop: 2 }}>{email}</Text>
         </View>
 
         <View style={{ gap: 20 }}>
           <View>
-            <Text style={labelCls}>First Name</Text>
-            <TextInput value={firstName} onChangeText={setFirstName} style={inputCls} placeholder="Enter first name" placeholderTextColor="#80838D" />
+            <Text style={labelCls}>{isArabic ? 'الاسم الأول' : 'First Name'}</Text>
+            <TextInput
+              value={firstName}
+              onChangeText={setFirstName}
+              style={inputCls}
+              placeholder={isArabic ? 'أدخل الاسم الأول' : 'Enter first name'}
+              placeholderTextColor="#80838D"
+            />
           </View>
           <View>
-            <Text style={labelCls}>Last Name</Text>
-            <TextInput value={lastName} onChangeText={setLastName} style={inputCls} placeholder="Enter last name" placeholderTextColor="#80838D" />
+            <Text style={labelCls}>{isArabic ? 'اسم العائلة' : 'Last Name'}</Text>
+            <TextInput
+              value={lastName}
+              onChangeText={setLastName}
+              style={inputCls}
+              placeholder={isArabic ? 'أدخل اسم العائلة' : 'Enter last name'}
+              placeholderTextColor="#80838D"
+            />
           </View>
           <View>
-            <Text style={labelCls}>Email</Text>
-            <TextInput value={email} editable={false} style={[inputCls, { backgroundColor: isDark ? '#282E34' : '#EDEEF0', color: '#80838D' }]} />
+            <Text style={labelCls}>{isArabic ? 'البريد الإلكتروني' : 'Email'}</Text>
+            <TextInput
+              value={email}
+              editable={false}
+              style={[inputCls, { backgroundColor: isDark ? '#282E34' : '#EDEEF0', color: '#80838D' }]}
+            />
           </View>
           <View>
             <Text style={labelCls}>{i18n.t('SETTINGS.LANGUAGE')}</Text>

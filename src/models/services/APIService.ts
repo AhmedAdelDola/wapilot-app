@@ -40,6 +40,9 @@ function deviceHeaders(): Record<string, string> {
 
 // Get the base URL - dynamically read from Redux settings if available, fallback to API_CONFIG.baseUrl
 function getBaseUrl(): string {
+  if (API_CONFIG.baseUrl && API_CONFIG.baseUrl !== 'https://omni.message-pro.com') {
+    return API_CONFIG.baseUrl.trim().replace(/\/+$/, '');
+  }
   try {
     const store = getStore();
     const installationUrl = store?.getState()?.settings?.installationUrl;

@@ -6,6 +6,75 @@ let lastCheckTimestamp = 0;
 let hasActiveWebViewSessionState = false;
 const RECHECK_COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
 
+/**
+ * Helper to safely extract any URL returned by backend in various possible formats:
+ * - Direct string url
+ * - Object with { url, link, page_url, redirect_url, webview_url }
+ * - Object with nested { data: { url, ... } }
+ * - Any string property starting with http://, https://, or /
+ */
+export function extractUrlFromDescriptor(descriptor: any): string | null {
+  if (!descriptor) return null;
+
+  if (typeof descriptor === 'string') {
+    const trimmed = descriptor.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) {
+      return trimmed;
+    }
+  }
+
+  if (typeof descriptor === 'object') {
+    const directKeys = [
+      'url',
+      'link',
+      'page_url',
+      'redirect_url',
+      'webview_url',
+    ];
+
+    for (const key of directKeys) {
+      const val = descriptor[key];
+      if (typeof val === 'string' && val.trim().length > 0) {
+        return val.trim();
+      }
+    }
+
+    if (descriptor.data && typeof descriptor.data === 'object') {
+      for (const key of directKeys) {
+        const val = descriptor.data[key];
+        if (typeof val === 'string' && val.trim().length > 0) {
+          return val.trim();
+        }
+      }
+    }
+
+    // Fallback: search any string value that looks like a URL
+    for (const key of Object.keys(descriptor)) {
+      const val = descriptor[key];
+      if (typeof val === 'string') {
+        const trimmed = val.trim();
+        if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) {
+          return trimmed;
+        }
+      }
+    }
+
+    if (descriptor.data && typeof descriptor.data === 'object') {
+      for (const key of Object.keys(descriptor.data)) {
+        const val = descriptor.data[key];
+        if (typeof val === 'string') {
+          const trimmed = val.trim();
+          if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) {
+            return trimmed;
+          }
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
 export const mobileV2Service = {
   /**
    * Track whether a WebView session was established during this app run
@@ -123,18 +192,11 @@ export const mobileV2Service = {
   },
 
   /**
-   * Helper to check if a descriptor is valid and not expired
+   * Helper to check if a descriptor is valid and contains any usable link
    */
-  isDescriptorValid(descriptor?: WebViewV2Descriptor | null): boolean {
-    if (!descriptor || descriptor.view_type !== 'webview' || !descriptor.url) {
-      return false;
-    }
-    if (descriptor.expires_at) {
-      const expiry = new Date(descriptor.expires_at).getTime();
-      if (!isNaN(expiry) && expiry <= Date.now()) {
-        return false;
-      }
-    }
-    return true;
+  isDescriptorValid(descriptor?: any): boolean {
+    const url = extractUrlFromDescriptor(descriptor);
+    return Boolean(url && url.length > 0);
   },
 };
+

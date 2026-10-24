@@ -28,7 +28,7 @@ import { useAppSelector } from '@/hooks';
 import { selectInstallationUrl } from '@/viewmodels/store/settings/settingsSelectors';
 import { API_CONFIG } from '@/config/apiConfig';
 import { MobileV2ScreenType, WebViewV2Descriptor } from '@/models/types/mobileV2';
-import { mobileV2Service } from '@/models/services/mobileV2Service';
+import { mobileV2Service, extractUrlFromDescriptor } from '@/models/services/mobileV2Service';
 
 const ArrowLeftIcon = ({ color = '#282E34' }: { color?: string }) => (
   <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
@@ -82,16 +82,12 @@ export const V2DashboardWebView: React.FC<V2DashboardWebViewProps> = ({
   const webViewRef = useRef<WebView>(null);
 
   const installationUrl = useAppSelector(selectInstallationUrl);
-  const baseUrl = (installationUrl || API_CONFIG.baseUrl || '').trim().replace(/\/+$/, '');
+  const baseUrl = (API_CONFIG.baseUrl || installationUrl || '').trim().replace(/\/+$/, '');
 
   const [descriptor, setDescriptor] = useState<WebViewV2Descriptor | null>(null);
   const [currentUri, setCurrentUri] = useState<string | null>(null);
-  const [useFallback, setUseFallback] = useState(() => {
-    return Boolean(fallbackComponent && mobileV2Service.isV2Supported() === false);
-  });
-  const [isLoading, setIsLoading] = useState(() => {
-    return !(fallbackComponent && mobileV2Service.isV2Supported() === false);
-  });
+  const [useFallback, setUseFallback] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [canGoBack, setCanGoBack] = useState(false);
   const [hasBootstrapLoaded, setHasBootstrapLoaded] = useState(false);
@@ -101,47 +97,38 @@ export const V2DashboardWebView: React.FC<V2DashboardWebViewProps> = ({
   const textSecondary = isDark ? '#94a3b8' : '#626F7F';
   const borderColor = isDark ? '#212121' : '#EAEAEA';
 
-  // Helper to extract hostname
-  const getHost = useCallback((urlStr?: string): string => {
-    if (!urlStr) return '';
-    try {
-      const match = urlStr.match(/^https?:\/\/([^/?#:]+)/i);
-      return match ? match[1].toLowerCase() : '';
-    } catch {
-      return '';
-    }
-  }, []);
-
-  const trustedHost = getHost(baseUrl);
-
   // Load a brand new descriptor (never retry the consumed one)
   const loadNewDescriptor = useCallback(async () => {
-    // If v2 is known to be not supported and fallback is provided, skip network request
-    if (fallbackComponent && mobileV2Service.isV2Supported() === false) {
-      setUseFallback(true);
-      setIsLoading(false);
-      return;
-    }
-
     setIsLoading(true);
     setFetchError(null);
     setHasBootstrapLoaded(false);
 
     try {
       const result = await fetchDescriptor();
-      if (mobileV2Service.isDescriptorValid(result)) {
-        setDescriptor(result);
-        setCurrentUri(result.url); // Directly load one-use URL in WebView
+      const extractedUrl = extractUrlFromDescriptor(result);
+
+      if (extractedUrl) {
+        let fullUrl = extractedUrl;
+        if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
+          const cleanBase = baseUrl.replace(/\/+$/, '');
+          fullUrl = cleanBase ? `${cleanBase}/${fullUrl.replace(/^\/+/, '')}` : fullUrl;
+        }
+
+        setDescriptor(
+          typeof result === 'object' && result !== null
+            ? (result as WebViewV2Descriptor)
+            : ({ url: fullUrl, view_type: 'webview' } as any),
+        );
+        setCurrentUri(fullUrl);
         setUseFallback(false);
       } else {
         if (fallbackComponent) {
           setUseFallback(true);
         } else {
-          setFetchError('Invalid view descriptor received.');
+          setFetchError('No valid link received from server.');
         }
       }
     } catch (err: any) {
-      // If endpoint returns 404 (not deployed yet on server) or fails, fallback to v1
       if (fallbackComponent) {
         setUseFallback(true);
       } else {
@@ -150,7 +137,7 @@ export const V2DashboardWebView: React.FC<V2DashboardWebViewProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [fetchDescriptor, fallbackComponent]);
+  }, [fetchDescriptor, fallbackComponent, baseUrl]);
 
   useEffect(() => {
     void loadNewDescriptor();
@@ -185,20 +172,11 @@ export const V2DashboardWebView: React.FC<V2DashboardWebViewProps> = ({
         setHasBootstrapLoaded(true);
         mobileV2Service.setHasActiveWebViewSession(true);
       }
-
-      // If the WebView reaches /login or auth/sign_in, the web session expired.
-      // Obtain a fresh descriptor through native client and load its new url.
-      if (
-        hasBootstrapLoaded &&
-        (navState.url.includes('/login') || navState.url.includes('/auth/sign_in'))
-      ) {
-        void loadNewDescriptor();
-      }
     },
-    [hasBootstrapLoaded, loadNewDescriptor],
+    [hasBootstrapLoaded],
   );
 
-  // Security: only allow navigation to trusted dashboard/API origin
+  // Allow all web URLs (http / https) to navigate inside WebView
   const handleShouldStartLoadWithRequest = useCallback(
     (request: { url: string }) => {
       const reqUrl = request.url;
@@ -207,7 +185,7 @@ export const V2DashboardWebView: React.FC<V2DashboardWebViewProps> = ({
         return true;
       }
 
-      // Handle custom URI schemes (tel, mailto, sms, whatsapp)
+      // Handle custom non-web URI schemes (tel, mailto, sms, whatsapp)
       if (
         reqUrl.startsWith('tel:') ||
         reqUrl.startsWith('mailto:') ||
@@ -218,22 +196,20 @@ export const V2DashboardWebView: React.FC<V2DashboardWebViewProps> = ({
         return false;
       }
 
-      const reqHost = getHost(reqUrl);
-
-      // If domain matches trusted host, allow navigation inside WebView
-      if (trustedHost && reqHost === trustedHost) {
+      // Keep ALL http / https URLs inside the WebView regardless of origin
+      if (reqUrl.startsWith('http://') || reqUrl.startsWith('https://')) {
         return true;
       }
 
-      // If external domain, open in system browser outside WebView
-      if (reqUrl.startsWith('http://') || reqUrl.startsWith('https://')) {
+      // For any other scheme (intent:// etc), try opening in system
+      try {
         void Linking.openURL(reqUrl);
-        return false;
+      } catch {
+        // ignore
       }
-
-      return true;
+      return false;
     },
-    [getHost, trustedHost],
+    [],
   );
 
   // If v2 is unavailable (e.g. server not deployed yet), render existing v1 native UI

@@ -201,8 +201,14 @@ const SettingsScreenDesign = () => {
     'offline';
 
   const isOnline = rawAvailability === 'online';
-  const targetStatusText = isOnline ? 'Busy' : 'Available';
-  const currentStatusText = isOnline ? 'Available' : 'Busy';
+  const currentLocale = useAppSelector(selectLocale) || 'en';
+  const isArabic = currentLocale === 'ar';
+  const targetStatusText = isOnline
+    ? (isArabic ? 'غير متصل (Offline)' : 'Offline')
+    : (isArabic ? 'متصل (Online)' : 'Online');
+  const currentStatusText = isOnline
+    ? (isArabic ? 'متصل (Online)' : 'Online')
+    : (isArabic ? 'غير متصل (Offline)' : 'Offline');
 
   const pushToken = useAppSelector(selectPushToken);
   const activeAccountName = currentAccount?.name || 'My Workspace';
@@ -248,7 +254,7 @@ const SettingsScreenDesign = () => {
   const toggleAvailability = async () => {
     if (updatingAvailability || !activeAccountId) return;
     const targetStatus: AvailabilityStatus = isOnline ? 'offline' : 'online';
-    const targetLabel = targetStatus === 'online' ? 'Available' : 'Busy';
+    const targetLabel = targetStatus === 'online' ? (isArabic ? 'متصل (Online)' : 'Online') : (isArabic ? 'غير متصل (Offline)' : 'Offline');
 
     setLocalAvailability(targetStatus);
     hapticTrigger?.();
@@ -269,25 +275,23 @@ const SettingsScreenDesign = () => {
           },
         }),
       ).unwrap();
-      showToast({ message: `You are now ${targetLabel}` });
+      showToast({ message: isArabic ? `أنت الآن ${targetLabel}` : `You are now ${targetLabel}` });
       await dispatch(authActions.getProfile()).unwrap();
     } catch (e) {
       console.log('Error updating availability via thunk:', e);
       try {
         await profileService.setAvailability(Number(activeAccountId), targetStatus);
-        showToast({ message: `You are now ${targetLabel}` });
+        showToast({ message: isArabic ? `أنت الآن ${targetLabel}` : `You are now ${targetLabel}` });
         await dispatch(authActions.getProfile()).unwrap();
       } catch (err) {
         console.log('Error updating availability via profileService:', err);
-        showToast({ message: 'Failed to update status' });
+        showToast({ message: isArabic ? 'فشل تحديث الحالة' : 'Failed to update status' });
         setLocalAvailability(null);
       }
     } finally {
       setUpdatingAvailability(false);
     }
   };
-
-  const currentLocale = useAppSelector(selectLocale) || 'en';
 
   const getLanguageLabel = () => {
     switch (currentLocale) {
@@ -403,7 +407,7 @@ const SettingsScreenDesign = () => {
                     width: 15,
                     height: 15,
                     borderRadius: 999,
-                    backgroundColor: isOnline ? '#2CA54A' : '#FA8900',
+                    backgroundColor: isOnline ? '#2CA54A' : '#94A3B8',
                     borderWidth: 2.5,
                     borderColor: isDark ? '#0D0D0D' : '#FAFAFA',
                   }}
@@ -441,13 +445,13 @@ const SettingsScreenDesign = () => {
                 </View>
                 <Text style={{ color: textPrimary, fontSize: 15, fontWeight: '500' }}>
                   {`${i18n.t('SETTINGS.SET_AVAILABILITY')} `}
-                  <Text style={{ fontWeight: '700', color: isOnline ? '#FA8900' : '#059669' }}>
+                  <Text style={{ fontWeight: '700', color: isOnline ? '#94A3B8' : '#2CA54A' }}>
                     {targetStatusText}
                   </Text>
                 </Text>
               </View>
               {updatingAvailability && (
-                <ActivityIndicator size="small" color={isOnline ? '#FA8900' : '#059669'} />
+                <ActivityIndicator size="small" color={isOnline ? '#94A3B8' : '#2CA54A'} />
               )}
             </Pressable>
           </View>

@@ -3,6 +3,7 @@ import { settingsActions } from './settingsActions';
 import * as RootNavigation from '@/utils/navigationUtils';
 import { NotificationSettings } from './settingsTypes';
 import { Theme } from '@/models/types/common/Theme';
+import { config } from '@/config';
 
 interface SettingsState {
   baseUrl: string;
@@ -20,8 +21,8 @@ interface SettingsState {
   pushToken: string;
 }
 const initialState: SettingsState = {
-  baseUrl: 'omni.message-pro.com',
-  installationUrl: 'https://omni.message-pro.com/',
+  baseUrl: config.chatwoot.baseUrl.replace(/^https?:\/\//, '').replace(/\/+$/, ''),
+  installationUrl: `${config.chatwoot.baseUrl.replace(/\/+$/, '')}/`,
   uiFlags: {
     isSettingUrl: false,
     isUpdating: false,
@@ -37,7 +38,7 @@ const initialState: SettingsState = {
     selected_push_flags: [],
     user_id: 0,
   },
-  webSocketUrl: 'wss://omni.message-pro.com/cable',
+  webSocketUrl: config.chatwoot.websocketUrl,
   theme: 'system',
   version: '',
   pushToken: '',

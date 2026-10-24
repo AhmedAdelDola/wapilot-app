@@ -195,6 +195,59 @@ class ProfileService {
       return [];
     }
   }
+/**
+   * Update Profile
+   * PUT /api/v1/profile
+   */
+  async updateProfile(data: {
+    name?: string;
+    display_name?: string;
+    email?: string;
+    avatar?: { uri: string; name?: string; type?: string } | null;
+  }): Promise<ProfileData> {
+    if (data.avatar && data.avatar.uri) {
+      const formData = new FormData();
+      if (data.name) formData.append('name', data.name);
+      if (data.display_name) formData.append('display_name', data.display_name);
+      if (data.email) formData.append('email', data.email);
+
+      const uri = data.avatar.uri;
+      const filename = data.avatar.name || uri.split('/').pop() || 'avatar.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const type = data.avatar.type || (match ? `image/${match[1]}` : 'image/jpeg');
+
+      formData.append('avatar', {
+        uri,
+        name: filename,
+        type,
+      } as any);
+
+      const response = await apiService.put('profile', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data?.data || response.data;
+    }
+
+    const payload: Record<string, any> = {};
+    if (data.name) payload.name = data.name;
+    if (data.display_name) payload.display_name = data.display_name;
+    if (data.email) payload.email = data.email;
+
+    const body = {
+      ...payload,
+      profile: payload,
+    };
+
+    try {
+      const response = await apiService.put('profile', body);
+      return response.data?.data || response.data;
+    } catch {
+      const response = await apiService.patch('profile', body);
+      return response.data?.data || response.data;
+    }
+  }
 }
 
 export const profileService = new ProfileService();
